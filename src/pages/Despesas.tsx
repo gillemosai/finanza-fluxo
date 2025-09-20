@@ -181,6 +181,32 @@ export default function Despesas() {
     }
   };
 
+  const handleStatusToggle = async (despesa: Despesa) => {
+    try {
+      const newStatus = despesa.status === 'paga' ? 'a_pagar' : 'paga';
+      
+      const { error } = await supabase
+        .from('despesas')
+        .update({ status: newStatus })
+        .eq('id', despesa.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: `Status alterado para ${newStatus === 'paga' ? 'Paga' : 'A Pagar'}!`,
+      });
+      fetchDespesas();
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar status",
+        variant: "destructive",
+      });
+    }
+  };
+
   const totalDespesas = despesas.reduce((acc, despesa) => acc + despesa.valor, 0);
 
   return (
@@ -366,13 +392,16 @@ export default function Despesas() {
                   </TableCell>
                   <TableCell>{despesa.mes_referencia}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      despesa.status === 'paga' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-                    }`}>
+                    <button
+                      onClick={() => handleStatusToggle(despesa)}
+                      className={`px-2 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer hover:opacity-80 ${
+                        despesa.status === 'paga' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800' 
+                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-800'
+                      }`}
+                    >
                       {despesa.status === 'paga' ? 'Paga' : 'A Pagar'}
-                    </span>
+                    </button>
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
