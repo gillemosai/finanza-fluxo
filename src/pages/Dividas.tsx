@@ -421,17 +421,21 @@ export default function Dividas() {
             {dividas.length > 0 ? (
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={categoryData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <BarChart 
+                    data={categoryData} 
+                    layout="horizontal"
+                    margin={{ top: 20, right: 30, left: 60, bottom: 5 }}
+                  >
                     <XAxis 
-                      dataKey="categoria" 
-                      tick={{ fontSize: 12 }}
-                      angle={-45}
-                      textAnchor="end"
-                      height={80}
-                    />
-                    <YAxis 
+                      type="number"
                       tick={{ fontSize: 12 }}
                       tickFormatter={(value) => `R$ ${value}`}
+                    />
+                    <YAxis 
+                      type="category"
+                      dataKey="categoria" 
+                      tick={{ fontSize: 12 }}
+                      width={60}
                     />
                     <Tooltip 
                       formatter={(value: number) => [formatCurrency(value), 'Valor']}
@@ -440,7 +444,7 @@ export default function Dividas() {
                     <Bar 
                       dataKey="valor" 
                       fill="hsl(var(--warning))"
-                      radius={[4, 4, 0, 0]}
+                      radius={[0, 4, 4, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
