@@ -356,34 +356,40 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="text-foreground">Distribuição de Despesas</CardTitle>
           </CardHeader>
-          <CardContent className="h-64 flex items-center justify-center">
+          <CardContent className="h-64">
             <ChartContainer
               config={{
                 valor: { label: "Valor", color: "hsl(var(--primary))" },
               }}
-              className="h-full w-full"
+              className="h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <Pie 
-                    data={despesasChart} 
-                    cx="50%" 
-                    cy="50%" 
-                    outerRadius={80} 
-                    innerRadius={40}
-                    dataKey="valor"
-                    label={({ categoria, percent }) => `${categoria} ${(percent * 100).toFixed(1)}%`}
-                    labelLine={false}
-                  >
-                    {despesasChart.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
+                <BarChart data={despesasChart} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="categoria" 
+                    fontSize={10}
+                    stroke="hsl(var(--muted-foreground))"
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis 
+                    fontSize={10}
+                    stroke="hsl(var(--muted-foreground))"
+                    tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
+                  />
                   <ChartTooltip 
                     content={<ChartTooltipContent />}
                     formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
                   />
-                </RechartsPieChart>
+                  <Bar 
+                    dataKey="valor" 
+                    fill="hsl(var(--primary))" 
+                    radius={[4, 4, 0, 0]}
+                    name="Despesas"
+                  />
+                </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
