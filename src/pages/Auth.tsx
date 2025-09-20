@@ -67,9 +67,10 @@ export default function Auth() {
           });
         } else {
           toast({
-            title: "Cadastro realizado!",
-            description: "Verifique seu email para confirmar a conta.",
+            title: "Conta criada com sucesso!",
+            description: "Você já pode fazer login.",
           });
+          setIsLogin(true); // Muda para aba de login após cadastro
         }
       }
     } catch (error: any) {
