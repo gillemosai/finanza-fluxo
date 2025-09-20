@@ -62,7 +62,14 @@ export default function Dashboard() {
   const [monthlyChart, setMonthlyChart] = useState<MonthlyData[]>([]);
   const [cartaoData, setCartaoData] = useState<any[]>([]);
   const [saldosBancariosData, setSaldosBancariosData] = useState<any[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(() => {
+    // Set current month as default
+    const now = new Date();
+    return now.toLocaleDateString('pt-BR', { 
+      month: 'short', 
+      year: '2-digit' 
+    }).toUpperCase().replace('.', '');
+  });
   
   const { user } = useAuth();
 
@@ -121,7 +128,9 @@ export default function Dashboard() {
         despesasQuery = despesasQuery.eq('mes_referencia', selectedMonth);
       }
       
+      console.log('Selected month:', selectedMonth);
       const { data: despesas } = await despesasQuery;
+      console.log('Despesas data:', despesas);
 
       // Fetch dividas
       const { data: dividas } = await supabase
@@ -169,11 +178,15 @@ export default function Dashboard() {
         return acc;
       }, {});
 
+      console.log('Despesas by category:', despesasByCategory);
+
       const despesasChartData = Object.entries(despesasByCategory || {}).map(([category, value]: [string, any], index) => ({
         categoria: category,
-        valor: value,
+        valor: Number(value),
         fill: getCategoryColor(category, index)
       }));
+
+      console.log('Despesas chart data:', despesasChartData);
 
       setDespesasChart(despesasChartData);
 
