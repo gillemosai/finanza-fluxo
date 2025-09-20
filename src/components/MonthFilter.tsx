@@ -19,7 +19,7 @@ export function MonthFilter({ onFilterChange, selectedMonth }: MonthFilterProps)
       const monthRef = date.toLocaleDateString('pt-BR', { 
         month: 'short', 
         year: '2-digit' 
-      }).toUpperCase().replace('.', '');
+      }).toUpperCase().replace('.', '/');  // Changed to use "/" instead of removing the dot
       
       monthsArray.push({
         value: monthRef,

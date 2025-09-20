@@ -101,7 +101,7 @@ export default function Dashboard() {
     return now.toLocaleDateString('pt-BR', { 
       month: 'short', 
       year: '2-digit' 
-    }).toUpperCase().replace('.', '');
+    }).toUpperCase().replace('.', '/');  // Use "/" format to match database
   });
   
   const { user } = useAuth();
