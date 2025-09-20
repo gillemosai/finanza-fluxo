@@ -318,44 +318,6 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="text-foreground">Distribuição de Receitas</CardTitle>
           </CardHeader>
-          <CardContent className="h-64 flex items-center justify-center">
-            <ChartContainer
-              config={{
-                valor: { label: "Valor", color: "hsl(var(--primary))" },
-              }}
-              className="h-full w-full"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <Pie 
-                    data={receitasChart} 
-                    cx="50%" 
-                    cy="50%" 
-                    outerRadius={80} 
-                    innerRadius={40}
-                    dataKey="valor"
-                    label={({ categoria, percent }) => `${categoria} ${(percent * 100).toFixed(1)}%`}
-                    labelLine={false}
-                  >
-                    {receitasChart.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip 
-                    content={<ChartTooltipContent />}
-                    formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
-                  />
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        {/* Distribuição de Despesas */}
-        <Card className="bg-card border border-border">
-          <CardHeader>
-            <CardTitle className="text-foreground">Distribuição de Despesas</CardTitle>
-          </CardHeader>
           <CardContent className="h-64">
             <ChartContainer
               config={{
@@ -364,7 +326,7 @@ export default function Dashboard() {
               className="h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={despesasChart} layout="horizontal" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
+                <BarChart data={receitasChart} layout="horizontal" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
                     type="number" 
@@ -385,11 +347,49 @@ export default function Dashboard() {
                   />
                   <Bar 
                     dataKey="valor" 
-                    fill="hsl(var(--primary))" 
+                    fill="hsl(var(--success))" 
                     radius={[0, 4, 4, 0]}
-                    name="Despesas"
+                    name="Receitas"
                   />
                 </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        {/* Distribuição de Despesas */}
+        <Card className="bg-card border border-border">
+          <CardHeader>
+            <CardTitle className="text-foreground">Distribuição de Despesas</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64 flex items-center justify-center">
+            <ChartContainer
+              config={{
+                valor: { label: "Valor", color: "hsl(var(--primary))" },
+              }}
+              className="h-full w-full"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsPieChart>
+                  <Pie 
+                    data={despesasChart} 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius={80} 
+                    innerRadius={40}
+                    dataKey="valor"
+                    label={({ categoria, percent }) => `${categoria} ${(percent * 100).toFixed(1)}%`}
+                    labelLine={false}
+                  >
+                    {despesasChart.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
+                  />
+                </RechartsPieChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
