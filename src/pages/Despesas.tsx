@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
-import { Plus, Edit, Trash2, TrendingDown, Search } from "lucide-react";
+import { Plus, Edit, Trash2, TrendingDown, Search, PieChart } from "lucide-react";
+import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
 import { MonthFilter } from "@/components/MonthFilter";
 import { TableHeader } from "@/components/TableHeader";
@@ -291,6 +292,31 @@ export default function Despesas() {
 
   const totalDespesas = filteredAndSortedDespesas.reduce((acc, despesa) => acc + despesa.valor, 0);
 
+  // Dados para o gráfico de pizza
+  const categoryData = useMemo(() => {
+    const categoryTotals = filteredAndSortedDespesas.reduce((acc, despesa) => {
+      acc[despesa.categoria] = (acc[despesa.categoria] || 0) + despesa.valor;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(categoryTotals).map(([categoria, valor]) => ({
+      categoria,
+      valor,
+      percentage: ((valor / totalDespesas) * 100).toFixed(1)
+    }));
+  }, [filteredAndSortedDespesas, totalDespesas]);
+
+  const COLORS = [
+    'hsl(var(--primary))',
+    'hsl(var(--destructive))', 
+    'hsl(var(--warning))',
+    'hsl(var(--success))',
+    'hsl(var(--secondary))',
+    'hsl(var(--accent))',
+    'hsl(var(--muted))',
+    'hsl(var(--border))'
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -525,23 +551,69 @@ export default function Despesas() {
         </Card>
       )}
 
-      {/* Resumo */}
-      <Card className="shadow-card border-0 bg-gradient-destructive/5 border-l-4 border-l-destructive">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-destructive">
-            <TrendingDown className="w-5 h-5" />
-            <span>Total de Despesas</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold text-destructive">
-            {formatCurrency(totalDespesas)}
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">
-            {filteredAndSortedDespesas.length} de {despesas.length} despesa(s) mostrada(s)
-          </p>
-        </CardContent>
-      </Card>
+      {/* Resumo e Gráfico */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Card de Totais */}
+        <Card className="shadow-card border-0 bg-gradient-destructive/5 border-l-4 border-l-destructive">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-destructive">
+              <TrendingDown className="w-5 h-5" />
+              <span>Total de Despesas</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-destructive">
+              {formatCurrency(totalDespesas)}
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              {filteredAndSortedDespesas.length} de {despesas.length} despesa(s) mostrada(s)
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Gráfico de Distribuição por Categoria */}
+        <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <PieChart className="w-5 h-5" />
+              <span>Distribuição por Categoria</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {filteredAndSortedDespesas.length > 0 ? (
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsPieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ categoria, percentage }) => `${categoria} ${percentage}%`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="valor"
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: number) => [formatCurrency(value), 'Valor']}
+                      labelFormatter={(label) => `Categoria: ${label}`}
+                    />
+                    <Legend />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                <p>Nenhuma despesa cadastrada</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Tabela de Despesas */}
       <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">

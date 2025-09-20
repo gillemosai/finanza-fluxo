@@ -385,26 +385,27 @@ export default function Receitas() {
         </Dialog>
       </div>
 
-      {/* Resumo */}
-      <Card className="shadow-card border-0 bg-gradient-success/5 border-l-4 border-l-success">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-success">
-            <TrendingUp className="w-5 h-5" />
-            <span>Total de Receitas</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold text-success">
-            {formatCurrency(totalReceitas)}
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">
-            {filteredAndSortedReceitas.length} receita(s) {selectedMonth || searchTerm ? 'filtrada(s)' : 'cadastrada(s)'}
-          </p>
-        </CardContent>
-      </Card>
+      {/* Resumo e Gráfico */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Card de Totais */}
+        <Card className="shadow-card border-0 bg-gradient-success/5 border-l-4 border-l-success">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-success">
+              <TrendingUp className="w-5 h-5" />
+              <span>Total de Receitas</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-success">
+              {formatCurrency(totalReceitas)}
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              {filteredAndSortedReceitas.length} receita(s) {selectedMonth || searchTerm ? 'filtrada(s)' : 'cadastrada(s)'}
+            </p>
+          </CardContent>
+        </Card>
 
-      {/* Gráfico de Distribuição por Categoria */}
-      {filteredAndSortedReceitas.length > 0 && (
+        {/* Gráfico de Distribuição por Categoria */}
         <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -413,34 +414,40 @@ export default function Receitas() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ categoria, percentage }) => `${categoria} ${percentage}%`}
-                    outerRadius={120}
-                    fill="#8884d8"
-                    dataKey="valor"
-                  >
-                    {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value: number) => [formatCurrency(value), 'Valor']}
-                    labelFormatter={(label) => `Categoria: ${label}`}
-                  />
-                  <Legend />
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            </div>
+            {filteredAndSortedReceitas.length > 0 ? (
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsPieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ categoria, percentage }) => `${categoria} ${percentage}%`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="valor"
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: number) => [formatCurrency(value), 'Valor']}
+                      labelFormatter={(label) => `Categoria: ${label}`}
+                    />
+                    <Legend />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                <p>Nenhuma receita cadastrada</p>
+              </div>
+            )}
           </CardContent>
         </Card>
-      )}
+      </div>
 
       {/* Tabela de Receitas */}
       <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
-import { Plus, Edit, Trash2, CreditCard, AlertTriangle } from "lucide-react";
+import { Plus, Edit, Trash2, CreditCard, AlertTriangle, PieChart } from "lucide-react";
+import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
 interface Divida {
   id: string;
@@ -217,6 +218,32 @@ export default function Dividas() {
     divida.data_vencimento && new Date(divida.data_vencimento) < new Date() && divida.status !== 'pago'
   ).length;
 
+  // Dados para o gráfico de pizza
+  const categoryData = useMemo(() => {
+    const categoryTotals = dividas.reduce((acc, divida) => {
+      const categoria = divida.categoria || 'Sem categoria';
+      acc[categoria] = (acc[categoria] || 0) + divida.valor_restante;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(categoryTotals).map(([categoria, valor]) => ({
+      categoria,
+      valor,
+      percentage: ((valor / totalDividas) * 100).toFixed(1)
+    }));
+  }, [dividas, totalDividas]);
+
+  const COLORS = [
+    'hsl(var(--primary))',
+    'hsl(var(--warning))', 
+    'hsl(var(--destructive))',
+    'hsl(var(--success))',
+    'hsl(var(--secondary))',
+    'hsl(var(--accent))',
+    'hsl(var(--muted))',
+    'hsl(var(--border))'
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -338,43 +365,89 @@ export default function Dividas() {
         </Dialog>
       </div>
 
-      {/* Resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="shadow-card border-0 bg-gradient-warning/5 border-l-4 border-l-warning">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-warning">
-              <CreditCard className="w-5 h-5" />
-              <span>Total de Dívidas</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-warning">
-              {formatCurrency(totalDividas)}
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              {dividas.length} dívida(s) cadastrada(s)
-            </p>
-          </CardContent>
-        </Card>
-
-        {dividasVencidas > 0 && (
-          <Card className="shadow-card border-0 bg-gradient-destructive/5 border-l-4 border-l-destructive">
+      {/* Resumo e Gráfico */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Card de Totais */}
+        <div className="space-y-6">
+          <Card className="shadow-card border-0 bg-gradient-warning/5 border-l-4 border-l-warning">
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-destructive">
-                <AlertTriangle className="w-5 h-5" />
-                <span>Dívidas Vencidas</span>
+              <CardTitle className="flex items-center space-x-2 text-warning">
+                <CreditCard className="w-5 h-5" />
+                <span>Total de Dívidas</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-destructive">
-                {dividasVencidas}
+              <div className="text-3xl font-bold text-warning">
+                {formatCurrency(totalDividas)}
               </div>
               <p className="text-sm text-muted-foreground mt-2">
-                Dívida(s) com vencimento em atraso
+                {dividas.length} dívida(s) cadastrada(s)
               </p>
             </CardContent>
           </Card>
-        )}
+
+          {dividasVencidas > 0 && (
+            <Card className="shadow-card border-0 bg-gradient-destructive/5 border-l-4 border-l-destructive">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 text-destructive">
+                  <AlertTriangle className="w-5 h-5" />
+                  <span>Dívidas Vencidas</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-destructive">
+                  {dividasVencidas}
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Dívida(s) com vencimento em atraso
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Gráfico de Distribuição por Categoria */}
+        <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <PieChart className="w-5 h-5" />
+              <span>Distribuição por Categoria</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {dividas.length > 0 ? (
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsPieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ categoria, percentage }) => `${categoria} ${percentage}%`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="valor"
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: number) => [formatCurrency(value), 'Valor']}
+                      labelFormatter={(label) => `Categoria: ${label}`}
+                    />
+                    <Legend />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                <p>Nenhuma dívida cadastrada</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Tabela de Dívidas */}
