@@ -14,6 +14,7 @@ import { CategorySelect } from "@/components/CategorySelect";
 import { Plus, Edit, Trash2, TrendingDown, Search, PieChart } from "lucide-react";
 import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
+import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
 import { MonthFilter } from "@/components/MonthFilter";
 import { TableHeader } from "@/components/TableHeader";
 
@@ -38,7 +39,8 @@ export default function Despesas() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDespesa, setEditingDespesa] = useState<Despesa | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  // Use global month filter instead of local state
+  const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
   const [sortConfig, setSortConfig] = useState<{
     field: string;
     direction: 'asc' | 'desc';

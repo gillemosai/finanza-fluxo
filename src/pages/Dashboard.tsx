@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -95,13 +96,8 @@ export default function Dashboard() {
     gastosVariaveis: 0,
     gastosFixos: 0,
   });
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(() => {
-    // Set current month as default using exact same format as MonthFilter
-    const now = new Date();
-    const monthName = now.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
-    const year = now.getFullYear().toString().slice(-2);
-    return `${monthName}/${year}`;
-  });
+  // Use global month filter instead of local state
+  const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
   
   const { user } = useAuth();
 

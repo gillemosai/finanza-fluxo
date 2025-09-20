@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
+import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
+import { MonthFilter } from "@/components/MonthFilter";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -57,6 +59,7 @@ export default function Cartoes() {
   
   const { user } = useAuth();
   const { toast } = useToast();
+  const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -69,12 +72,17 @@ export default function Cartoes() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('dividas')
         .select('*')
         .eq('user_id', user.id)
-        .eq('categoria', 'Cartão')
-        .order('data_vencimento');
+        .eq('categoria', 'Cartão');
+      
+      if (selectedMonth) {
+        query = query.eq('mes_referencia', selectedMonth);
+      }
+      
+      const { data, error } = await query.order('data_vencimento');
 
       if (error) throw error;
       setCartoes(data || []);
@@ -90,7 +98,7 @@ export default function Cartoes() {
 
   useEffect(() => {
     fetchCartoes();
-  }, [user]);
+  }, [user, selectedMonth]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,6 +220,16 @@ export default function Cartoes() {
           <p className="text-muted-foreground">Gerencie os gastos dos seus cartões de crédito</p>
         </div>
         
+        <div className="flex items-center gap-4">
+          <MonthFilter 
+            selectedMonth={selectedMonth}
+            onFilterChange={setSelectedMonth}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button 
@@ -386,6 +404,7 @@ export default function Cartoes() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Total Card */}

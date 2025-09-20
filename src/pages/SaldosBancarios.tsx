@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit, Trash2, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
+import { MonthFilter } from "@/components/MonthFilter";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -42,6 +44,7 @@ export default function SaldosBancarios() {
   
   const { user } = useAuth();
   const { toast } = useToast();
+  const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -181,6 +184,16 @@ export default function SaldosBancarios() {
           <p className="text-muted-foreground">Gerencie os saldos de suas contas bancárias</p>
         </div>
         
+        <div className="flex items-center gap-4">
+          <MonthFilter 
+            selectedMonth={selectedMonth}
+            onFilterChange={setSelectedMonth}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button 
@@ -294,6 +307,7 @@ export default function SaldosBancarios() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Total Card */}

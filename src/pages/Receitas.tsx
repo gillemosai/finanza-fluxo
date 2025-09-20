@@ -13,6 +13,7 @@ import { CategorySelect } from "@/components/CategorySelect";
 import { Plus, Edit, Trash2, TrendingUp, Search, PieChart } from "lucide-react";
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
+import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
 import { MonthFilter } from "@/components/MonthFilter";
 import { TableHeader } from "@/components/TableHeader";
 
@@ -31,7 +32,8 @@ export default function Receitas() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingReceita, setEditingReceita] = useState<Receita | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  // Use global month filter instead of local state
+  const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
   const [sortConfig, setSortConfig] = useState<{
     field: string;
     direction: 'asc' | 'desc';
