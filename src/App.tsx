@@ -6,6 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import Receitas from "./pages/Receitas";
+import Despesas from "./pages/Despesas";
+import Dividas from "./pages/Dividas";
+import Relatorios from "./pages/Relatorios";
 
 const queryClient = new QueryClient();
 
@@ -23,34 +27,22 @@ const App = () => (
           } />
           <Route path="/receitas" element={
             <Layout>
-              <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Receitas</h1>
-                <p className="text-muted-foreground">Conecte ao Supabase para gerenciar suas receitas</p>
-              </div>
+              <Receitas />
             </Layout>
           } />
           <Route path="/despesas" element={
             <Layout>
-              <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Despesas</h1>
-                <p className="text-muted-foreground">Conecte ao Supabase para gerenciar suas despesas</p>
-              </div>
+              <Despesas />
             </Layout>
           } />
           <Route path="/dividas" element={
             <Layout>
-              <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Dívidas</h1>
-                <p className="text-muted-foreground">Conecte ao Supabase para gerenciar suas dívidas</p>
-              </div>
+              <Dividas />
             </Layout>
           } />
           <Route path="/relatorios" element={
             <Layout>
-              <div className="p-6">
-                <h1 className="text-2xl font-bold mb-4">Relatórios</h1>
-                <p className="text-muted-foreground">Conecte ao Supabase para gerar relatórios</p>
-              </div>
+              <Relatorios />
             </Layout>
           } />
           <Route path="/configuracoes" element={
