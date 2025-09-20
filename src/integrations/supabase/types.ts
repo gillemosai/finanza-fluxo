@@ -50,6 +50,7 @@ export type Database = {
           id: string
           mes_referencia: string
           observacoes: string | null
+          status: string
           updated_at: string
           user_id: string
           valor: number
@@ -62,6 +63,7 @@ export type Database = {
           id?: string
           mes_referencia: string
           observacoes?: string | null
+          status?: string
           updated_at?: string
           user_id: string
           valor: number
@@ -74,6 +76,7 @@ export type Database = {
           id?: string
           mes_referencia?: string
           observacoes?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
           valor?: number

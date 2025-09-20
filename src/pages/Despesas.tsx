@@ -20,6 +20,7 @@ interface Despesa {
   valor: number;
   data_pagamento: string;
   mes_referencia: string;
+  status: string;
   observacoes?: string;
 }
 
@@ -33,6 +34,7 @@ export default function Despesas() {
     valor: "",
     data_pagamento: "",
     mes_referencia: "",
+    status: "a_pagar",
     observacoes: ""
   });
   const { toast } = useToast();
@@ -86,6 +88,7 @@ export default function Despesas() {
         valor: parseFloat(formData.valor),
         data_pagamento: formData.data_pagamento,
         mes_referencia: formData.mes_referencia,
+        status: formData.status,
         observacoes: formData.observacoes
       };
 
@@ -122,6 +125,7 @@ export default function Despesas() {
         valor: "",
         data_pagamento: "",
         mes_referencia: "",
+        status: "a_pagar",
         observacoes: ""
       });
       fetchDespesas();
@@ -143,6 +147,7 @@ export default function Despesas() {
       valor: despesa.valor.toString(),
       data_pagamento: despesa.data_pagamento,
       mes_referencia: despesa.mes_referencia,
+      status: despesa.status,
       observacoes: despesa.observacoes || ""
     });
     setIsDialogOpen(true);
@@ -262,18 +267,32 @@ export default function Despesas() {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="mes_referencia">Mês Referência</Label>
-                <Input
-                  id="mes_referencia"
-                  placeholder="SET/25"
-                  value={formData.mes_referencia}
-                  readOnly
-                  className="bg-muted"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Gerado automaticamente a partir da data de pagamento
-                </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="a_pagar">A Pagar</SelectItem>
+                      <SelectItem value="paga">Paga</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="mes_referencia">Mês Referência</Label>
+                  <Input
+                    id="mes_referencia"
+                    placeholder="SET/25"
+                    value={formData.mes_referencia}
+                    readOnly
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Gerado automaticamente a partir da data de pagamento
+                  </p>
+                </div>
               </div>
 
               <div>
@@ -330,6 +349,7 @@ export default function Despesas() {
                 <TableHead>Valor</TableHead>
                 <TableHead>Data</TableHead>
                 <TableHead>Mês Ref.</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -345,6 +365,15 @@ export default function Despesas() {
                     {new Date(despesa.data_pagamento).toLocaleDateString('pt-BR')}
                   </TableCell>
                   <TableCell>{despesa.mes_referencia}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      despesa.status === 'paga' 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                    }`}>
+                      {despesa.status === 'paga' ? 'Paga' : 'A Pagar'}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
                       <Button
