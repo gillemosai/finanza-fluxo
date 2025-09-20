@@ -217,7 +217,10 @@ export default function Cartoes() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Cartões de Crédito</h1>
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <CreditCard className="h-8 w-8 text-warning" />
+            Cartões de Crédito
+          </h1>
           <p className="text-muted-foreground">Gerencie os gastos dos seus cartões de crédito</p>
         </div>
         

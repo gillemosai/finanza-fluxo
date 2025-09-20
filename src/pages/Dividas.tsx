@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
-import { Plus, Edit, Trash2, CreditCard, AlertTriangle, PieChart as PieChartIcon } from "lucide-react";
+import { Plus, Edit, Trash2, CreditCard, AlertTriangle, TriangleAlert, PieChart as PieChartIcon } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { DataReplicator } from "@/components/DataReplicator";
 
@@ -252,7 +252,8 @@ export default function Dividas() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
+            <TriangleAlert className="h-8 w-8 text-destructive" />
             Dívidas
           </h1>
           <p className="text-muted-foreground">

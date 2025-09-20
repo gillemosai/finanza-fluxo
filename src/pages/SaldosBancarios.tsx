@@ -180,7 +180,10 @@ export default function SaldosBancarios() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Saldos Bancários</h1>
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <Building2 className="h-8 w-8 text-primary" />
+            Saldos Bancários
+          </h1>
           <p className="text-muted-foreground">Gerencie os saldos de suas contas bancárias</p>
         </div>
         

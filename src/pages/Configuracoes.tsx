@@ -197,7 +197,10 @@ export default function Configuracoes() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Configurações</h1>
+          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+            <Settings className="h-8 w-8 text-muted-foreground" />
+            Configurações
+          </h1>
           <p className="text-muted-foreground">Gerencie as categorias do seu sistema financeiro</p>
         </div>
         

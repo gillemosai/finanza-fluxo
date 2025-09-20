@@ -262,7 +262,8 @@ export default function Receitas() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
+            <TrendingUp className="h-8 w-8 text-success" />
             Receitas
           </h1>
           <p className="text-muted-foreground">
