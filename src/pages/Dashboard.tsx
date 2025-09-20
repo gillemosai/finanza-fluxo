@@ -248,7 +248,24 @@ export default function Dashboard() {
         monthlyData[mes].economia = monthlyData[mes].saldo > 0 ? monthlyData[mes].saldo : 0;
       });
 
-      setMonthlyChart(Object.values(monthlyData));
+      // Sort monthly data by month in chronological order (JUL/25 → AGO/25 → SET/25)
+      const sortedMonthlyData = (Object.values(monthlyData) as MonthlyData[]).sort((a: MonthlyData, b: MonthlyData) => {
+        // Convert month format (SET/25) to a sortable format
+        const [monthA, yearA] = a.mes.split('/');
+        const [monthB, yearB] = b.mes.split('/');
+        
+        const monthOrder = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+        const monthIndexA = monthOrder.indexOf(monthA);
+        const monthIndexB = monthOrder.indexOf(monthB);
+        
+        // First sort by year, then by month
+        if (yearA !== yearB) {
+          return yearA.localeCompare(yearB);
+        }
+        return monthIndexA - monthIndexB;
+      });
+      
+      setMonthlyChart(sortedMonthlyData);
 
       // Process cartao data
       const cartoesData = dividas?.filter(divida => divida.categoria === 'Cartão') || [];
