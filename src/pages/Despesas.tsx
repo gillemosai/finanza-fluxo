@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
 import { Plus, Edit, Trash2, TrendingDown, Search, PieChart } from "lucide-react";
-import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
 import { MonthFilter } from "@/components/MonthFilter";
 import { TableHeader } from "@/components/TableHeader";
@@ -583,27 +583,28 @@ export default function Despesas() {
             {filteredAndSortedDespesas.length > 0 ? (
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
-                    <Pie
-                      data={categoryData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ categoria, percentage }) => `${categoria} ${percentage}%`}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="valor"
-                    >
-                      {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
+                  <BarChart data={categoryData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <XAxis 
+                      dataKey="categoria" 
+                      tick={{ fontSize: 12 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => `R$ ${value}`}
+                    />
                     <Tooltip 
                       formatter={(value: number) => [formatCurrency(value), 'Valor']}
                       labelFormatter={(label) => `Categoria: ${label}`}
                     />
-                    <Legend />
-                  </RechartsPieChart>
+                    <Bar 
+                      dataKey="valor" 
+                      fill="hsl(var(--destructive))"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             ) : (
