@@ -60,10 +60,13 @@ export default function Despesas() {
 
   const fetchDespesas = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from('despesas')
         .select('*')
-        .eq('user_id', '00000000-0000-0000-0000-000000000000')
+        .eq('user_id', user.id)
         .order('data_pagamento', { ascending: false });
 
       if (error) throw error;
@@ -82,8 +85,11 @@ export default function Despesas() {
     e.preventDefault();
     
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const despesaData = {
-        user_id: '00000000-0000-0000-0000-000000000000',
+        user_id: user.id,
         descricao: formData.descricao,
         categoria: formData.categoria,
         valor: parseFloat(formData.valor),

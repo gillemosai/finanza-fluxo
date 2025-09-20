@@ -75,11 +75,14 @@ export default function Dashboard() {
 
   const fetchFinancialData = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       // Fetch receitas
       const { data: receitas, error: receitasError } = await supabase
         .from('receitas')
         .select('valor')
-        .eq('user_id', '00000000-0000-0000-0000-000000000000'); // Demo user ID
+        .eq('user_id', user.id);
 
       if (receitasError) throw receitasError;
 
@@ -87,7 +90,7 @@ export default function Dashboard() {
       const { data: despesas, error: despesasError } = await supabase
         .from('despesas')
         .select('valor, categoria')
-        .eq('user_id', '00000000-0000-0000-0000-000000000000');
+        .eq('user_id', user.id);
 
       if (despesasError) throw despesasError;
 
@@ -95,7 +98,7 @@ export default function Dashboard() {
       const { data: dividas, error: dividasError } = await supabase
         .from('dividas')
         .select('valor_restante')
-        .eq('user_id', '00000000-0000-0000-0000-000000000000');
+        .eq('user_id', user.id);
 
       if (dividasError) throw dividasError;
 

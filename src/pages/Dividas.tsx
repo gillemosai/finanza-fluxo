@@ -84,10 +84,13 @@ export default function Dividas() {
 
   const fetchDividas = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from('dividas')
         .select('*')
-        .eq('user_id', '00000000-0000-0000-0000-000000000000')
+        .eq('user_id', user.id)
         .order('data_vencimento', { ascending: true });
 
       if (error) throw error;
@@ -113,8 +116,11 @@ export default function Dividas() {
       const valorPago = parseFloat(formData.valor_pago);
       const valorRestante = valorTotal - valorPago;
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const dividaData = {
-        user_id: '00000000-0000-0000-0000-000000000000',
+        user_id: user.id,
         descricao: formData.descricao,
         valor_total: valorTotal,
         valor_pago: valorPago,
