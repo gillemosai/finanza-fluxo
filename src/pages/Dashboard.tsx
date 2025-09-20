@@ -374,40 +374,34 @@ export default function Dashboard() {
               Distribuição de Receitas
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-64 flex items-center justify-center">
             <ChartContainer
               config={{
                 valor: { label: "Valor", color: "hsl(var(--success))" },
               }}
-              className="h-full"
+              className="h-full w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={receitasChart} layout="horizontal" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis 
-                    type="number" 
-                    fontSize={10}
-                    stroke="hsl(var(--muted-foreground))"
-                    tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
-                  />
-                  <YAxis 
-                    dataKey="categoria" 
-                    type="category"
-                    fontSize={10}
-                    width={75}
-                    stroke="hsl(var(--muted-foreground))"
-                  />
+                <RechartsPieChart>
+                  <Pie 
+                    data={receitasChart} 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius={80} 
+                    innerRadius={40}
+                    dataKey="valor"
+                    label={({ categoria, percent }) => `${categoria} ${(percent * 100).toFixed(1)}%`}
+                    labelLine={false}
+                  >
+                    {receitasChart.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
                   <ChartTooltip 
                     content={<ChartTooltipContent />}
                     formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
                   />
-                  <Bar 
-                    dataKey="valor" 
-                    fill="hsl(var(--success))" 
-                    radius={[0, 4, 4, 0]}
-                    name="Receitas"
-                  />
-                </BarChart>
+                </RechartsPieChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
