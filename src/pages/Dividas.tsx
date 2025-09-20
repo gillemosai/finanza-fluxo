@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useCategorias } from "@/hooks/useCategorias";
+import { CategorySelect } from "@/components/CategorySelect";
 import { Plus, Edit, Trash2, CreditCard, AlertTriangle } from "lucide-react";
 
 interface Divida {
@@ -47,7 +47,7 @@ export default function Dividas() {
     observacoes: ""
   });
   const { toast } = useToast();
-  const { categoryNames: categorias } = useCategorias('divida');
+  
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -255,18 +255,12 @@ export default function Dividas() {
                 </div>
                 <div>
                   <Label htmlFor="categoria">Categoria</Label>
-                  <Select value={formData.categoria} onValueChange={(value) => setFormData({ ...formData, categoria: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categorias.map((categoria) => (
-                        <SelectItem key={categoria} value={categoria}>
-                          {categoria}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <CategorySelect
+                    value={formData.categoria}
+                    onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+                    tipo="divida"
+                    placeholder="Selecione uma categoria"
+                  />
                 </div>
               </div>
 

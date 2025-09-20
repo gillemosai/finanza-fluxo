@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useCategorias } from "@/hooks/useCategorias";
+import { CategorySelect } from "@/components/CategorySelect";
 import { Plus, Edit, Trash2, TrendingUp } from "lucide-react";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
 
@@ -36,7 +36,7 @@ export default function Receitas() {
     observacoes: ""
   });
   const { toast } = useToast();
-  const { categoryNames: categorias } = useCategorias('receita');
+  
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -216,18 +216,13 @@ export default function Receitas() {
                 </div>
                 <div>
                   <Label htmlFor="categoria">Categoria</Label>
-                  <Select value={formData.categoria} onValueChange={(value) => setFormData({ ...formData, categoria: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categorias.map((categoria) => (
-                        <SelectItem key={categoria} value={categoria}>
-                          {categoria}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <CategorySelect
+                    value={formData.categoria}
+                    onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+                    tipo="receita"
+                    placeholder="Selecione uma categoria"
+                    required
+                  />
                 </div>
               </div>
 
