@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
 import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
 import { MonthFilter } from "@/components/MonthFilter";
+import { DataReplicator } from "@/components/DataReplicator";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -224,6 +225,11 @@ export default function Cartoes() {
           <MonthFilter 
             selectedMonth={selectedMonth}
             onFilterChange={setSelectedMonth}
+          />
+          <DataReplicator
+            tableType="dividas"
+            targetMonth={selectedMonth || ""}
+            onReplicationComplete={fetchCartoes}
           />
         </div>
       </div>

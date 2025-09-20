@@ -16,6 +16,7 @@ import { formatDateToMonthRef } from "@/utils/dateUtils";
 import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
 import { MonthFilter } from "@/components/MonthFilter";
 import { TableHeader } from "@/components/TableHeader";
+import { DataReplicator } from "@/components/DataReplicator";
 
 interface Receita {
   id: string;
@@ -272,6 +273,11 @@ export default function Receitas() {
           <MonthFilter 
             selectedMonth={selectedMonth}
             onFilterChange={setSelectedMonth}
+          />
+          <DataReplicator
+            tableType="receitas"
+            targetMonth={selectedMonth || ""}
+            onReplicationComplete={fetchReceitas}
           />
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />

@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
 import { Plus, Edit, Trash2, CreditCard, AlertTriangle, PieChart as PieChartIcon } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { DataReplicator } from "@/components/DataReplicator";
 
 interface Divida {
   id: string;
@@ -259,13 +260,19 @@ export default function Dividas() {
           </p>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-gradient-primary text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Dívida
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-4">
+          <DataReplicator
+            tableType="dividas"
+            targetMonth=""
+            onReplicationComplete={fetchDividas}
+          />
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-primary text-white">
+                <Plus className="w-4 h-4 mr-2" />
+                Nova Dívida
+              </Button>
+            </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>
@@ -365,7 +372,8 @@ export default function Dividas() {
               </div>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Resumo e Gráfico */}
