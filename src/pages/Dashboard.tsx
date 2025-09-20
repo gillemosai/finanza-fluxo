@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { StatCard } from "@/components/StatCard";
+import { DataImporter } from "@/components/DataImporter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { 
@@ -186,6 +187,15 @@ export default function Dashboard() {
       console.error('Error fetching financial data:', error);
     }
   };
+
+  // Show import component if no data exists
+  if (data.receitas === 0 && data.despesas === 0 && data.dividas === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4">
+        <DataImporter />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6 bg-background min-h-screen">
