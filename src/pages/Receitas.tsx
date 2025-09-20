@@ -226,21 +226,23 @@ export default function Receitas() {
     }
   };
 
-  const totalReceitas = filteredAndSortedReceitas.reduce((acc, receita) => acc + receita.valor, 0);
-
-  // Dados para o gráfico de pizza
-  const categoryData = useMemo(() => {
+  // Dados para o gráfico e total
+  const { totalReceitas, categoryData } = useMemo(() => {
+    const total = filteredAndSortedReceitas.reduce((acc, receita) => acc + receita.valor, 0);
+    
     const categoryTotals = filteredAndSortedReceitas.reduce((acc, receita) => {
       acc[receita.categoria] = (acc[receita.categoria] || 0) + receita.valor;
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(categoryTotals).map(([categoria, valor]) => ({
+    const data = Object.entries(categoryTotals).map(([categoria, valor]) => ({
       categoria,
       valor,
-      percentage: ((valor / totalReceitas) * 100).toFixed(1)
+      percentage: total > 0 ? ((valor / total) * 100).toFixed(1) : '0'
     }));
-  }, [filteredAndSortedReceitas, totalReceitas]);
+
+    return { totalReceitas: total, categoryData: data };
+  }, [filteredAndSortedReceitas]);
 
   const COLORS = [
     'hsl(var(--primary))',

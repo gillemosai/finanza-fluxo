@@ -290,21 +290,23 @@ export default function Despesas() {
     }
   };
 
-  const totalDespesas = filteredAndSortedDespesas.reduce((acc, despesa) => acc + despesa.valor, 0);
-
-  // Dados para o gráfico de pizza
-  const categoryData = useMemo(() => {
+  // Dados para o gráfico e total
+  const { totalDespesas, categoryData } = useMemo(() => {
+    const total = filteredAndSortedDespesas.reduce((acc, despesa) => acc + despesa.valor, 0);
+    
     const categoryTotals = filteredAndSortedDespesas.reduce((acc, despesa) => {
       acc[despesa.categoria] = (acc[despesa.categoria] || 0) + despesa.valor;
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(categoryTotals).map(([categoria, valor]) => ({
+    const data = Object.entries(categoryTotals).map(([categoria, valor]) => ({
       categoria,
       valor,
-      percentage: ((valor / totalDespesas) * 100).toFixed(1)
+      percentage: total > 0 ? ((valor / total) * 100).toFixed(1) : '0'
     }));
-  }, [filteredAndSortedDespesas, totalDespesas]);
+
+    return { totalDespesas: total, categoryData: data };
+  }, [filteredAndSortedDespesas]);
 
   const COLORS = [
     'hsl(var(--primary))',

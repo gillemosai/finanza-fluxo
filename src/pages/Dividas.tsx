@@ -213,25 +213,28 @@ export default function Dividas() {
     }
   };
 
-  const totalDividas = dividas.reduce((acc, divida) => acc + divida.valor_restante, 0);
-  const dividasVencidas = dividas.filter(divida => 
-    divida.data_vencimento && new Date(divida.data_vencimento) < new Date() && divida.status !== 'pago'
-  ).length;
-
-  // Dados para o gráfico de pizza
-  const categoryData = useMemo(() => {
+  // Dados para o gráfico e total
+  const { totalDividas, categoryData } = useMemo(() => {
+    const total = dividas.reduce((acc, divida) => acc + divida.valor_restante, 0);
+    
     const categoryTotals = dividas.reduce((acc, divida) => {
       const categoria = divida.categoria || 'Sem categoria';
       acc[categoria] = (acc[categoria] || 0) + divida.valor_restante;
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(categoryTotals).map(([categoria, valor]) => ({
+    const data = Object.entries(categoryTotals).map(([categoria, valor]) => ({
       categoria,
       valor,
-      percentage: ((valor / totalDividas) * 100).toFixed(1)
+      percentage: total > 0 ? ((valor / total) * 100).toFixed(1) : '0'
     }));
-  }, [dividas, totalDividas]);
+
+    return { totalDividas: total, categoryData: data };
+  }, [dividas]);
+  
+  const dividasVencidas = dividas.filter(divida => 
+    divida.data_vencimento && new Date(divida.data_vencimento) < new Date() && divida.status !== 'pago'
+  ).length;
 
   const COLORS = [
     'hsl(var(--primary))',
