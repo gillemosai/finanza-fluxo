@@ -11,8 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
-import { Plus, Edit, Trash2, CreditCard, AlertTriangle, PieChart } from "lucide-react";
-import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
+import { Plus, Edit, Trash2, CreditCard, AlertTriangle, PieChart as PieChartIcon } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
 interface Divida {
   id: string;
@@ -413,7 +413,7 @@ export default function Dividas() {
         <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <PieChart className="w-5 h-5" />
+              <PieChartIcon className="w-5 h-5" />
               <span>Distribuição por Categoria</span>
             </CardTitle>
           </CardHeader>
@@ -421,32 +421,24 @@ export default function Dividas() {
             {dividas.length > 0 ? (
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart 
-                    data={categoryData} 
-                    layout="horizontal"
-                    margin={{ top: 20, right: 30, left: 60, bottom: 5 }}
-                  >
-                    <XAxis 
-                      type="number"
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => `R$ ${value}`}
-                    />
-                    <YAxis 
-                      type="category"
-                      dataKey="categoria" 
-                      tick={{ fontSize: 12 }}
-                      width={60}
-                    />
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      dataKey="valor"
+                      label={({ categoria, percentage }) => `${categoria}: ${percentage}%`}
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
                     <Tooltip 
                       formatter={(value: number) => [formatCurrency(value), 'Valor']}
-                      labelFormatter={(label) => `Categoria: ${label}`}
                     />
-                    <Bar 
-                      dataKey="valor" 
-                      fill="hsl(var(--warning))"
-                      radius={[0, 4, 4, 0]}
-                    />
-                  </BarChart>
+                    <Legend />
+                  </PieChart>
                 </ResponsiveContainer>
               </div>
             ) : (
