@@ -36,6 +36,16 @@ export function DataReplicator({ tableType, targetMonth, onReplicationComplete }
       
       const monthRef = formatDateToMonthRef(dateString);
       
+      // Debug logs
+      console.log(`Mês ${i}:`, {
+        date: date.toISOString(),
+        month: date.getMonth(),
+        monthName: date.toLocaleDateString('pt-BR', { month: 'long' }),
+        dateString,
+        monthRef,
+        label: `${date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} (${monthRef})`
+      });
+      
       months.push({
         value: monthRef,
         label: `${date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} (${monthRef})`

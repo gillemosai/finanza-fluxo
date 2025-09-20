@@ -5,16 +5,29 @@
 export const formatDateToMonthRef = (dateString: string): string => {
   if (!dateString) return '';
   
-  const date = new Date(dateString);
-  const month = date.getMonth();
-  const year = date.getFullYear().toString().slice(-2);
+  // Parse the date string correctly to avoid timezone issues
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day); // month - 1 because months are 0-indexed
+  
+  const monthIndex = date.getMonth();
+  const yearShort = date.getFullYear().toString().slice(-2);
+  
+  console.log('formatDateToMonthRef:', { 
+    input: dateString, 
+    parsedDate: date, 
+    monthIndex, 
+    yearShort 
+  });
   
   const monthAbbreviations = [
     'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
     'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'
   ];
   
-  return `${monthAbbreviations[month]}/${year}`;
+  const result = `${monthAbbreviations[monthIndex]}/${yearShort}`;
+  console.log('formatDateToMonthRef result:', result);
+  
+  return result;
 };
 
 /**
