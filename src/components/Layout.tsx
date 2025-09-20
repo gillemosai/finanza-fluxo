@@ -1,11 +1,26 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { TopNavigation } from "@/components/TopNavigation";
+import { useMenuLayout } from "@/hooks/useMenuLayout";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {
+  const { layout } = useMenuLayout();
+
+  if (layout === 'top') {
+    return (
+      <div className="min-h-screen flex flex-col w-full bg-background">
+        <TopNavigation />
+        <main className="flex-1 p-6">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -15,6 +30,11 @@ export function Layout({ children }: LayoutProps) {
           <header className="h-16 flex items-center justify-between px-6 border-b border-border bg-card/50 backdrop-blur-sm">
             <SidebarTrigger className="lg:hidden" />
             <div className="flex items-center space-x-4">
+              <img 
+                src="/src/assets/logo_transparente.png" 
+                alt="Logo" 
+                className="h-8 w-8" 
+              />
               <h1 className="text-xl font-semibold text-foreground">Controle Financeiro</h1>
             </div>
           </header>

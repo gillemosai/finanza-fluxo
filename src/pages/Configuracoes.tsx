@@ -5,10 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Settings } from "lucide-react";
+import { Trash2, Plus, Settings, Layout, Monitor } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useMenuLayout } from "@/hooks/useMenuLayout";
 import { toast } from "sonner";
 
 interface Categoria {
@@ -22,6 +24,7 @@ interface Categoria {
 
 export default function Configuracoes() {
   const { user } = useAuth();
+  const { layout, setLayout } = useMenuLayout();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -201,6 +204,49 @@ export default function Configuracoes() {
             <Settings className="h-8 w-8 text-muted-foreground" />
             Configurações
           </h1>
+          <p className="text-muted-foreground">Gerencie as configurações do seu sistema financeiro</p>
+        </div>
+      </div>
+
+      {/* Layout Configuration */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Layout className="h-5 w-5" />
+            Layout do Menu
+          </CardTitle>
+          <CardDescription>
+            Escolha como deseja visualizar o menu de navegação
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RadioGroup 
+            value={layout} 
+            onValueChange={(value) => setLayout(value as 'sidebar' | 'top')}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <div className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+              <RadioGroupItem value="sidebar" id="sidebar" />
+              <Label htmlFor="sidebar" className="flex items-center gap-2 cursor-pointer">
+                <Layout className="h-4 w-4" />
+                Menu Lateral
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+              <RadioGroupItem value="top" id="top" />
+              <Label htmlFor="top" className="flex items-center gap-2 cursor-pointer">
+                <Monitor className="h-4 w-4" />
+                Menu Superior
+              </Label>
+            </div>
+          </RadioGroup>
+        </CardContent>
+      </Card>
+
+      {/* Categories Management */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-semibold">Categorias</h2>
           <p className="text-muted-foreground">Gerencie as categorias do seu sistema financeiro</p>
         </div>
         
