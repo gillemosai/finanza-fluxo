@@ -9,6 +9,7 @@ import { Plus, Edit, Trash2, CreditCard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { formatDateToMonthRef } from "@/utils/dateUtils";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ interface Cartao {
   valor_restante: number;
   valor_pago: number;
   data_vencimento?: string;
+  mes_referencia?: string;
   status: string;
   observacoes?: string;
 }
@@ -38,6 +40,7 @@ export default function Cartoes() {
     valor_restante: '',
     valor_pago: '0',
     data_vencimento: '',
+    mes_referencia: '',
     status: 'pendente',
     observacoes: ''
   });
@@ -101,6 +104,7 @@ export default function Cartoes() {
         valor_restante: valorRestante,
         valor_pago: valorPago,
         data_vencimento: formData.data_vencimento || null,
+        mes_referencia: formData.mes_referencia || null,
         status: formData.status,
         observacoes: formData.observacoes,
         categoria: 'Cartão',
@@ -138,6 +142,7 @@ export default function Cartoes() {
           valor_restante: '',
           valor_pago: '0',
           data_vencimento: '',
+          mes_referencia: '',
           status: 'pendente',
           observacoes: ''
         });
@@ -160,6 +165,7 @@ export default function Cartoes() {
       valor_restante: cartao.valor_restante.toString(),
       valor_pago: cartao.valor_pago.toString(),
       data_vencimento: cartao.data_vencimento || '',
+      mes_referencia: cartao.mes_referencia || '',
       status: cartao.status,
       observacoes: cartao.observacoes || ''
     });
@@ -214,6 +220,7 @@ export default function Cartoes() {
                   valor_restante: '',
                   valor_pago: '0',
                   data_vencimento: '',
+                  mes_referencia: '',
                   status: 'pendente',
                   observacoes: ''
                 });
@@ -292,7 +299,7 @@ export default function Cartoes() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="data_vencimento">Data de Vencimento</Label>
                   <Input
@@ -300,6 +307,21 @@ export default function Cartoes() {
                     type="date"
                     value={formData.data_vencimento}
                     onChange={(e) => setFormData({ ...formData, data_vencimento: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="mes_referencia">Mês Ref</Label>
+                  <Input
+                    id="mes_referencia"
+                    type="date"
+                    value={formData.mes_referencia}
+                    onChange={(e) => {
+                      const dateValue = e.target.value;
+                      const monthRef = dateValue ? formatDateToMonthRef(dateValue) : '';
+                      setFormData({ ...formData, mes_referencia: monthRef });
+                    }}
+                    placeholder="Selecione uma data"
                   />
                 </div>
                 
@@ -390,7 +412,7 @@ export default function Cartoes() {
                       </span>
                     </div>
                     
-                    <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div className="grid grid-cols-4 gap-4 text-sm">
                       <div>
                         <span className="text-muted-foreground">Total: </span>
                         <span className="text-foreground font-medium">{formatCurrency(Number(cartao.valor_total))}</span>
@@ -402,6 +424,10 @@ export default function Cartoes() {
                       <div>
                         <span className="text-muted-foreground">Restante: </span>
                         <span className="text-foreground font-medium">{formatCurrency(Number(cartao.valor_restante))}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Mês Ref: </span>
+                        <span className="text-foreground font-medium">{cartao.mes_referencia || 'N/A'}</span>
                       </div>
                     </div>
                     
