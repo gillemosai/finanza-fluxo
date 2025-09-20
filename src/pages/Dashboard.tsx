@@ -309,7 +309,7 @@ export default function Dashboard() {
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 space-y-4 lg:space-y-0">
         <div>
           <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
-            <img src="/src/assets/logo_transparente.png" alt="Logo" className="h-12 w-12" />
+            <BarChart3 className="h-10 w-10 text-primary" />
             Meu Controle Financeiro
           </h1>
           <p className="text-muted-foreground mt-2">

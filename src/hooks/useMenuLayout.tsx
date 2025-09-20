@@ -10,7 +10,7 @@ interface MenuLayoutContextType {
 const MenuLayoutContext = createContext<MenuLayoutContextType | undefined>(undefined);
 
 export function MenuLayoutProvider({ children }: { children: ReactNode }) {
-  const [layout, setLayout] = useState<MenuLayout>('sidebar');
+  const [layout, setLayout] = useState<MenuLayout>('top');
 
   return (
     <MenuLayoutContext.Provider value={{ layout, setLayout }}>
