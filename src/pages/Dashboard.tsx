@@ -364,20 +364,20 @@ export default function Dashboard() {
               className="h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={despesasChart} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <BarChart data={despesasChart} layout="horizontal" margin={{ top: 5, right: 30, left: 80, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
-                    dataKey="categoria" 
-                    fontSize={10}
-                    stroke="hsl(var(--muted-foreground))"
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                  />
-                  <YAxis 
+                    type="number" 
                     fontSize={10}
                     stroke="hsl(var(--muted-foreground))"
                     tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
+                  />
+                  <YAxis 
+                    dataKey="categoria" 
+                    type="category"
+                    fontSize={10}
+                    width={75}
+                    stroke="hsl(var(--muted-foreground))"
                   />
                   <ChartTooltip 
                     content={<ChartTooltipContent />}
@@ -386,7 +386,7 @@ export default function Dashboard() {
                   <Bar 
                     dataKey="valor" 
                     fill="hsl(var(--primary))" 
-                    radius={[4, 4, 0, 0]}
+                    radius={[0, 4, 4, 0]}
                     name="Despesas"
                   />
                 </BarChart>
