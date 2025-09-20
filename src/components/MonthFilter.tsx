@@ -16,10 +16,13 @@ export function MonthFilter({ onFilterChange, selectedMonth }: MonthFilterProps)
     // Gerar os últimos 12 meses
     for (let i = 0; i < 12; i++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      const monthRef = date.toLocaleDateString('pt-BR', { 
-        month: 'short', 
-        year: '2-digit' 
-      }).toUpperCase().replace('.', '/');  // Changed to use "/" instead of removing the dot
+      
+      // Create format that matches database: "SET/25" 
+      const monthName = date.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase();
+      const year = date.getFullYear().toString().slice(-2);
+      const monthRef = `${monthName}/${year}`;
+      
+      
       
       monthsArray.push({
         value: monthRef,

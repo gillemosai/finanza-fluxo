@@ -96,12 +96,11 @@ export default function Dashboard() {
     gastosFixos: 0,
   });
   const [selectedMonth, setSelectedMonth] = useState<string | null>(() => {
-    // Set current month as default
+    // Set current month as default using exact same format as MonthFilter
     const now = new Date();
-    return now.toLocaleDateString('pt-BR', { 
-      month: 'short', 
-      year: '2-digit' 
-    }).toUpperCase().replace('.', '/');  // Use "/" format to match database
+    const monthName = now.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase();
+    const year = now.getFullYear().toString().slice(-2);
+    return `${monthName}/${year}`;
   });
   
   const { user } = useAuth();
