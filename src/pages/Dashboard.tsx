@@ -377,7 +377,7 @@ export default function Dashboard() {
               className="h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={monthlyChart}>
+                <BarChart data={monthlyChart}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="mes" fontSize={12} />
                   <YAxis fontSize={12} />
@@ -386,28 +386,25 @@ export default function Dashboard() {
                     formatter={(value: any) => [formatCurrency(Number(value)), ""]}
                   />
                   <Legend />
-                  <Line 
-                    type="monotone" 
+                  <Bar 
                     dataKey="receitas" 
-                    stroke="hsl(var(--success))" 
-                    strokeWidth={2}
+                    fill="hsl(var(--success))" 
                     name="Receitas"
+                    radius={[2, 2, 0, 0]}
                   />
-                  <Line 
-                    type="monotone" 
+                  <Bar 
                     dataKey="despesas" 
-                    stroke="hsl(var(--destructive))" 
-                    strokeWidth={2}
+                    fill="hsl(var(--destructive))" 
                     name="Despesas"
+                    radius={[2, 2, 0, 0]}
                   />
-                  <Line 
-                    type="monotone" 
+                  <Bar 
                     dataKey="saldo" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
+                    fill="hsl(var(--primary))" 
                     name="Saldo"
+                    radius={[2, 2, 0, 0]}
                   />
-                </LineChart>
+                </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
