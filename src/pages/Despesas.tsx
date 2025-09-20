@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,8 +20,13 @@ interface Despesa {
   categoria: string;
   valor: number;
   data_pagamento: string;
+  data_vencimento?: string;
   mes_referencia: string;
   status: string;
+  recorrente: boolean;
+  frequencia_recorrencia?: string;
+  proxima_cobranca?: string;
+  alerta_ativo: boolean;
   observacoes?: string;
 }
 
@@ -33,8 +39,12 @@ export default function Despesas() {
     categoria: "",
     valor: "",
     data_pagamento: "",
+    data_vencimento: "",
     mes_referencia: "",
     status: "a_pagar",
+    recorrente: false,
+    frequencia_recorrencia: "mensal",
+    alerta_ativo: false,
     observacoes: ""
   });
   const { toast } = useToast();
@@ -45,6 +55,15 @@ export default function Despesas() {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
+  };
+
+  const getAlertasPagamentos = () => {
+    const hoje = new Date().toISOString().split('T')[0];
+    return despesas.filter(despesa => 
+      despesa.data_vencimento === hoje && 
+      despesa.status === 'a_pagar' && 
+      despesa.alerta_ativo
+    );
   };
 
   useEffect(() => {
@@ -87,8 +106,13 @@ export default function Despesas() {
         categoria: formData.categoria,
         valor: parseFloat(formData.valor),
         data_pagamento: formData.data_pagamento,
+        data_vencimento: formData.data_vencimento || null,
         mes_referencia: formData.mes_referencia,
         status: formData.status,
+        recorrente: formData.recorrente,
+        frequencia_recorrencia: formData.recorrente ? formData.frequencia_recorrencia : null,
+        proxima_cobranca: formData.recorrente && formData.data_vencimento ? formData.data_vencimento : null,
+        alerta_ativo: formData.alerta_ativo,
         observacoes: formData.observacoes
       };
 
@@ -124,8 +148,12 @@ export default function Despesas() {
         categoria: "",
         valor: "",
         data_pagamento: "",
+        data_vencimento: "",
         mes_referencia: "",
         status: "a_pagar",
+        recorrente: false,
+        frequencia_recorrencia: "mensal",
+        alerta_ativo: false,
         observacoes: ""
       });
       fetchDespesas();
@@ -146,8 +174,12 @@ export default function Despesas() {
       categoria: despesa.categoria,
       valor: despesa.valor.toString(),
       data_pagamento: despesa.data_pagamento,
+      data_vencimento: despesa.data_vencimento || "",
       mes_referencia: despesa.mes_referencia,
       status: despesa.status,
+      recorrente: despesa.recorrente,
+      frequencia_recorrencia: despesa.frequencia_recorrencia || "mensal",
+      alerta_ativo: despesa.alerta_ativo,
       observacoes: despesa.observacoes || ""
     });
     setIsDialogOpen(true);
@@ -322,6 +354,59 @@ export default function Despesas() {
               </div>
 
               <div>
+                <Label htmlFor="data_vencimento">Data de Vencimento</Label>
+                <Input
+                  id="data_vencimento"
+                  type="date"
+                  value={formData.data_vencimento}
+                  onChange={(e) => setFormData({ ...formData, data_vencimento: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Para controle de alertas e despesas recorrentes
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="recorrente"
+                    checked={formData.recorrente}
+                    onCheckedChange={(checked) => setFormData({ ...formData, recorrente: checked as boolean })}
+                  />
+                  <Label htmlFor="recorrente">Despesa Recorrente</Label>
+                </div>
+
+                {formData.recorrente && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="frequencia_recorrencia">Frequência</Label>
+                      <Select 
+                        value={formData.frequencia_recorrencia} 
+                        onValueChange={(value) => setFormData({ ...formData, frequencia_recorrencia: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a frequência" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="semanal">Semanal</SelectItem>
+                          <SelectItem value="mensal">Mensal</SelectItem>
+                          <SelectItem value="anual">Anual</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center space-x-2 pt-6">
+                      <Checkbox
+                        id="alerta_ativo"
+                        checked={formData.alerta_ativo}
+                        onCheckedChange={(checked) => setFormData({ ...formData, alerta_ativo: checked as boolean })}
+                      />
+                      <Label htmlFor="alerta_ativo">Alertas Ativos</Label>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div>
                 <Label htmlFor="observacoes">Observações</Label>
                 <Textarea
                   id="observacoes"
@@ -342,6 +427,40 @@ export default function Despesas() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Alertas de Pagamento */}
+      {getAlertasPagamentos().length > 0 && (
+        <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950 dark:border-orange-800">
+          <CardHeader>
+            <CardTitle className="text-orange-800 dark:text-orange-200 flex items-center gap-2">
+              <span className="animate-pulse">🔔</span>
+              Pagar Hoje ({getAlertasPagamentos().length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {getAlertasPagamentos().map((despesa) => (
+                <div key={despesa.id} className="flex justify-between items-center p-3 bg-white dark:bg-gray-800 rounded-lg border">
+                  <div>
+                    <p className="font-medium text-orange-900 dark:text-orange-100">{despesa.descricao}</p>
+                    <p className="text-sm text-orange-700 dark:text-orange-300">{despesa.categoria}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-orange-800 dark:text-orange-200">{formatCurrency(despesa.valor)}</p>
+                    <Button
+                      size="sm"
+                      onClick={() => handleStatusToggle(despesa)}
+                      className="mt-1 bg-orange-600 hover:bg-orange-700 text-white"
+                    >
+                      Marcar como Paga
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Resumo */}
       <Card className="shadow-card border-0 bg-gradient-destructive/5 border-l-4 border-l-destructive">

@@ -43,39 +43,54 @@ export type Database = {
       }
       despesas: {
         Row: {
+          alerta_ativo: boolean
           categoria: string
           created_at: string
           data_pagamento: string
+          data_vencimento: string | null
           descricao: string
+          frequencia_recorrencia: string | null
           id: string
           mes_referencia: string
           observacoes: string | null
+          proxima_cobranca: string | null
+          recorrente: boolean
           status: string
           updated_at: string
           user_id: string
           valor: number
         }
         Insert: {
+          alerta_ativo?: boolean
           categoria: string
           created_at?: string
           data_pagamento: string
+          data_vencimento?: string | null
           descricao: string
+          frequencia_recorrencia?: string | null
           id?: string
           mes_referencia: string
           observacoes?: string | null
+          proxima_cobranca?: string | null
+          recorrente?: boolean
           status?: string
           updated_at?: string
           user_id: string
           valor: number
         }
         Update: {
+          alerta_ativo?: boolean
           categoria?: string
           created_at?: string
           data_pagamento?: string
+          data_vencimento?: string | null
           descricao?: string
+          frequencia_recorrencia?: string | null
           id?: string
           mes_referencia?: string
           observacoes?: string | null
+          proxima_cobranca?: string | null
+          recorrente?: boolean
           status?: string
           updated_at?: string
           user_id?: string
