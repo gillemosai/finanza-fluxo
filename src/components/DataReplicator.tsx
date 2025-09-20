@@ -28,12 +28,10 @@ export function DataReplicator({ tableType, targetMonth, onReplicationComplete }
     for (let i = 0; i < 12; i++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
       const monthRef = formatDateToMonthRef(date.toISOString().split('T')[0]);
-      if (monthRef !== targetMonth) {
-        months.push({
-          value: monthRef,
-          label: `${date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} (${monthRef})`
-        });
-      }
+      months.push({
+        value: monthRef,
+        label: `${date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} (${monthRef})`
+      });
     }
     
     return months;
