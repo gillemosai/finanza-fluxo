@@ -36,11 +36,18 @@ export default function Cartoes() {
     descricao: '',
     valor_total: '',
     valor_restante: '',
-    valor_pago: '',
+    valor_pago: '0',
     data_vencimento: '',
     status: 'pendente',
     observacoes: ''
   });
+
+  // Calculate valor_restante automatically
+  const calculateValorRestante = (valorTotal: string, valorPago: string) => {
+    const total = parseFloat(valorTotal.replace(/[^\d,-]/g, '').replace(',', '.')) || 0;
+    const pago = parseFloat(valorPago.replace(/[^\d,-]/g, '').replace(',', '.')) || 0;
+    return (total - pago).toString();
+  };
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -84,11 +91,15 @@ export default function Cartoes() {
     if (!user) return;
 
     try {
+      const valorTotal = parseFloat(formData.valor_total.replace(/[^\d,-]/g, '').replace(',', '.'));
+      const valorPago = parseFloat(formData.valor_pago.replace(/[^\d,-]/g, '').replace(',', '.')) || 0;
+      const valorRestante = valorTotal - valorPago;
+
       const cartaoData = {
         descricao: formData.descricao,
-        valor_total: parseFloat(formData.valor_total.replace(/[^\d,-]/g, '').replace(',', '.')),
-        valor_restante: parseFloat(formData.valor_restante.replace(/[^\d,-]/g, '').replace(',', '.')),
-        valor_pago: parseFloat(formData.valor_pago.replace(/[^\d,-]/g, '').replace(',', '.')),
+        valor_total: valorTotal,
+        valor_restante: valorRestante,
+        valor_pago: valorPago,
         data_vencimento: formData.data_vencimento || null,
         status: formData.status,
         observacoes: formData.observacoes,
@@ -121,15 +132,15 @@ export default function Cartoes() {
 
       setIsDialogOpen(false);
       setEditingCartao(null);
-      setFormData({
-        descricao: '',
-        valor_total: '',
-        valor_restante: '',
-        valor_pago: '',
-        data_vencimento: '',
-        status: 'pendente',
-        observacoes: ''
-      });
+        setFormData({
+          descricao: '',
+          valor_total: '',
+          valor_restante: '',
+          valor_pago: '0',
+          data_vencimento: '',
+          status: 'pendente',
+          observacoes: ''
+        });
       fetchCartoes();
     } catch (error) {
       console.error('Error saving cartao:', error);
@@ -201,7 +212,7 @@ export default function Cartoes() {
                   descricao: '',
                   valor_total: '',
                   valor_restante: '',
-                  valor_pago: '',
+                  valor_pago: '0',
                   data_vencimento: '',
                   status: 'pendente',
                   observacoes: ''
@@ -237,7 +248,15 @@ export default function Cartoes() {
                   <Input
                     id="valor_total"
                     value={formData.valor_total}
-                    onChange={(e) => setFormData({ ...formData, valor_total: e.target.value })}
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+                      const newValorRestante = calculateValorRestante(newValue, formData.valor_pago);
+                      setFormData({ 
+                        ...formData, 
+                        valor_total: newValue,
+                        valor_restante: newValorRestante
+                      });
+                    }}
                     placeholder="0,00"
                     required
                   />
@@ -248,9 +267,16 @@ export default function Cartoes() {
                   <Input
                     id="valor_pago"
                     value={formData.valor_pago}
-                    onChange={(e) => setFormData({ ...formData, valor_pago: e.target.value })}
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+                      const newValorRestante = calculateValorRestante(formData.valor_total, newValue);
+                      setFormData({ 
+                        ...formData, 
+                        valor_pago: newValue,
+                        valor_restante: newValorRestante
+                      });
+                    }}
                     placeholder="0,00"
-                    required
                   />
                 </div>
 
@@ -259,9 +285,9 @@ export default function Cartoes() {
                   <Input
                     id="valor_restante"
                     value={formData.valor_restante}
-                    onChange={(e) => setFormData({ ...formData, valor_restante: e.target.value })}
                     placeholder="0,00"
-                    required
+                    disabled
+                    className="bg-muted"
                   />
                 </div>
               </div>
