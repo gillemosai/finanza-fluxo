@@ -9,6 +9,7 @@ import {
   Users
 } from "lucide-react";
 import { StatCard } from "@/components/StatCard";
+import { ImportData } from "@/components/ImportData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { PieChart as RechartsPieChart, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
@@ -174,6 +175,14 @@ export default function Dashboard() {
           Visão geral da sua situação financeira atual
         </p>
       </div>
+
+      {/* Seção de importação se não há dados */}
+      {data.receitas === 0 && data.despesas === 0 && data.dividas === 0 && isAuthenticated && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Importar Dados da Planilha</h2>
+          <ImportData />
+        </div>
+      )}
 
       {/* Cards de estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
