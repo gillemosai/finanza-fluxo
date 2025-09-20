@@ -1,33 +1,49 @@
+import { useEffect, useState } from "react";
+import { StatCard } from "@/components/StatCard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { 
+  PieChart as RechartsPieChart, 
+  Cell, 
+  ResponsiveContainer, 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid,
+  LineChart,
+  Line,
+  Legend
+} from "recharts";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   TrendingUp, 
   TrendingDown, 
   CreditCard,
   Wallet,
-  Target,
-  AlertTriangle,
-  PieChart,
-  Users
+  DollarSign,
+  Calendar
 } from "lucide-react";
-import { StatCard } from "@/components/StatCard";
-import { ImportData } from "@/components/ImportData";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { PieChart as RechartsPieChart, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 
 interface FinancialData {
   receitas: number;
   despesas: number;
   dividas: number;
   saldo: number;
-  trends: {
-    receitas: { value: string; isPositive: boolean };
-    despesas: { value: string; isPositive: boolean };
-    dividas: { value: string; isPositive: boolean };
-    saldo: { value: string; isPositive: boolean };
-  };
+}
+
+interface CategoryData {
+  categoria: string;
+  valor: number;
+  fill: string;
+}
+
+interface MonthlyData {
+  mes: string;
+  receitas: number;
+  despesas: number;
+  saldo: number;
 }
 
 export default function Dashboard() {
@@ -36,17 +52,14 @@ export default function Dashboard() {
     despesas: 0,
     dividas: 0,
     saldo: 0,
-    trends: {
-      receitas: { value: "0%", isPositive: true },
-      despesas: { value: "0%", isPositive: true },
-      dividas: { value: "0%", isPositive: true },
-      saldo: { value: "0%", isPositive: true },
-    }
   });
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [expensesByCategory, setExpensesByCategory] = useState<any[]>([]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { toast } = useToast();
+  
+  const [receitasChart, setReceitasChart] = useState<CategoryData[]>([]);
+  const [despesasChart, setDespesasChart] = useState<CategoryData[]>([]);
+  const [monthlyChart, setMonthlyChart] = useState<MonthlyData[]>([]);
+  const [cartaoData, setCartaoData] = useState<any[]>([]);
+  
+  const { user } = useAuth();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -55,296 +68,382 @@ export default function Dashboard() {
     }).format(value);
   };
 
+  const getCategoryColor = (category: string, index: number) => {
+    const colors = [
+      'hsl(var(--primary))',
+      'hsl(var(--secondary))', 
+      'hsl(var(--accent))',
+      'hsl(var(--success))',
+      'hsl(var(--warning))',
+      'hsl(var(--destructive))',
+      'hsl(var(--info))',
+      'hsl(220, 70%, 50%)',
+      'hsl(280, 70%, 50%)',
+      'hsl(320, 70%, 50%)'
+    ];
+    return colors[index % colors.length];
+  };
+
   useEffect(() => {
-    // Check auth state
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session);
-      if (session) {
-        fetchFinancialData();
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session);
-      if (session) {
-        fetchFinancialData();
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (user) {
+      fetchFinancialData();
+    }
+  }, [user]);
 
   const fetchFinancialData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       // Fetch receitas
-      const { data: receitas, error: receitasError } = await supabase
+      const { data: receitas } = await supabase
         .from('receitas')
-        .select('valor')
+        .select('valor, categoria, mes_referencia')
         .eq('user_id', user.id);
-
-      if (receitasError) throw receitasError;
 
       // Fetch despesas
-      const { data: despesas, error: despesasError } = await supabase
+      const { data: despesas } = await supabase
         .from('despesas')
-        .select('valor, categoria')
+        .select('valor, categoria, mes_referencia')
         .eq('user_id', user.id);
-
-      if (despesasError) throw despesasError;
 
       // Fetch dividas
-      const { data: dividas, error: dividasError } = await supabase
+      const { data: dividas } = await supabase
         .from('dividas')
-        .select('valor_restante')
+        .select('valor_restante, descricao, categoria')
         .eq('user_id', user.id);
-
-      if (dividasError) throw dividasError;
 
       const totalReceitas = receitas?.reduce((acc, item) => acc + Number(item.valor), 0) || 0;
       const totalDespesas = despesas?.reduce((acc, item) => acc + Number(item.valor), 0) || 0;
       const totalDividas = dividas?.reduce((acc, item) => acc + Number(item.valor_restante), 0) || 0;
       const saldo = totalReceitas - totalDespesas;
 
-      // Process expenses by category
-      const expenseCategories = despesas?.reduce((acc: any, expense) => {
-        const categoria = expense.categoria;
-        acc[categoria] = (acc[categoria] || 0) + Number(expense.valor);
-        return acc;
-      }, {});
-
-      const expensesChart = Object.entries(expenseCategories || {}).map(([category, value]: [string, any]) => ({
-        categoria: category,
-        valor: value,
-        fill: getColorForCategory(category)
-      }));
-
-      setExpensesByCategory(expensesChart);
-
-      // Set chart data for receitas vs despesas
-      setChartData([
-        { name: 'Receitas', value: totalReceitas, fill: 'hsl(var(--success))' },
-        { name: 'Despesas', value: totalDespesas, fill: 'hsl(var(--destructive))' }
-      ]);
-
       setData({
         receitas: totalReceitas,
         despesas: totalDespesas,
         dividas: totalDividas,
         saldo: saldo,
-        trends: {
-          receitas: { value: "+12%", isPositive: true },
-          despesas: { value: "+8%", isPositive: false },
-          dividas: { value: "-5%", isPositive: true },
-          saldo: { value: saldo > 0 ? "+25%" : "-15%", isPositive: saldo > 0 },
-        }
       });
+
+      // Process receitas by category
+      const receitasByCategory = receitas?.reduce((acc: any, receita) => {
+        const categoria = receita.categoria;
+        acc[categoria] = (acc[categoria] || 0) + Number(receita.valor);
+        return acc;
+      }, {});
+
+      const receitasChartData = Object.entries(receitasByCategory || {}).map(([category, value]: [string, any], index) => ({
+        categoria: category,
+        valor: value,
+        fill: getCategoryColor(category, index)
+      }));
+
+      setReceitasChart(receitasChartData);
+
+      // Process despesas by category
+      const despesasByCategory = despesas?.reduce((acc: any, despesa) => {
+        const categoria = despesa.categoria;
+        acc[categoria] = (acc[categoria] || 0) + Number(despesa.valor);
+        return acc;
+      }, {});
+
+      const despesasChartData = Object.entries(despesasByCategory || {}).map(([category, value]: [string, any], index) => ({
+        categoria: category,
+        valor: value,
+        fill: getCategoryColor(category, index)
+      }));
+
+      setDespesasChart(despesasChartData);
+
+      // Process monthly data
+      const monthlyData: any = {};
+      receitas?.forEach(receita => {
+        const mes = receita.mes_referencia;
+        if (!monthlyData[mes]) {
+          monthlyData[mes] = { mes, receitas: 0, despesas: 0, saldo: 0 };
+        }
+        monthlyData[mes].receitas += Number(receita.valor);
+      });
+
+      despesas?.forEach(despesa => {
+        const mes = despesa.mes_referencia;
+        if (!monthlyData[mes]) {
+          monthlyData[mes] = { mes, receitas: 0, despesas: 0, saldo: 0 };
+        }
+        monthlyData[mes].despesas += Number(despesa.valor);
+      });
+
+      Object.keys(monthlyData).forEach(mes => {
+        monthlyData[mes].saldo = monthlyData[mes].receitas - monthlyData[mes].despesas;
+      });
+
+      setMonthlyChart(Object.values(monthlyData));
+
+      // Process cartao data
+      const cartoesData = dividas?.filter(divida => divida.categoria === 'Cartão') || [];
+      setCartaoData(cartoesData);
 
     } catch (error) {
       console.error('Error fetching financial data:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar dados financeiros",
-        variant: "destructive",
-      });
     }
   };
 
-  const getColorForCategory = (category: string) => {
-    const colors = {
-      'Moradia': 'hsl(var(--primary))',
-      'Alimentação': 'hsl(var(--success))',
-      'Transporte': 'hsl(var(--warning))',
-      'Utilidades': 'hsl(var(--info))',
-      'Saúde': 'hsl(var(--destructive))',
-      'Lazer': 'hsl(var(--accent))'
-    };
-    return colors[category as keyof typeof colors] || 'hsl(var(--muted))';
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Header com resumo */}
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-          Dashboard Financeiro
-        </h1>
-        <p className="text-muted-foreground">
-          Visão geral da sua situação financeira atual
-        </p>
-      </div>
-
-      {/* Seção de importação se não há dados */}
-      {data.receitas === 0 && data.despesas === 0 && data.dividas === 0 && isAuthenticated && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Importar Dados da Planilha</h2>
-          <ImportData />
+    <div className="space-y-6 p-6 bg-background min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+        <div className="flex items-center space-x-2 text-muted-foreground">
+          <Calendar className="w-4 h-4" />
+          <span>2024</span>
         </div>
-      )}
-
-      {/* Cards de estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Receitas"
-          value={formatCurrency(data.receitas)}
-          icon={<TrendingUp className="w-5 h-5 text-success" />}
-          trend={data.trends.receitas}
-          className="border-l-4 border-l-success"
-        />
-        
-        <StatCard
-          title="Despesas"
-          value={formatCurrency(data.despesas)}
-          icon={<TrendingDown className="w-5 h-5 text-destructive" />}
-          trend={data.trends.despesas}
-          className="border-l-4 border-l-destructive"
-        />
-        
-        <StatCard
-          title="Dívidas"
-          value={formatCurrency(data.dividas)}
-          icon={<CreditCard className="w-5 h-5 text-warning" />}
-          trend={data.trends.dividas}
-          className="border-l-4 border-l-warning"
-        />
-        
-        <StatCard
-          title="Saldo"
-          value={formatCurrency(data.saldo)}
-          icon={<Wallet className="w-5 h-5 text-primary" />}
-          trend={data.trends.saldo}
-          className="border-l-4 border-l-primary"
-        />
       </div>
 
-      {/* Authentication Warning */}
-      {!isAuthenticated && (
-        <Card className="shadow-card border-0 bg-gradient-info/5 border-l-4 border-l-info">
+      {/* Cards principais */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-gradient-to-br from-orange-400 to-orange-600 text-white border-0">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <TrendingUp className="w-5 h-5" />
+                  <span className="text-sm font-medium">Receitas</span>
+                </div>
+                <div className="text-2xl font-bold">{formatCurrency(data.receitas)}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border border-border">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <TrendingDown className="w-5 h-5 text-blue-500" />
+                  <span className="text-sm font-medium text-muted-foreground">Despesas</span>
+                </div>
+                <div className="text-2xl font-bold text-foreground">{formatCurrency(data.despesas)}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border border-border">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <DollarSign className="w-5 h-5 text-green-500" />
+                  <span className="text-sm font-medium text-muted-foreground">Saldo</span>
+                </div>
+                <div className="text-2xl font-bold text-foreground">{formatCurrency(data.saldo)}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border border-border">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <CreditCard className="w-5 h-5 text-orange-500" />
+                  <span className="text-sm font-medium text-muted-foreground">Gastos no cartão</span>
+                </div>
+                <div className="text-2xl font-bold text-foreground">{formatCurrency(cartaoData.reduce((acc, cartao) => acc + Number(cartao.valor_restante), 0))}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Gráficos principais */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Distribuição das receitas */}
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-info">
-              <Users className="w-5 h-5" />
-              <span>Autenticação Necessária</span>
-            </CardTitle>
+            <CardTitle className="text-foreground">Distribuição das receitas</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64">
+            <ChartContainer
+              config={{
+                valor: { label: "Valor", color: "hsl(var(--primary))" },
+              }}
+              className="h-full"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsPieChart>
+                  <RechartsPieChart data={receitasChart} cx="50%" cy="50%" outerRadius={80} innerRadius={40}>
+                    {receitasChart.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </RechartsPieChart>
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value: any) => [formatCurrency(Number(value)), ""]}
+                  />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        {/* Distribuição dos gastos e receitas */}
+        <Card className="bg-card border border-border">
+          <CardHeader>
+            <CardTitle className="text-foreground">Distribuição dos gastos e receitas</CardTitle>
+          </CardHeader>
+          <CardContent className="h-64">
+            <ChartContainer
+              config={{
+                valor: { label: "Valor", color: "hsl(var(--primary))" },
+              }}
+              className="h-full"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={despesasChart} layout="horizontal">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" fontSize={10} />
+                  <YAxis 
+                    dataKey="categoria" 
+                    type="category"
+                    fontSize={10}
+                    width={80}
+                  />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
+                  />
+                  <Bar dataKey="valor" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        {/* Gastos com Cartão de Crédito */}
+        <Card className="bg-card border border-border">
+          <CardHeader>
+            <CardTitle className="text-foreground">Gastos com Cartão de Crédito</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-foreground">
-              Para visualizar seus dados financeiros reais, você precisa implementar autenticação. 
-              Os dados mostrados são apenas demonstrativos.
-            </p>
+            <div className="space-y-4">
+              {/* Visual do cartão */}
+              <div className="bg-gradient-to-r from-gray-700 to-gray-900 rounded-lg p-4 text-white h-24 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-xs opacity-70">••••  ••••  ••••  2500</div>
+                  <div className="text-sm font-medium mt-1">Cartão Principal</div>
+                </div>
+              </div>
+              
+              {/* Dados dos cartões */}
+              <div className="space-y-2">
+                {cartaoData.map((cartao, index) => (
+                  <div key={index} className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">{cartao.descricao}</span>
+                    <span className="font-medium text-foreground">{formatCurrency(Number(cartao.valor_restante))}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
-      )}
+      </div>
 
-      {/* Alertas e notificações */}
-      <Card className="shadow-card border-0 bg-gradient-warning/5 border-l-4 border-l-warning">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2 text-warning">
-            <AlertTriangle className="w-5 h-5" />
-            <span>Alertas Importantes</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <p className="text-sm text-foreground">
-              • Suas despesas aumentaram {Math.abs(Number(data.trends.despesas.value.replace('%', '')))}% em relação ao mês anterior
-            </p>
-            <p className="text-sm text-foreground">
-              • Saldo atual: {data.saldo >= 0 ? 'Positivo' : 'Negativo'} de {formatCurrency(Math.abs(data.saldo))}
-            </p>
-            <p className="text-sm text-foreground">
-              • Total de dívidas pendentes: {formatCurrency(data.dividas)}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Gráficos Interativos */}
+      {/* Gráficos inferiores */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+        {/* Evolução Receitas x Despesas x Saldo */}
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <PieChart className="w-5 h-5 text-primary" />
-              <span>Receitas vs Despesas</span>
-            </CardTitle>
+            <CardTitle className="text-foreground">Evolução Receitas x Despesas x Saldo ao longo dos meses</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
-            {chartData.length > 0 ? (
-              <ChartContainer
-                config={{
-                  receitas: { label: "Receitas", color: "hsl(var(--success))" },
-                  despesas: { label: "Despesas", color: "hsl(var(--destructive))" },
-                }}
-                className="h-full"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
-                    <RechartsPieChart data={chartData} cx="50%" cy="50%" outerRadius={80}>
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </RechartsPieChart>
-                    <ChartTooltip 
-                      content={<ChartTooltipContent />}
-                      formatter={(value: any) => [formatCurrency(Number(value)), ""]}
-                    />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full text-center text-muted-foreground">
-                <div>
-                  <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm">Carregando dados financeiros...</p>
-                </div>
-              </div>
-            )}
+            <ChartContainer
+              config={{
+                receitas: { label: "Receitas", color: "hsl(var(--success))" },
+                despesas: { label: "Despesas", color: "hsl(var(--destructive))" },
+                saldo: { label: "Saldo", color: "hsl(var(--primary))" },
+              }}
+              className="h-full"
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={monthlyChart}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" fontSize={12} />
+                  <YAxis fontSize={12} />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value: any) => [formatCurrency(Number(value)), ""]}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="receitas" 
+                    stroke="hsl(var(--success))" 
+                    strokeWidth={2}
+                    name="Receitas"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="despesas" 
+                    stroke="hsl(var(--destructive))" 
+                    strokeWidth={2}
+                    name="Despesas"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="saldo" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    name="Saldo"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
-        <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
+        {/* Saldo dos Bancos */}
+        <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="w-5 h-5 text-success" />
-              <span>Despesas por Categoria</span>
-            </CardTitle>
+            <CardTitle className="text-foreground">Saldo dos Bancos</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
-            {expensesByCategory.length > 0 ? (
-              <ChartContainer
-                config={{
-                  valor: { label: "Valor", color: "hsl(var(--primary))" },
-                }}
-                className="h-full"
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={expensesByCategory}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="categoria" 
-                      fontSize={12}
-                      angle={-45}
-                      textAnchor="end"
-                      height={60}
-                    />
-                    <YAxis fontSize={12} />
-                    <ChartTooltip 
-                      content={<ChartTooltipContent />}
-                      formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
-                    />
-                    <Bar dataKey="valor" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full text-center text-muted-foreground">
-                <div>
-                  <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm">Carregando categorias de despesas...</p>
+            <div className="space-y-4">
+              <div className="text-right">
+                <div className="text-2xl font-bold text-foreground">{formatCurrency(data.saldo)}</div>
+                <div className="text-sm text-muted-foreground">Saldo Total</div>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">BB</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
+                      163
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Bradesco</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
+                      152
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Itaú</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
+                      117
+                    </div>
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
           </CardContent>
         </Card>
       </div>
