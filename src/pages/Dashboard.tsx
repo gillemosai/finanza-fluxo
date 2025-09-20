@@ -305,12 +305,12 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle className="text-foreground">Distribuição de Receitas</CardTitle>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-64 flex items-center justify-center">
             <ChartContainer
               config={{
                 valor: { label: "Valor", color: "hsl(var(--primary))" },
               }}
-              className="h-full"
+              className="h-full w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>
