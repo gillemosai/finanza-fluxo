@@ -18,7 +18,7 @@ export function MonthFilter({ onFilterChange, selectedMonth }: MonthFilterProps)
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
       
       // Create format that matches database: "SET/25" 
-      const monthName = date.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase();
+      const monthName = date.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
       const year = date.getFullYear().toString().slice(-2);
       const monthRef = `${monthName}/${year}`;
       

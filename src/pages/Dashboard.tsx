@@ -98,7 +98,7 @@ export default function Dashboard() {
   const [selectedMonth, setSelectedMonth] = useState<string | null>(() => {
     // Set current month as default using exact same format as MonthFilter
     const now = new Date();
-    const monthName = now.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase();
+    const monthName = now.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase().replace('.', '');
     const year = now.getFullYear().toString().slice(-2);
     return `${monthName}/${year}`;
   });
