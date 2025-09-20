@@ -4,6 +4,7 @@ import { DataImporter } from "@/components/DataImporter";
 import { MonthFilter } from "@/components/MonthFilter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Badge } from "@/components/ui/badge";
 import { 
   PieChart as RechartsPieChart, 
   Cell, 
@@ -16,7 +17,9 @@ import {
   LineChart,
   Line,
   Legend,
-  Pie
+  Pie,
+  Area,
+  AreaChart
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,7 +29,11 @@ import {
   CreditCard,
   Wallet,
   DollarSign,
-  Calendar
+  PiggyBank,
+  Target,
+  AlertTriangle,
+  ArrowUpIcon,
+  ArrowDownIcon
 } from "lucide-react";
 
 interface FinancialData {
@@ -34,12 +41,17 @@ interface FinancialData {
   despesas: number;
   dividas: number;
   saldo: number;
+  economia: number;
+  taxaEconomia: number;
+  gastosVariaveis: number;
+  gastosFixos: number;
 }
 
 interface CategoryData {
   categoria: string;
   valor: number;
   fill: string;
+  percentual?: number;
 }
 
 interface MonthlyData {
@@ -47,6 +59,13 @@ interface MonthlyData {
   receitas: number;
   despesas: number;
   saldo: number;
+  economia: number;
+}
+
+interface TrendData {
+  periodo: string;
+  valor: number;
+  tipo: 'receita' | 'despesa';
 }
 
 export default function Dashboard() {
@@ -55,6 +74,10 @@ export default function Dashboard() {
     despesas: 0,
     dividas: 0,
     saldo: 0,
+    economia: 0,
+    taxaEconomia: 0,
+    gastosVariaveis: 0,
+    gastosFixos: 0,
   });
   
   const [receitasChart, setReceitasChart] = useState<CategoryData[]>([]);
@@ -62,6 +85,16 @@ export default function Dashboard() {
   const [monthlyChart, setMonthlyChart] = useState<MonthlyData[]>([]);
   const [cartaoData, setCartaoData] = useState<any[]>([]);
   const [saldosBancariosData, setSaldosBancariosData] = useState<any[]>([]);
+  const [previousMonthData, setPreviousMonthData] = useState<FinancialData>({
+    receitas: 0,
+    despesas: 0,
+    dividas: 0,
+    saldo: 0,
+    economia: 0,
+    taxaEconomia: 0,
+    gastosVariaveis: 0,
+    gastosFixos: 0,
+  });
   const [selectedMonth, setSelectedMonth] = useState<string | null>(() => {
     // Set current month as default
     const now = new Date();
@@ -128,9 +161,7 @@ export default function Dashboard() {
         despesasQuery = despesasQuery.eq('mes_referencia', selectedMonth);
       }
       
-      console.log('Selected month:', selectedMonth);
       const { data: despesas } = await despesasQuery;
-      console.log('Despesas data:', despesas);
 
       // Fetch dividas
       const { data: dividas } = await supabase
@@ -148,12 +179,25 @@ export default function Dashboard() {
       const totalDespesas = despesas?.reduce((acc, item) => acc + Number(item.valor), 0) || 0;
       const totalDividas = dividas?.reduce((acc, item) => acc + Number(item.valor_restante), 0) || 0;
       const saldo = totalReceitas - totalDespesas;
+      const economia = saldo > 0 ? saldo : 0;
+      const taxaEconomia = totalReceitas > 0 ? (economia / totalReceitas) * 100 : 0;
+
+      // Classify expenses as fixed/variable
+      const gastosFixos = despesas?.filter(d => 
+        ['Moradia', 'Internet', 'Assinaturas'].includes(d.categoria)
+      ).reduce((acc, item) => acc + Number(item.valor), 0) || 0;
+      
+      const gastosVariaveis = totalDespesas - gastosFixos;
 
       setData({
         receitas: totalReceitas,
         despesas: totalDespesas,
         dividas: totalDividas,
         saldo: saldo,
+        economia: economia,
+        taxaEconomia: taxaEconomia,
+        gastosFixos: gastosFixos,
+        gastosVariaveis: gastosVariaveis,
       });
 
       // Process receitas by category
@@ -178,24 +222,20 @@ export default function Dashboard() {
         return acc;
       }, {});
 
-      console.log('Despesas by category:', despesasByCategory);
-
       const despesasChartData = Object.entries(despesasByCategory || {}).map(([category, value]: [string, any], index) => ({
         categoria: category,
         valor: Number(value),
         fill: getCategoryColor(category, index)
       }));
 
-      console.log('Despesas chart data:', despesasChartData);
-
       setDespesasChart(despesasChartData);
 
-      // Process monthly data
+      // Process monthly data with enhanced metrics
       const monthlyData: any = {};
       receitas?.forEach(receita => {
         const mes = receita.mes_referencia;
         if (!monthlyData[mes]) {
-          monthlyData[mes] = { mes, receitas: 0, despesas: 0, saldo: 0 };
+          monthlyData[mes] = { mes, receitas: 0, despesas: 0, saldo: 0, economia: 0 };
         }
         monthlyData[mes].receitas += Number(receita.valor);
       });
@@ -203,13 +243,14 @@ export default function Dashboard() {
       despesas?.forEach(despesa => {
         const mes = despesa.mes_referencia;
         if (!monthlyData[mes]) {
-          monthlyData[mes] = { mes, receitas: 0, despesas: 0, saldo: 0 };
+          monthlyData[mes] = { mes, receitas: 0, despesas: 0, saldo: 0, economia: 0 };
         }
         monthlyData[mes].despesas += Number(despesa.valor);
       });
 
       Object.keys(monthlyData).forEach(mes => {
         monthlyData[mes].saldo = monthlyData[mes].receitas - monthlyData[mes].despesas;
+        monthlyData[mes].economia = monthlyData[mes].saldo > 0 ? monthlyData[mes].saldo : 0;
       });
 
       setMonthlyChart(Object.values(monthlyData));
@@ -232,6 +273,16 @@ export default function Dashboard() {
     }
   };
 
+  // Helper functions for trend calculations
+  const getTrend = (current: number, previous: number) => {
+    if (previous === 0) return { value: "Novo", isPositive: true };
+    const percentChange = ((current - previous) / previous) * 100;
+    return {
+      value: `${Math.abs(percentChange).toFixed(1)}%`,
+      isPositive: percentChange >= 0
+    };
+  };
+
   // Show import component if no data exists
   if (data.receitas === 0 && data.despesas === 0 && data.dividas === 0) {
     return (
@@ -242,86 +293,91 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 p-6 bg-background min-h-screen">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <MonthFilter 
-          onFilterChange={setSelectedMonth}
-          selectedMonth={selectedMonth}
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/5 p-6 animate-fade-in">
+      {/* Header Section */}
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 space-y-4 lg:space-y-0">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            Dashboard Financeiro
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Visão geral das suas finanças pessoais
+          </p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Badge variant="outline" className="text-sm">
+            {selectedMonth ? `Filtro: ${selectedMonth}` : 'Todos os períodos'}
+          </Badge>
+          <MonthFilter 
+            onFilterChange={setSelectedMonth}
+            selectedMonth={selectedMonth}
+          />
+        </div>
+      </div>
+
+      {/* KPIs Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
+        <StatCard
+          title="Receitas Totais"
+          value={formatCurrency(data.receitas)}
+          icon={<TrendingUp className="h-5 w-5 text-success" />}
+          trend={getTrend(data.receitas, previousMonthData.receitas)}
+          className="hover-scale bg-gradient-to-r from-success/10 to-success/5 border-success/20"
+        />
+        
+        <StatCard
+          title="Despesas Totais"
+          value={formatCurrency(data.despesas)}
+          icon={<TrendingDown className="h-5 w-5 text-destructive" />}
+          trend={getTrend(data.despesas, previousMonthData.despesas)}
+          className="hover-scale bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20"
+        />
+        
+        <StatCard
+          title="Saldo Líquido"
+          value={formatCurrency(data.saldo)}
+          icon={<Wallet className="h-5 w-5 text-primary" />}
+          trend={getTrend(data.saldo, previousMonthData.saldo)}
+          className="hover-scale bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20"
+        />
+        
+        <StatCard
+          title="Taxa de Economia"
+          value={`${data.taxaEconomia.toFixed(1)}%`}
+          icon={<PiggyBank className="h-5 w-5 text-warning" />}
+          trend={getTrend(data.taxaEconomia, previousMonthData.taxaEconomia)}
+          className="hover-scale bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20"
+        />
+        
+        <StatCard
+          title="Gastos Fixos"
+          value={formatCurrency(data.gastosFixos)}
+          icon={<Target className="h-5 w-5 text-info" />}
+          className="hover-scale bg-gradient-to-r from-info/10 to-info/5 border-info/20"
+        />
+        
+        <StatCard
+          title="Dívidas Pendentes"
+          value={formatCurrency(data.dividas)}
+          icon={<AlertTriangle className="h-5 w-5 text-destructive" />}
+          className="hover-scale bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20"
         />
       </div>
 
-      {/* Cards principais */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-orange-400 to-orange-600 text-white border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center space-x-2 mb-2">
-                  <TrendingUp className="w-5 h-5" />
-                  <span className="text-sm font-medium">Receitas</span>
-                </div>
-                <div className="text-2xl font-bold">{formatCurrency(data.receitas)}</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border border-border">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center space-x-2 mb-2">
-                  <TrendingDown className="w-5 h-5 text-blue-500" />
-                  <span className="text-sm font-medium text-muted-foreground">Despesas</span>
-                </div>
-                <div className="text-2xl font-bold text-foreground">{formatCurrency(data.despesas)}</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border border-border">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center space-x-2 mb-2">
-                  <DollarSign className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-medium text-muted-foreground">Saldo</span>
-                </div>
-                <div className="text-2xl font-bold text-foreground">{formatCurrency(data.saldo)}</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border border-border">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center space-x-2 mb-2">
-                  <CreditCard className="w-5 h-5 text-orange-500" />
-                  <span className="text-sm font-medium text-muted-foreground">Gastos no cartão</span>
-                </div>
-                <div className="text-2xl font-bold text-foreground">{formatCurrency(cartaoData.reduce((acc, cartao) => acc + Number(cartao.valor_restante), 0))}</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Gráficos principais */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Distribuição das receitas */}
-        <Card className="bg-card border border-border">
-          <CardHeader>
-            <CardTitle className="text-foreground">Distribuição de Receitas</CardTitle>
+      {/* Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+        {/* Income Distribution */}
+        <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-glow transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-success" />
+              Distribuição de Receitas
+            </CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             <ChartContainer
               config={{
-                valor: { label: "Valor", color: "hsl(var(--primary))" },
+                valor: { label: "Valor", color: "hsl(var(--success))" },
               }}
               className="h-full"
             >
@@ -357,15 +413,18 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Distribuição de Despesas */}
-        <Card className="bg-card border border-border">
-          <CardHeader>
-            <CardTitle className="text-foreground">Distribuição de Despesas</CardTitle>
+        {/* Expense Distribution */}
+        <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-glow transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <TrendingDown className="h-5 w-5 text-destructive" />
+              Distribuição de Despesas
+            </CardTitle>
           </CardHeader>
           <CardContent className="h-64 flex items-center justify-center">
             <ChartContainer
               config={{
-                valor: { label: "Valor", color: "hsl(var(--primary))" },
+                valor: { label: "Valor", color: "hsl(var(--destructive))" },
               }}
               className="h-full w-full"
             >
@@ -395,27 +454,32 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Gastos com Cartão de Crédito */}
-        <Card className="bg-card border border-border">
-          <CardHeader>
-            <CardTitle className="text-foreground">Gastos com Cartão de Crédito</CardTitle>
+        {/* Credit Card Summary */}
+        <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-glow transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-warning" />
+              Resumo Cartões
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Visual do cartão */}
-              <div className="bg-gradient-to-r from-gray-700 to-gray-900 rounded-lg p-4 text-white h-24 flex items-center justify-center">
+              {/* Credit Card Visual */}
+              <div className="bg-gradient-to-r from-gray-700 to-gray-900 rounded-xl p-4 text-white h-20 flex items-center justify-center shadow-lg">
                 <div className="text-center">
                   <div className="text-xs opacity-70">••••  ••••  ••••  2500</div>
-                  <div className="text-sm font-medium mt-1">Cartão Principal</div>
+                  <div className="text-sm font-medium mt-1">Total: {formatCurrency(cartaoData.reduce((acc, cartao) => acc + Number(cartao.valor_restante), 0))}</div>
                 </div>
               </div>
               
-              {/* Dados dos cartões */}
-              <div className="space-y-2">
+              {/* Card Details */}
+              <div className="space-y-3 max-h-32 overflow-y-auto">
                 {cartaoData.map((cartao, index) => (
-                  <div key={index} className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">{cartao.descricao}</span>
-                    <span className="font-medium text-foreground">{formatCurrency(Number(cartao.valor_restante))}</span>
+                  <div key={index} className="flex justify-between items-center text-sm p-2 rounded-lg bg-accent/10">
+                    <span className="text-muted-foreground font-medium">{cartao.descricao}</span>
+                    <Badge variant="outline" className="font-semibold">
+                      {formatCurrency(Number(cartao.valor_restante))}
+                    </Badge>
                   </div>
                 ))}
               </div>
@@ -424,109 +488,124 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Gráficos inferiores */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Evolução Receitas x Despesas x Saldo */}
-        <Card className="bg-card border border-border">
-          <CardHeader>
-            <CardTitle className="text-foreground">Evolução Receitas x Despesas x Saldo ao longo dos meses</CardTitle>
+      {/* Trends Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Monthly Evolution */}
+        <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-glow transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <ArrowUpIcon className="h-5 w-5 text-primary" />
+              Evolução Mensal
+            </CardTitle>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-80">
             <ChartContainer
               config={{
                 receitas: { label: "Receitas", color: "hsl(var(--success))" },
                 despesas: { label: "Despesas", color: "hsl(var(--destructive))" },
-                saldo: { label: "Saldo", color: "hsl(var(--primary))" },
+                economia: { label: "Economia", color: "hsl(var(--primary))" },
               }}
               className="h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyChart}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" fontSize={12} />
-                  <YAxis fontSize={12} />
+                <AreaChart data={monthlyChart} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorReceitas" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <linearGradient id="colorDespesas" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <linearGradient id="colorEconomia" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="mes" 
+                    fontSize={10}
+                    stroke="hsl(var(--muted-foreground))"
+                  />
+                  <YAxis 
+                    fontSize={10}
+                    stroke="hsl(var(--muted-foreground))"
+                    tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
+                  />
                   <ChartTooltip 
                     content={<ChartTooltipContent />}
                     formatter={(value: any) => [formatCurrency(Number(value)), ""]}
                   />
                   <Legend />
-                  <Bar 
-                    dataKey="receitas" 
-                    fill="hsl(var(--success))" 
+                  <Area
+                    type="monotone"
+                    dataKey="receitas"
+                    stroke="hsl(var(--success))"
+                    fillOpacity={1}
+                    fill="url(#colorReceitas)"
                     name="Receitas"
-                    radius={[2, 2, 0, 0]}
                   />
-                  <Bar 
-                    dataKey="despesas" 
-                    fill="hsl(var(--destructive))" 
+                  <Area
+                    type="monotone"
+                    dataKey="despesas"
+                    stroke="hsl(var(--destructive))"
+                    fillOpacity={1}
+                    fill="url(#colorDespesas)"
                     name="Despesas"
-                    radius={[2, 2, 0, 0]}
                   />
-                  <Bar 
-                    dataKey="saldo" 
-                    fill="hsl(var(--primary))" 
-                    name="Saldo"
-                    radius={[2, 2, 0, 0]}
+                  <Area
+                    type="monotone"
+                    dataKey="economia"
+                    stroke="hsl(var(--primary))"
+                    fillOpacity={1}
+                    fill="url(#colorEconomia)"
+                    name="Economia"
                   />
-                </BarChart>
+                </AreaChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
         </Card>
 
-        {/* Saldo dos Bancos */}
-        <Card className="bg-card border border-border">
-          <CardHeader>
-            <CardTitle className="text-foreground">Saldo dos Bancos</CardTitle>
+        {/* Bank Balances */}
+        <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-glow transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-info" />
+              Saldos Bancários
+            </CardTitle>
           </CardHeader>
-          <CardContent className="h-64">
-            <div className="space-y-4">
-              <div className="text-right">
-                <div className="text-2xl font-bold text-foreground">{formatCurrency(data.saldo)}</div>
-                <div className="text-sm text-muted-foreground">Saldo Total</div>
+          <CardContent className="h-80">
+            <div className="space-y-6">
+              <div className="text-center p-6 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20">
+                <div className="text-3xl font-bold text-primary mb-2">
+                  {formatCurrency(data.saldo)}
+                </div>
+                <div className="text-sm text-muted-foreground">Saldo Total Disponível</div>
               </div>
               
-              <div className="space-y-3">
+              <div className="space-y-4 max-h-48 overflow-y-auto">
                 {saldosBancariosData.length > 0 ? (
                   saldosBancariosData.map((banco, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">{banco.banco}</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="px-3 py-1 bg-orange-200 text-orange-800 rounded text-xs font-medium">
-                          {formatCurrency(banco.saldo)}
+                    <div key={index} className="flex justify-between items-center p-3 rounded-lg bg-accent/10 hover:bg-accent/20 transition-colors">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Wallet className="w-5 h-5 text-primary" />
                         </div>
+                        <span className="font-medium text-foreground">{banco.banco}</span>
                       </div>
+                      <Badge variant="secondary" className="font-semibold">
+                        {formatCurrency(banco.saldo)}
+                      </Badge>
                     </div>
                   ))
                 ) : (
-                  <>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">BB</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
-                          163
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Bradesco</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
-                          152
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Itaú</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
-                          117
-                        </div>
-                      </div>
-                    </div>
-                  </>
+                  <div className="text-center text-muted-foreground py-8">
+                    <Wallet className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>Nenhuma conta bancária cadastrada</p>
+                  </div>
                 )}
               </div>
             </div>
