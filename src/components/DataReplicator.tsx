@@ -27,7 +27,15 @@ export function DataReplicator({ tableType, targetMonth, onReplicationComplete }
     
     for (let i = 0; i < 12; i++) {
       const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      const monthRef = formatDateToMonthRef(date.toISOString().split('T')[0]);
+      
+      // Fix timezone issue by creating a properly formatted date string
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = '01';
+      const dateString = `${year}-${month}-${day}`;
+      
+      const monthRef = formatDateToMonthRef(dateString);
+      
       months.push({
         value: monthRef,
         label: `${date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} (${monthRef})`
