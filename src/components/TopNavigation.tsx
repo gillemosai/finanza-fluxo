@@ -70,17 +70,8 @@ export function TopNavigation() {
     <TooltipProvider>
       <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="h-full flex items-center justify-between px-6">
-          {/* Logo, Title and Navigation */}
+          {/* Navigation */}
           <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-3">
-              <img 
-                src="/src/assets/logo_transparente.png" 
-                alt="Logo" 
-                className="h-8 w-8" 
-              />
-              <h1 className="text-xl font-semibold text-foreground">Controle Financeiro</h1>
-            </div>
-
             {/* Navigation Icons */}
             <nav className="flex items-center space-x-1">
               {menuItems.map((item) => (

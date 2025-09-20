@@ -308,6 +308,13 @@ export default function Dashboard() {
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 space-y-4 lg:space-y-0">
         <div>
+          <div className="flex items-center gap-4 mb-4">
+            <img 
+              src="/src/assets/logo_cheia_transp_var01-2.png" 
+              alt="Logo" 
+              className="h-16 w-16" 
+            />
+          </div>
           <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
             <BarChart3 className="h-10 w-10 text-primary" />
             Meu Controle Financeiro
