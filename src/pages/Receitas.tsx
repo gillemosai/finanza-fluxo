@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCategorias } from "@/hooks/useCategorias";
 import { Plus, Edit, Trash2, TrendingUp } from "lucide-react";
+import { formatDateToMonthRef } from "@/utils/dateUtils";
 
 interface Receita {
   id: string;
@@ -248,7 +249,14 @@ export default function Receitas() {
                     id="data_recebimento"
                     type="date"
                     value={formData.data_recebimento}
-                    onChange={(e) => setFormData({ ...formData, data_recebimento: e.target.value })}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      setFormData({ 
+                        ...formData, 
+                        data_recebimento: newDate,
+                        mes_referencia: formatDateToMonthRef(newDate)
+                      });
+                    }}
                     required
                   />
                 </div>
@@ -258,11 +266,14 @@ export default function Receitas() {
                 <Label htmlFor="mes_referencia">Mês Referência</Label>
                 <Input
                   id="mes_referencia"
-                  placeholder="2025-01"
+                  placeholder="SET/25"
                   value={formData.mes_referencia}
-                  onChange={(e) => setFormData({ ...formData, mes_referencia: e.target.value })}
-                  required
+                  readOnly
+                  className="bg-muted"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Gerado automaticamente a partir da data de recebimento
+                </p>
               </div>
 
               <div>
