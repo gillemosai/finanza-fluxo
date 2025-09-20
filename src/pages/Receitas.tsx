@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useCategorias } from "@/hooks/useCategorias";
 import { Plus, Edit, Trash2, TrendingUp } from "lucide-react";
 
 interface Receita {
@@ -34,6 +35,7 @@ export default function Receitas() {
     observacoes: ""
   });
   const { toast } = useToast();
+  const { categoryNames: categorias } = useCategorias('receita');
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -41,15 +43,6 @@ export default function Receitas() {
       currency: 'BRL'
     }).format(value);
   };
-
-  const categorias = [
-    "Trabalho",
-    "Renda Passiva", 
-    "Freelance",
-    "Investimentos",
-    "Vendas",
-    "Outros"
-  ];
 
   useEffect(() => {
     fetchReceitas();

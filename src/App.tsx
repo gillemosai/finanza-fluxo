@@ -13,6 +13,7 @@ import Receitas from "./pages/Receitas";
 import Despesas from "./pages/Despesas";
 import Dividas from "./pages/Dividas";
 import Relatorios from "./pages/Relatorios";
+import Configuracoes from "./pages/Configuracoes";
 
 const queryClient = new QueryClient();
 
@@ -63,10 +64,7 @@ const App = () => (
             <Route path="/configuracoes" element={
               <ProtectedRoute>
                 <Layout>
-                  <div className="p-6">
-                    <h1 className="text-2xl font-bold mb-4">Configurações</h1>
-                    <p className="text-muted-foreground">Configurações do sistema</p>
-                  </div>
+                  <Configuracoes />
                 </Layout>
               </ProtectedRoute>
             } />

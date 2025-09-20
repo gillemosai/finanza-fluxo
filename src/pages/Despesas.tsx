@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useCategorias } from "@/hooks/useCategorias";
 import { Plus, Edit, Trash2, TrendingDown } from "lucide-react";
 
 interface Despesa {
@@ -34,6 +35,7 @@ export default function Despesas() {
     observacoes: ""
   });
   const { toast } = useToast();
+  const { categoryNames: categorias } = useCategorias('despesa');
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -41,18 +43,6 @@ export default function Despesas() {
       currency: 'BRL'
     }).format(value);
   };
-
-  const categorias = [
-    "Moradia",
-    "Alimentação",
-    "Transporte",
-    "Utilidades",
-    "Saúde",
-    "Lazer",
-    "Educação",
-    "Roupas",
-    "Outros"
-  ];
 
   useEffect(() => {
     fetchDespesas();

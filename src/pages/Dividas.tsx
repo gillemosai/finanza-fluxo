@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useCategorias } from "@/hooks/useCategorias";
 import { Plus, Edit, Trash2, CreditCard, AlertTriangle } from "lucide-react";
 
 interface Divida {
@@ -46,6 +47,7 @@ export default function Dividas() {
     observacoes: ""
   });
   const { toast } = useToast();
+  const { categoryNames: categorias } = useCategorias('divida');
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -53,16 +55,6 @@ export default function Dividas() {
       currency: 'BRL'
     }).format(value);
   };
-
-  const categorias = [
-    "Cartão",
-    "Empréstimo",
-    "Financiamento",
-    "Veículo",
-    "Imóvel",
-    "Pessoal",
-    "Outros"
-  ];
 
   const statusOptions = [
     { value: "pendente", label: "Pendente" },
