@@ -14,7 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      despesas: {
+        Row: {
+          categoria: string
+          created_at: string
+          data_pagamento: string
+          descricao: string
+          id: string
+          mes_referencia: string
+          observacoes: string | null
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          data_pagamento: string
+          descricao: string
+          id?: string
+          mes_referencia: string
+          observacoes?: string | null
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          data_pagamento?: string
+          descricao?: string
+          id?: string
+          mes_referencia?: string
+          observacoes?: string | null
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      dividas: {
+        Row: {
+          categoria: string | null
+          created_at: string
+          data_vencimento: string | null
+          descricao: string
+          id: string
+          observacoes: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          valor_pago: number
+          valor_restante: number
+          valor_total: number
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string
+          data_vencimento?: string | null
+          descricao: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          valor_pago?: number
+          valor_restante: number
+          valor_total: number
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string
+          data_vencimento?: string | null
+          descricao?: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          valor_pago?: number
+          valor_restante?: number
+          valor_total?: number
+        }
+        Relationships: []
+      }
+      receitas: {
+        Row: {
+          categoria: string
+          created_at: string
+          data_recebimento: string
+          descricao: string
+          id: string
+          mes_referencia: string
+          observacoes: string | null
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          data_recebimento: string
+          descricao: string
+          id?: string
+          mes_referencia: string
+          observacoes?: string | null
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          data_recebimento?: string
+          descricao?: string
+          id?: string
+          mes_referencia?: string
+          observacoes?: string | null
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
