@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { StatCard } from "@/components/StatCard";
 import { DataImporter } from "@/components/DataImporter";
+import { MonthFilter } from "@/components/MonthFilter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { 
@@ -14,7 +15,8 @@ import {
   CartesianGrid,
   LineChart,
   Line,
-  Legend
+  Legend,
+  Pie
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -60,6 +62,7 @@ export default function Dashboard() {
   const [monthlyChart, setMonthlyChart] = useState<MonthlyData[]>([]);
   const [cartaoData, setCartaoData] = useState<any[]>([]);
   const [saldosBancariosData, setSaldosBancariosData] = useState<any[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   
   const { user } = useAuth();
 
@@ -90,23 +93,35 @@ export default function Dashboard() {
     if (user) {
       fetchFinancialData();
     }
-  }, [user]);
+  }, [user, selectedMonth]);
 
   const fetchFinancialData = async () => {
     try {
       if (!user) return;
 
       // Fetch receitas
-      const { data: receitas } = await supabase
+      let receitasQuery = supabase
         .from('receitas')
         .select('valor, categoria, mes_referencia')
         .eq('user_id', user.id);
+      
+      if (selectedMonth) {
+        receitasQuery = receitasQuery.eq('mes_referencia', selectedMonth);
+      }
+      
+      const { data: receitas } = await receitasQuery;
 
       // Fetch despesas
-      const { data: despesas } = await supabase
+      let despesasQuery = supabase
         .from('despesas')
         .select('valor, categoria, mes_referencia')
         .eq('user_id', user.id);
+      
+      if (selectedMonth) {
+        despesasQuery = despesasQuery.eq('mes_referencia', selectedMonth);
+      }
+      
+      const { data: despesas } = await despesasQuery;
 
       // Fetch dividas
       const { data: dividas } = await supabase
@@ -218,10 +233,10 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <div className="flex items-center space-x-2 text-muted-foreground">
-          <Calendar className="w-4 h-4" />
-          <span>2024</span>
-        </div>
+        <MonthFilter 
+          onFilterChange={setSelectedMonth}
+          selectedMonth={selectedMonth}
+        />
       </div>
 
       {/* Cards principais */}
@@ -288,7 +303,7 @@ export default function Dashboard() {
         {/* Distribuição das receitas */}
         <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="text-foreground">Distribuição das receitas</CardTitle>
+            <CardTitle className="text-foreground">Distribuição de Receitas</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             <ChartContainer
@@ -299,14 +314,23 @@ export default function Dashboard() {
             >
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>
-                  <RechartsPieChart data={receitasChart} cx="50%" cy="50%" outerRadius={80} innerRadius={40}>
+                  <Pie 
+                    data={receitasChart} 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius={80} 
+                    innerRadius={40}
+                    dataKey="valor"
+                    label={({ categoria, percent }) => `${categoria} ${(percent * 100).toFixed(1)}%`}
+                    labelLine={false}
+                  >
                     {receitasChart.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
-                  </RechartsPieChart>
+                  </Pie>
                   <ChartTooltip 
                     content={<ChartTooltipContent />}
-                    formatter={(value: any) => [formatCurrency(Number(value)), ""]}
+                    formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
                   />
                 </RechartsPieChart>
               </ResponsiveContainer>
@@ -314,10 +338,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Distribuição dos gastos e receitas */}
+        {/* Distribuição de Despesas */}
         <Card className="bg-card border border-border">
           <CardHeader>
-            <CardTitle className="text-foreground">Distribuição dos gastos e receitas</CardTitle>
+            <CardTitle className="text-foreground">Distribuição de Despesas</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             <ChartContainer
