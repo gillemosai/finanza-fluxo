@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,13 +6,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader as TableHeaderElement, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useCategorias } from "@/hooks/useCategorias";
-import { Plus, Edit, Trash2, TrendingDown } from "lucide-react";
+import { Plus, Edit, Trash2, TrendingDown, Search } from "lucide-react";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
+import { MonthFilter } from "@/components/MonthFilter";
+import { TableHeader } from "@/components/TableHeader";
 
 interface Despesa {
   id: string;
@@ -34,6 +36,12 @@ export default function Despesas() {
   const [despesas, setDespesas] = useState<Despesa[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDespesa, setEditingDespesa] = useState<Despesa | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    field: string;
+    direction: 'asc' | 'desc';
+  } | null>(null);
   const [formData, setFormData] = useState({
     descricao: "",
     categoria: "",
@@ -64,6 +72,48 @@ export default function Despesas() {
       despesa.status === 'a_pagar' && 
       despesa.alerta_ativo
     );
+  };
+
+  const filteredAndSortedDespesas = useMemo(() => {
+    let filtered = despesas.filter(despesa => {
+      const matchesSearch = despesa.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           despesa.categoria.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesMonth = !selectedMonth || despesa.mes_referencia === selectedMonth;
+      return matchesSearch && matchesMonth;
+    });
+
+    if (sortConfig) {
+      filtered.sort((a, b) => {
+        let aValue = a[sortConfig.field as keyof Despesa];
+        let bValue = b[sortConfig.field as keyof Despesa];
+
+        if (sortConfig.field === 'valor') {
+          aValue = Number(aValue);
+          bValue = Number(bValue);
+        } else if (sortConfig.field === 'data_pagamento') {
+          aValue = new Date(aValue as string).getTime();
+          bValue = new Date(bValue as string).getTime();
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [despesas, searchTerm, selectedMonth, sortConfig]);
+
+  const handleSort = (field: string) => {
+    setSortConfig(current => {
+      if (current?.field === field) {
+        return {
+          field,
+          direction: current.direction === 'asc' ? 'desc' : 'asc'
+        };
+      }
+      return { field, direction: 'asc' };
+    });
   };
 
   useEffect(() => {
@@ -239,7 +289,7 @@ export default function Despesas() {
     }
   };
 
-  const totalDespesas = despesas.reduce((acc, despesa) => acc + despesa.valor, 0);
+  const totalDespesas = filteredAndSortedDespesas.reduce((acc, despesa) => acc + despesa.valor, 0);
 
   return (
     <div className="space-y-6">
@@ -252,7 +302,24 @@ export default function Despesas() {
             Controle seus gastos mensais
           </p>
         </div>
+        <div className="flex items-center gap-4">
+          <MonthFilter 
+            selectedMonth={selectedMonth}
+            onFilterChange={setSelectedMonth}
+          />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Buscar despesas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-[200px]"
+            />
+          </div>
+        </div>
+      </div>
 
+      <div className="flex justify-end">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-primary text-white">
@@ -260,6 +327,7 @@ export default function Despesas() {
               Nova Despesa
             </Button>
           </DialogTrigger>
+
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>
@@ -475,7 +543,7 @@ export default function Despesas() {
             {formatCurrency(totalDespesas)}
           </div>
           <p className="text-sm text-muted-foreground mt-2">
-            {despesas.length} despesa(s) cadastrada(s)
+            {filteredAndSortedDespesas.length} de {despesas.length} despesa(s) mostrada(s)
           </p>
         </CardContent>
       </Card>
@@ -487,19 +555,55 @@ export default function Despesas() {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
+            <TableHeaderElement>
               <TableRow>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Mês Ref.</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHeader 
+                  sortKey="descricao" 
+                  currentSort={sortConfig} 
+                  onSort={handleSort}
+                >
+                  Descrição
+                </TableHeader>
+                <TableHeader 
+                  sortKey="categoria" 
+                  currentSort={sortConfig} 
+                  onSort={handleSort}
+                >
+                  Categoria
+                </TableHeader>
+                <TableHeader 
+                  sortKey="valor" 
+                  currentSort={sortConfig} 
+                  onSort={handleSort}
+                >
+                  Valor
+                </TableHeader>
+                <TableHeader 
+                  sortKey="data_pagamento" 
+                  currentSort={sortConfig} 
+                  onSort={handleSort}
+                >
+                  Data
+                </TableHeader>
+                <TableHeader 
+                  sortKey="mes_referencia" 
+                  currentSort={sortConfig} 
+                  onSort={handleSort}
+                >
+                  Mês Ref.
+                </TableHeader>
+                <TableHeader 
+                  sortKey="status" 
+                  currentSort={sortConfig} 
+                  onSort={handleSort}
+                >
+                  Status
+                </TableHeader>
                 <TableHead>Ações</TableHead>
               </TableRow>
-            </TableHeader>
+            </TableHeaderElement>
             <TableBody>
-              {despesas.map((despesa) => (
+              {filteredAndSortedDespesas.map((despesa) => (
                 <TableRow key={despesa.id}>
                   <TableCell className="font-medium">{despesa.descricao}</TableCell>
                   <TableCell>{despesa.categoria}</TableCell>
