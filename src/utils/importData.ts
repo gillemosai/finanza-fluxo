@@ -13,8 +13,6 @@ export async function importDataFromExcel(userId: string): Promise<void> {
     await importReceitas(data.receitas, userId);
     await importDespesas(data.despesas, userId);
     await importDividas(data.dividas, userId);
-    
-    console.log('Data imported successfully!');
   } catch (error) {
     console.error('Error importing data:', error);
     throw error;

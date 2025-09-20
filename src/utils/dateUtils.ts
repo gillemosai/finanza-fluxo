@@ -12,20 +12,12 @@ export const formatDateToMonthRef = (dateString: string): string => {
   const monthIndex = date.getMonth();
   const yearShort = date.getFullYear().toString().slice(-2);
   
-  console.log('formatDateToMonthRef:', { 
-    input: dateString, 
-    parsedDate: date, 
-    monthIndex, 
-    yearShort 
-  });
-  
   const monthAbbreviations = [
     'JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN',
     'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'
   ];
   
   const result = `${monthAbbreviations[monthIndex]}/${yearShort}`;
-  console.log('formatDateToMonthRef result:', result);
   
   return result;
 };
