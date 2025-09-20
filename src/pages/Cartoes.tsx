@@ -5,11 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Edit, Trash2, CreditCard } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Plus, Edit, Trash2, CreditCard, CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -312,17 +315,34 @@ export default function Cartoes() {
 
                 <div>
                   <Label htmlFor="mes_referencia">Mês Ref</Label>
-                  <Input
-                    id="mes_referencia"
-                    type="date"
-                    value={formData.mes_referencia}
-                    onChange={(e) => {
-                      const dateValue = e.target.value;
-                      const monthRef = dateValue ? formatDateToMonthRef(dateValue) : '';
-                      setFormData({ ...formData, mes_referencia: monthRef });
-                    }}
-                    placeholder="Selecione uma data"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.mes_referencia && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.mes_referencia || "Selecione mês/ano"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.mes_referencia ? new Date(`${formData.mes_referencia.split('/')[1]}-${String(new Date().getMonth() + 1).padStart(2, '0')}-01`) : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            const monthRef = formatDateToMonthRef(date.toISOString());
+                            setFormData({ ...formData, mes_referencia: monthRef });
+                          }
+                        }}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 
                 <div>
