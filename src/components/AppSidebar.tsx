@@ -5,7 +5,9 @@ import {
   CreditCard,
   Settings,
   PieChart,
-  LogOut
+  LogOut,
+  Building2,
+  Wallet
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -40,7 +42,17 @@ const menuItems = [
   {
     title: "Dívidas",
     path: "/dividas",
+    icon: Wallet,
+  },
+  {
+    title: "Cartões",
+    path: "/cartoes",
     icon: CreditCard,
+  },
+  {
+    title: "Saldos Bancários",
+    path: "/saldos-bancarios",
+    icon: Building2,
   },
   {
     title: "Relatórios",

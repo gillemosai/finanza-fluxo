@@ -188,6 +188,45 @@ export type Database = {
         }
         Relationships: []
       }
+      saldos_bancarios: {
+        Row: {
+          agencia: string | null
+          banco: string
+          created_at: string
+          id: string
+          numero_conta: string | null
+          observacoes: string | null
+          saldo: number
+          tipo_conta: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agencia?: string | null
+          banco: string
+          created_at?: string
+          id?: string
+          numero_conta?: string | null
+          observacoes?: string | null
+          saldo?: number
+          tipo_conta?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agencia?: string | null
+          banco?: string
+          created_at?: string
+          id?: string
+          numero_conta?: string | null
+          observacoes?: string | null
+          saldo?: number
+          tipo_conta?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

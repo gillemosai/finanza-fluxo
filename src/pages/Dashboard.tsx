@@ -59,6 +59,7 @@ export default function Dashboard() {
   const [despesasChart, setDespesasChart] = useState<CategoryData[]>([]);
   const [monthlyChart, setMonthlyChart] = useState<MonthlyData[]>([]);
   const [cartaoData, setCartaoData] = useState<any[]>([]);
+  const [saldosBancariosData, setSaldosBancariosData] = useState<any[]>([]);
   
   const { user } = useAuth();
 
@@ -111,6 +112,12 @@ export default function Dashboard() {
       const { data: dividas } = await supabase
         .from('dividas')
         .select('valor_restante, descricao, categoria')
+        .eq('user_id', user.id);
+
+      // Fetch saldos bancários
+      const { data: saldosBancarios } = await supabase
+        .from('saldos_bancarios')
+        .select('banco, saldo')
         .eq('user_id', user.id);
 
       const totalReceitas = receitas?.reduce((acc, item) => acc + Number(item.valor), 0) || 0;
@@ -182,6 +189,15 @@ export default function Dashboard() {
       // Process cartao data
       const cartoesData = dividas?.filter(divida => divida.categoria === 'Cartão') || [];
       setCartaoData(cartoesData);
+
+      // Process saldos bancários data for dashboard display
+      const saldosBancariosFormatted = saldosBancarios?.map(saldo => ({
+        banco: saldo.banco,
+        saldo: Number(saldo.saldo)
+      })) || [];
+
+      // Update the hardcoded bank data with real data
+      setSaldosBancariosData(saldosBancariosFormatted);
 
     } catch (error) {
       console.error('Error fetching financial data:', error);
@@ -423,32 +439,47 @@ export default function Dashboard() {
               </div>
               
               <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">BB</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
-                      163
+                {saldosBancariosData.length > 0 ? (
+                  saldosBancariosData.map((banco, index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">{banco.banco}</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="px-3 py-1 bg-orange-200 text-orange-800 rounded text-xs font-medium">
+                          {formatCurrency(banco.saldo)}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Bradesco</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
-                      152
+                  ))
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">BB</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
+                          163
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Itaú</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
-                      117
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Bradesco</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
+                          152
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Itaú</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 bg-orange-200 h-8 flex items-center justify-center rounded text-xs font-medium">
+                          117
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>

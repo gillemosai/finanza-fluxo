@@ -14,6 +14,8 @@ import Despesas from "./pages/Despesas";
 import Dividas from "./pages/Dividas";
 import Relatorios from "./pages/Relatorios";
 import Configuracoes from "./pages/Configuracoes";
+import Cartoes from "./pages/Cartoes";
+import SaldosBancarios from "./pages/SaldosBancarios";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +53,20 @@ const App = () => (
               <ProtectedRoute>
                 <Layout>
                   <Dividas />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/cartoes" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Cartoes />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/saldos-bancarios" element={
+              <ProtectedRoute>
+                <Layout>
+                  <SaldosBancarios />
                 </Layout>
               </ProtectedRoute>
             } />
