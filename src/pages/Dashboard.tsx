@@ -17,9 +17,7 @@ import {
   LineChart,
   Line,
   Legend,
-  Pie,
-  Area,
-  AreaChart
+  Pie
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -514,21 +512,7 @@ export default function Dashboard() {
               className="h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={monthlyChart} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorReceitas" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0.1}/>
-                    </linearGradient>
-                    <linearGradient id="colorDespesas" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0.1}/>
-                    </linearGradient>
-                    <linearGradient id="colorEconomia" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
+                <LineChart data={monthlyChart} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
                     dataKey="mes" 
@@ -545,31 +529,31 @@ export default function Dashboard() {
                     formatter={(value: any) => [formatCurrency(Number(value)), ""]}
                   />
                   <Legend />
-                  <Area
+                  <Line
                     type="monotone"
                     dataKey="receitas"
                     stroke="hsl(var(--success))"
-                    fillOpacity={1}
-                    fill="url(#colorReceitas)"
+                    strokeWidth={2}
+                    dot={{ fill: "hsl(var(--success))", r: 4 }}
                     name="Receitas"
                   />
-                  <Area
+                  <Line
                     type="monotone"
                     dataKey="despesas"
                     stroke="hsl(var(--destructive))"
-                    fillOpacity={1}
-                    fill="url(#colorDespesas)"
+                    strokeWidth={2}
+                    dot={{ fill: "hsl(var(--destructive))", r: 4 }}
                     name="Despesas"
                   />
-                  <Area
+                  <Line
                     type="monotone"
                     dataKey="economia"
                     stroke="hsl(var(--primary))"
-                    fillOpacity={1}
-                    fill="url(#colorEconomia)"
+                    strokeWidth={2}
+                    dot={{ fill: "hsl(var(--primary))", r: 4 }}
                     name="Economia"
                   />
-                </AreaChart>
+                </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
