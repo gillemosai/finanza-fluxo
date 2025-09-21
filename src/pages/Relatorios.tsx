@@ -9,7 +9,7 @@ import { Download, FileText, Table as TableIcon, Calendar } from "lucide-react";
 import * as XLSX from 'xlsx';
 
 export default function Relatorios() {
-  const [periodo, setPeriodo] = useState("2025-01");
+  const [periodo, setPeriodo] = useState("SET/25");
   const [tipoRelatorio, setTipoRelatorio] = useState("completo");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -303,10 +303,10 @@ export default function Relatorios() {
                   <SelectValue placeholder="Selecione o período" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="2025-01">Janeiro 2025</SelectItem>
-                  <SelectItem value="2024-12">Dezembro 2024</SelectItem>
-                  <SelectItem value="2024-11">Novembro 2024</SelectItem>
-                  <SelectItem value="2024-10">Outubro 2024</SelectItem>
+                  <SelectItem value="SET/25">Setembro 2025</SelectItem>
+                  <SelectItem value="AGO/25">Agosto 2025</SelectItem>
+                  <SelectItem value="JUL/25">Julho 2025</SelectItem>
+                  <SelectItem value="JUN/25">Junho 2025</SelectItem>
                 </SelectContent>
               </Select>
             </div>
