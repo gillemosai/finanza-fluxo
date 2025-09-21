@@ -22,7 +22,8 @@ export default function Relatorios() {
     }).format(value);
   };
 
-  const fetchDataForReport = async () => {
+  const fetchDataForReport = async (periodToFetch = periodo) => {
+    console.log('Fazendo fetch para período:', periodToFetch);
     if (!user) {
       toast({
         title: "Erro",
@@ -38,12 +39,12 @@ export default function Relatorios() {
           .from('receitas')
           .select('*')
           .eq('user_id', user.id)
-          .eq('mes_referencia', periodo),
+          .eq('mes_referencia', periodToFetch),
         supabase
           .from('despesas')
           .select('*')
           .eq('user_id', user.id)
-          .eq('mes_referencia', periodo),
+          .eq('mes_referencia', periodToFetch),
         supabase
           .from('dividas')
           .select('*')
@@ -72,8 +73,10 @@ export default function Relatorios() {
 
   const exportToExcel = async () => {
     setLoading(true);
+    console.log('Exportando Excel para período:', periodo);
     try {
-      const data = await fetchDataForReport();
+      const data = await fetchDataForReport(periodo);
+      console.log('Dados recebidos para Excel:', data);
       if (!data) return;
 
       const workbook = XLSX.utils.book_new();
@@ -161,8 +164,10 @@ export default function Relatorios() {
 
   const generatePDFReport = async () => {
     setLoading(true);
+    console.log('Gerando PDF para período:', periodo);
     try {
-      const data = await fetchDataForReport();
+      const data = await fetchDataForReport(periodo);
+      console.log('Dados recebidos para PDF:', data);
       if (!data) return;
 
       // Criar um relatório HTML simples e abrir para impressão/PDF
