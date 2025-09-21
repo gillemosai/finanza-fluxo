@@ -307,21 +307,21 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/5 p-6 animate-fade-in">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 space-y-4 lg:space-y-0">
-        <div>
-          <div className="flex items-center gap-4 mb-4">
-            <img 
-              src="/src/assets/logo_cheia_transp_var01-2.png" 
-              alt="Logo" 
-              className="h-16 w-16" 
-            />
+        <div className="flex items-center gap-6">
+          <img 
+            src="/src/assets/logo-finanza.png" 
+            alt="Logo Finanza" 
+            className="h-16 w-auto" 
+          />
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
+              <BarChart3 className="h-10 w-10 text-primary" />
+              Meu Controle Financeiro
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Visão geral das suas finanças pessoais
+            </p>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
-            <BarChart3 className="h-10 w-10 text-primary" />
-            Meu Controle Financeiro
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Visão geral das suas finanças pessoais
-          </p>
         </div>
         <div className="flex items-center space-x-4">
           <Badge variant="outline" className="text-sm">
