@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Download, FileText, Table as TableIcon, Calendar } from "lucide-react";
 import * as XLSX from 'xlsx';
 
@@ -12,6 +13,7 @@ export default function Relatorios() {
   const [tipoRelatorio, setTipoRelatorio] = useState("completo");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -21,22 +23,31 @@ export default function Relatorios() {
   };
 
   const fetchDataForReport = async () => {
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Usuário não autenticado",
+        variant: "destructive",
+      });
+      return null;
+    }
+
     try {
       const [receitasResponse, despesasResponse, dividasResponse] = await Promise.all([
         supabase
           .from('receitas')
           .select('*')
-          .eq('user_id', '00000000-0000-0000-0000-000000000000')
+          .eq('user_id', user.id)
           .eq('mes_referencia', periodo),
         supabase
           .from('despesas')
           .select('*')
-          .eq('user_id', '00000000-0000-0000-0000-000000000000')
+          .eq('user_id', user.id)
           .eq('mes_referencia', periodo),
         supabase
           .from('dividas')
           .select('*')
-          .eq('user_id', '00000000-0000-0000-0000-000000000000')
+          .eq('user_id', user.id)
       ]);
 
       if (receitasResponse.error) throw receitasResponse.error;
