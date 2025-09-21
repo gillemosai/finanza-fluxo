@@ -309,7 +309,7 @@ export default function Dashboard() {
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 space-y-4 lg:space-y-0">
         <div className="flex items-center gap-6">
           <img 
-            src="/src/assets/logo-finanza.png" 
+            src="/src/assets/logo_cheia_transp_var01-2.png" 
             alt="Logo Finanza" 
             className="h-16 w-auto" 
           />
