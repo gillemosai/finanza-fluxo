@@ -502,67 +502,83 @@ export default function Dashboard() {
       </div>
 
       {/* Trends Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Monthly Evolution */}
         <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-glow transition-all duration-300">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <ArrowUpIcon className="h-5 w-5 text-primary" />
+          <CardHeader className="pb-3 p-3 sm:p-6">
+            <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+              <ArrowUpIcon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               Evolução Mensal
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-80">
+          <CardContent className="h-64 sm:h-80 p-3 sm:p-6">
             <ChartContainer
               config={{
                 receitas: { label: "Receitas", color: "hsl(var(--success))" },
                 despesas: { label: "Despesas", color: "hsl(var(--destructive))" },
-                economia: { label: "Economia", color: "hsl(var(--primary))" },
+                saldo: { label: "Saldo", color: "hsl(var(--primary))" },
               }}
               className="h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={monthlyChart} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <BarChart 
+                  data={monthlyChart} 
+                  margin={{ top: 10, right: 10, left: 0, bottom: 5 }}
+                  barCategoryGap="20%"
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
                   <XAxis 
                     dataKey="mes" 
                     fontSize={10}
                     stroke="hsl(var(--muted-foreground))"
+                    interval={0}
+                    angle={0}
+                    textAnchor="middle"
+                    height={30}
                   />
                   <YAxis 
-                    fontSize={10}
+                    fontSize={9}
                     stroke="hsl(var(--muted-foreground))"
-                    tickFormatter={(value) => `R$ ${(value/1000).toFixed(1)}k`}
+                    tickFormatter={(value) => {
+                      if (value >= 1000) return `R$ ${(value/1000).toFixed(0)}k`;
+                      return `R$ ${value}`;
+                    }}
+                    width={60}
                   />
                   <ChartTooltip 
                     content={<ChartTooltipContent />}
-                    formatter={(value: any) => [formatCurrency(Number(value)), ""]}
+                    formatter={(value: any, name: string) => [
+                      formatCurrency(Number(value)), 
+                      name === 'receitas' ? 'Receitas' : 
+                      name === 'despesas' ? 'Despesas' : 'Saldo'
+                    ]}
                   />
-                  <Legend />
-                  <Line
-                    type="monotone"
+                  <Legend 
+                    wrapperStyle={{ fontSize: '12px' }}
+                    iconType="circle"
+                  />
+                  <Bar
                     dataKey="receitas"
-                    stroke="hsl(var(--success))"
-                    strokeWidth={2}
-                    dot={{ fill: "hsl(var(--success))", r: 4 }}
+                    fill="hsl(var(--success))"
                     name="Receitas"
+                    radius={[2, 2, 0, 0]}
+                    opacity={0.8}
                   />
-                  <Line
-                    type="monotone"
+                  <Bar
                     dataKey="despesas"
-                    stroke="hsl(var(--destructive))"
-                    strokeWidth={2}
-                    dot={{ fill: "hsl(var(--destructive))", r: 4 }}
+                    fill="hsl(var(--destructive))"
                     name="Despesas"
+                    radius={[2, 2, 0, 0]}
+                    opacity={0.8}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="economia"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                    dot={{ fill: "hsl(var(--primary))", r: 4 }}
-                    name="Economia"
+                  <Bar
+                    dataKey="saldo"
+                    fill="hsl(var(--primary))"
+                    name="Saldo"
+                    radius={[2, 2, 0, 0]}
+                    opacity={0.6}
                   />
-                </LineChart>
+                </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
           </CardContent>
@@ -570,13 +586,13 @@ export default function Dashboard() {
 
         {/* Bank Balances */}
         <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-glow transition-all duration-300">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-info" />
+          <CardHeader className="pb-3 p-3 sm:p-6">
+            <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+              <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-info" />
               Saldos Bancários
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-80">
+          <CardContent className="h-64 sm:h-80 p-3 sm:p-6">
             <div className="space-y-6">
               <div className="text-center p-6 bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20">
                 <div className="text-3xl font-bold text-primary mb-2">
