@@ -665,6 +665,13 @@ export default function Despesas() {
                   Data
                 </TableHeader>
                 <TableHeader 
+                  sortKey="data_vencimento" 
+                  currentSort={sortConfig} 
+                  onSort={handleSort}
+                >
+                  Dt_Venc.
+                </TableHeader>
+                <TableHeader 
                   sortKey="mes_referencia" 
                   currentSort={sortConfig} 
                   onSort={handleSort}
@@ -691,6 +698,12 @@ export default function Despesas() {
                   </TableCell>
                   <TableCell>
                     {new Date(despesa.data_pagamento).toLocaleDateString('pt-BR')}
+                  </TableCell>
+                  <TableCell>
+                    {despesa.data_vencimento 
+                      ? new Date(despesa.data_vencimento).toLocaleDateString('pt-BR')
+                      : '-'
+                    }
                   </TableCell>
                   <TableCell>{despesa.mes_referencia}</TableCell>
                   <TableCell>
