@@ -306,25 +306,25 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/5 p-6 animate-fade-in">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 space-y-4 lg:space-y-0">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-col space-y-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <img 
             src="/logo cheia transp var01.png" 
             alt="Logo Finanza" 
-            className="h-12 w-auto max-w-[120px] object-contain" 
+            className="h-8 sm:h-10 w-auto max-w-[100px] sm:max-w-[120px] object-contain" 
           />
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
-              <BarChart3 className="h-10 w-10 text-primary" />
-              Meu Controle Financeiro
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 text-primary" />
+              <span>Meu Controle Financeiro</span>
             </h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
               Visão geral das suas finanças pessoais
             </p>
           </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <Badge variant="outline" className="text-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <Badge variant="outline" className="text-xs sm:text-sm w-fit">
             {selectedMonth ? `Filtro: ${selectedMonth}` : 'Todos os períodos'}
           </Badge>
           <MonthFilter 
@@ -335,7 +335,7 @@ export default function Dashboard() {
       </div>
 
       {/* KPIs Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <StatCard
           title="Receitas Totais"
           value={formatCurrency(data.receitas)}
@@ -384,7 +384,7 @@ export default function Dashboard() {
       </div>
 
       {/* Analytics Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Income Distribution */}
         <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-glow transition-all duration-300">
           <CardHeader className="pb-3">
@@ -393,7 +393,7 @@ export default function Dashboard() {
               Distribuição de Receitas
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-64 flex items-center justify-center">
+          <CardContent className="h-48 sm:h-64 flex items-center justify-center p-2 sm:p-6">
             <ChartContainer
               config={{
                 valor: { label: "Valor", color: "hsl(var(--success))" },
@@ -406,8 +406,8 @@ export default function Dashboard() {
                     data={receitasChart} 
                     cx="50%" 
                     cy="50%" 
-                    outerRadius={80} 
-                    innerRadius={40}
+                    outerRadius={60} 
+                    innerRadius={30}
                     dataKey="valor"
                     label={({ categoria, percent }) => `${categoria} ${(percent * 100).toFixed(1)}%`}
                     labelLine={false}
@@ -434,7 +434,7 @@ export default function Dashboard() {
               Distribuição de Despesas
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-64 flex items-center justify-center">
+          <CardContent className="h-48 sm:h-64 flex items-center justify-center p-2 sm:p-6">
             <ChartContainer
               config={{
                 valor: { label: "Valor", color: "hsl(var(--destructive))" },
@@ -447,8 +447,8 @@ export default function Dashboard() {
                     data={despesasChart} 
                     cx="50%" 
                     cy="50%" 
-                    outerRadius={80} 
-                    innerRadius={40}
+                    outerRadius={60} 
+                    innerRadius={30}
                     dataKey="valor"
                     label={({ categoria, percent }) => `${categoria} ${(percent * 100).toFixed(1)}%`}
                     labelLine={false}

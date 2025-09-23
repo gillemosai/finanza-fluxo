@@ -632,9 +632,11 @@ export default function Despesas() {
         <CardHeader>
           <CardTitle>Lista de Despesas</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeaderElement>
+        <CardContent className="p-3 sm:p-6">
+          <div className="overflow-x-auto -mx-3 sm:mx-0">
+            <div className="min-w-full inline-block align-middle">
+              <Table className="min-w-[800px]">
+                <TableHeaderElement>
               <TableRow>
                 <TableHeader 
                   sortKey="descricao" 
@@ -738,8 +740,10 @@ export default function Despesas() {
                   </TableCell>
                 </TableRow>
               ))}
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          </div>
+        </div>
         </CardContent>
       </Card>
     </div>
