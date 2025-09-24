@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Settings, Layout, Monitor } from "lucide-react";
+import { Trash2, Plus, Settings, Layout, Monitor, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useMenuLayout } from "@/hooks/useMenuLayout";
@@ -23,7 +23,7 @@ interface Categoria {
 }
 
 export default function Configuracoes() {
-  const { user } = useAuth();
+  const { user, updatePassword } = useAuth();
   const { layout, setLayout } = useMenuLayout();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -32,6 +32,12 @@ export default function Configuracoes() {
     tipo: "" as 'receita' | 'despesa' | 'divida' | ""
   });
   const [loading, setLoading] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    newPassword: "",
+    confirmPassword: ""
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   // Fetch categories from database
   const fetchCategorias = async () => {
@@ -196,6 +202,37 @@ export default function Configuracoes() {
     }
   };
 
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!passwordData.newPassword || !passwordData.confirmPassword) return;
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error('As senhas não coincidem');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      toast.error('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const { error } = await updatePassword(passwordData.newPassword);
+      
+      if (error) throw error;
+
+      setPasswordData({ newPassword: "", confirmPassword: "" });
+      setIsPasswordDialogOpen(false);
+      toast.success('Senha alterada com sucesso!');
+    } catch (error: any) {
+      console.error('Error updating password:', error);
+      toast.error('Erro ao alterar senha');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
@@ -240,6 +277,73 @@ export default function Configuracoes() {
               </Label>
             </div>
           </RadioGroup>
+        </CardContent>
+      </Card>
+
+      {/* Password Security */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lock className="h-5 w-5" />
+            Segurança
+          </CardTitle>
+          <CardDescription>
+            Gerencie sua senha de acesso
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Lock className="h-4 w-4 mr-2" />
+                Alterar Senha
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Alterar Senha</DialogTitle>
+                <DialogDescription>
+                  Digite sua nova senha para alterar sua senha de acesso
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                <div>
+                  <Label htmlFor="newPassword">Nova Senha</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={passwordData.newPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                    placeholder="Digite sua nova senha"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="confirmPassword">Confirmar Nova Senha</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={passwordData.confirmPassword}
+                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                    placeholder="Confirme sua nova senha"
+                    required
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setIsPasswordDialogOpen(false)}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={passwordLoading}>
+                    {passwordLoading ? 'Alterando...' : 'Alterar Senha'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
 

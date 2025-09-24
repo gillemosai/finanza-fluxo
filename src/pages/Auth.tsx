@@ -17,8 +17,10 @@ export default function Auth() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -72,6 +74,37 @@ export default function Auth() {
           });
           setIsLogin(true); // Muda para aba de login após cadastro
         }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro inesperado",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await resetPassword(resetEmail);
+      if (error) {
+        toast({
+          title: "Erro",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Email enviado!",
+          description: "Verifique sua caixa de entrada para redefinir sua senha.",
+        });
+        setShowForgotPassword(false);
+        setResetEmail("");
       }
     } catch (error: any) {
       toast({
@@ -184,10 +217,115 @@ export default function Auth() {
               >
                 {loading ? "Carregando..." : isLogin ? "Entrar" : "Cadastrar"}
               </Button>
+
+              {isLogin && (
+                <div className="text-center mt-4">
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-sm text-muted-foreground hover:text-primary"
+                  >
+                    Esqueci minha senha
+                  </Button>
+                </div>
+              )}
             </form>
           </Tabs>
+
+          {/* Forgot Password Dialog */}
+          {showForgotPassword && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+              <Card className="w-full max-w-md">
+                <CardHeader>
+                  <CardTitle>Recuperar Senha</CardTitle>
+                  <p className="text-muted-foreground">
+                    Digite seu email para receber o link de recuperação
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div>
+                      <Label htmlFor="resetEmail">Email</Label>
+                      <Input
+                        id="resetEmail"
+                        type="email"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                        placeholder="seu@email.com"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setShowForgotPassword(false)}
+                        className="flex-1"
+                      >
+                        Cancelar
+                      </Button>
+                      <Button 
+                        type="submit" 
+                        disabled={loading}
+                        className="flex-1"
+                      >
+                        {loading ? "Enviando..." : "Enviar"}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Forgot Password Dialog */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Recuperar Senha</CardTitle>
+              <p className="text-muted-foreground">
+                Digite seu email para receber o link de recuperação
+              </p>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div>
+                  <Label htmlFor="resetEmail">Email</Label>
+                  <Input
+                    id="resetEmail"
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                    placeholder="seu@email.com"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setShowForgotPassword(false)}
+                    className="flex-1"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    disabled={loading}
+                    className="flex-1"
+                  >
+                    {loading ? "Enviando..." : "Enviar"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
