@@ -133,6 +133,9 @@ export default function Dashboard() {
     try {
       if (!user) return;
 
+      console.log('User authenticated:', user);
+      console.log('Selected month filter:', selectedMonth);
+
       // Fetch receitas
       let receitasQuery = supabase
         .from('receitas')
@@ -210,18 +213,21 @@ export default function Dashboard() {
       setReceitasChart(receitasChartData);
 
       // Process despesas by category
+      console.log('Despesas data:', despesas);
       const despesasByCategory = despesas?.reduce((acc: any, despesa) => {
         const categoria = despesa.categoria;
         acc[categoria] = (acc[categoria] || 0) + Number(despesa.valor);
         return acc;
       }, {});
 
+      console.log('Despesas by category:', despesasByCategory);
       const despesasChartData = Object.entries(despesasByCategory || {}).map(([category, value]: [string, any], index) => ({
         categoria: category,
         valor: Number(value),
         fill: getCategoryColor(category, index)
       }));
 
+      console.log('Despesas chart data:', despesasChartData);
       setDespesasChart(despesasChartData);
 
       // Process monthly data with enhanced metrics
