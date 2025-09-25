@@ -430,11 +430,11 @@ export default function Dashboard() {
         <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:shadow-glow transition-all duration-300">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-destructive" />
-              Despesas por Categoria
+              <TrendingDown className="h-5 w-5 text-destructive" />
+              Distribuição de Despesas
             </CardTitle>
           </CardHeader>
-          <CardContent className="h-48 sm:h-64 p-2 sm:p-6">
+          <CardContent className="h-48 sm:h-64 flex items-center justify-center p-2 sm:p-6">
             {despesasChart.length === 0 ? (
               <div className="h-full flex items-center justify-center">
                 <p className="text-muted-foreground">Nenhum dado de despesas encontrado</p>
@@ -447,34 +447,26 @@ export default function Dashboard() {
                 className="h-full w-full"
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={despesasChart}
-                    layout="horizontal"
-                    margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                    <XAxis 
-                      type="number" 
-                      tickFormatter={(value) => formatCurrency(value).replace('R$', 'R$').replace(',00', '')}
-                      className="text-xs"
-                    />
-                    <YAxis 
-                      type="category" 
-                      dataKey="categoria" 
-                      width={70}
-                      className="text-xs"
-                      tick={{ fontSize: 10 }}
-                    />
+                  <RechartsPieChart>
+                    <Pie 
+                      data={despesasChart} 
+                      cx="50%" 
+                      cy="50%" 
+                      outerRadius={60} 
+                      innerRadius={30}
+                      dataKey="valor"
+                      label={({ categoria, percent }) => `${categoria} ${(percent * 100).toFixed(1)}%`}
+                      labelLine={false}
+                    >
+                      {despesasChart.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
                     <ChartTooltip 
                       content={<ChartTooltipContent />}
                       formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
                     />
-                    <Bar 
-                      dataKey="valor" 
-                      radius={[0, 4, 4, 0]}
-                      fill="hsl(var(--destructive))"
-                    />
-                  </BarChart>
+                  </RechartsPieChart>
                 </ResponsiveContainer>
               </ChartContainer>
             )}
