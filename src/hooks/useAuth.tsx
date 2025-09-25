@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
@@ -27,6 +27,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Se é um evento de logout ou o usuário não quer permanecer conectado
+        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+          const isTemporary = localStorage.getItem('temporary_session');
+          if (isTemporary === 'true' && event === 'TOKEN_REFRESHED') {
+            // Se é uma sessão temporária e o token foi atualizado, 
+            // verificar se devemos manter a sessão
+            const loginTime = localStorage.getItem('login_time');
+            if (loginTime) {
+              const elapsed = Date.now() - parseInt(loginTime);
+              const oneDay = 24 * 60 * 60 * 1000;
+              if (elapsed > oneDay) {
+                supabase.auth.signOut();
+              }
+            }
+          }
+        }
+        
+        if (event === 'SIGNED_IN') {
+          // Armazenar o tempo de login se não for para lembrar
+          const isTemporary = localStorage.getItem('temporary_session');
+          if (isTemporary === 'true') {
+            localStorage.setItem('login_time', Date.now().toString());
+          }
+        }
       }
     );
 
@@ -54,15 +79,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
+
+    // Se não for para lembrar, salva uma flag no localStorage para controlar o comportamento
+    if (!rememberMe) {
+      localStorage.setItem('temporary_session', 'true');
+      // Configurar um timeout para fazer logout automático após inatividade
+      setTimeout(() => {
+        const isTemporary = localStorage.getItem('temporary_session');
+        if (isTemporary === 'true') {
+          signOut();
+        }
+      }, 24 * 60 * 60 * 1000); // 24 horas
+    } else {
+      localStorage.removeItem('temporary_session');
+    }
+
     return { error };
   };
 
   const signOut = async () => {
+    // Limpar dados de sessão temporária
+    localStorage.removeItem('temporary_session');
+    localStorage.removeItem('login_time');
     await supabase.auth.signOut();
   };
 
