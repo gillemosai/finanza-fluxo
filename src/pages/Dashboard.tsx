@@ -133,9 +133,6 @@ export default function Dashboard() {
     try {
       if (!user) return;
 
-      console.log('User authenticated:', user);
-      console.log('Selected month filter:', selectedMonth);
-
       // Fetch receitas
       let receitasQuery = supabase
         .from('receitas')
@@ -213,21 +210,18 @@ export default function Dashboard() {
       setReceitasChart(receitasChartData);
 
       // Process despesas by category
-      console.log('Despesas data:', despesas);
       const despesasByCategory = despesas?.reduce((acc: any, despesa) => {
         const categoria = despesa.categoria;
         acc[categoria] = (acc[categoria] || 0) + Number(despesa.valor);
         return acc;
       }, {});
 
-      console.log('Despesas by category:', despesasByCategory);
       const despesasChartData = Object.entries(despesasByCategory || {}).map(([category, value]: [string, any], index) => ({
         categoria: category,
         valor: Number(value),
         fill: getCategoryColor(category, index)
       }));
 
-      console.log('Despesas chart data:', despesasChartData);
       setDespesasChart(despesasChartData);
 
       // Process monthly data with enhanced metrics
@@ -441,46 +435,49 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="h-48 sm:h-64 p-2 sm:p-6">
-            <ChartContainer
-              config={{
-                valor: { label: "Valor", color: "hsl(var(--destructive))" },
-              }}
-              className="h-full w-full"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={despesasChart}
-                  layout="horizontal"
-                  margin={{ top: 5, right: 30, left: 5, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                  <XAxis 
-                    type="number" 
-                    tickFormatter={(value) => formatCurrency(value).replace('R$', 'R$').replace(',00', '')}
-                    className="text-xs"
-                  />
-                  <YAxis 
-                    type="category" 
-                    dataKey="categoria" 
-                    width={60}
-                    className="text-xs"
-                    tick={{ fontSize: 10 }}
-                  />
-                  <ChartTooltip 
-                    content={<ChartTooltipContent />}
-                    formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
-                  />
-                  <Bar 
-                    dataKey="valor" 
-                    radius={[0, 4, 4, 0]}
+            {despesasChart.length === 0 ? (
+              <div className="h-full flex items-center justify-center">
+                <p className="text-muted-foreground">Nenhum dado de despesas encontrado</p>
+              </div>
+            ) : (
+              <ChartContainer
+                config={{
+                  valor: { label: "Valor", color: "hsl(var(--destructive))" },
+                }}
+                className="h-full w-full"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={despesasChart}
+                    layout="horizontal"
+                    margin={{ top: 5, right: 30, left: 80, bottom: 5 }}
                   >
-                    {despesasChart.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                    <XAxis 
+                      type="number" 
+                      tickFormatter={(value) => formatCurrency(value).replace('R$', 'R$').replace(',00', '')}
+                      className="text-xs"
+                    />
+                    <YAxis 
+                      type="category" 
+                      dataKey="categoria" 
+                      width={70}
+                      className="text-xs"
+                      tick={{ fontSize: 10 }}
+                    />
+                    <ChartTooltip 
+                      content={<ChartTooltipContent />}
+                      formatter={(value: any) => [formatCurrency(Number(value)), "Valor"]}
+                    />
+                    <Bar 
+                      dataKey="valor" 
+                      radius={[0, 4, 4, 0]}
+                      fill="hsl(var(--destructive))"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            )}
           </CardContent>
         </Card>
 
