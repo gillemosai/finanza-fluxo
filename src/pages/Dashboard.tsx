@@ -294,14 +294,7 @@ export default function Dashboard() {
     };
   };
 
-  // Show import component if no data exists
-  if (data.receitas === 0 && data.despesas === 0 && data.dividas === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-primary flex items-center justify-center p-4">
-        <DataImporter />
-      </div>
-    );
-  }
+  const hasNoData = data.receitas === 0 && data.despesas === 0 && data.dividas === 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-accent/5 p-6 animate-fade-in">
@@ -333,6 +326,13 @@ export default function Dashboard() {
           />
         </div>
       </div>
+
+      {/* Data Importer if no data exists */}
+      {hasNoData && (
+        <div className="mb-6">
+          <DataImporter />
+        </div>
+      )}
 
       {/* KPIs Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6 mb-6 sm:mb-8">
