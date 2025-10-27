@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const menuItems = [
   {
@@ -96,18 +97,21 @@ export function AppSidebar() {
       </SidebarContent>
       
       <div className="p-4 border-t">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-sm text-muted-foreground truncate flex-1">
             {user?.email}
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => signOut()}
-            className="text-muted-foreground hover:text-destructive"
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => signOut()}
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </Sidebar>

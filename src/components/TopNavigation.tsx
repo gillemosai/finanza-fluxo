@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const menuItems = [
   {
@@ -101,6 +102,7 @@ export function TopNavigation() {
             <span className="text-xs sm:text-sm text-muted-foreground hidden lg:block max-w-[150px] truncate">
               {user?.email}
             </span>
+            <ThemeToggle />
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
