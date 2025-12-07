@@ -315,6 +315,9 @@ export default function Dashboard() {
             <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
               Visão geral das suas finanças pessoais
             </p>
+            <p className="text-xs mt-1" style={{ color: '#2DD4BF' }}>
+              App criado por @gillemosai
+            </p>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
