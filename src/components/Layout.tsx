@@ -16,16 +16,16 @@ export function Layout({ children }: LayoutProps) {
   if (layout === 'top') {
     return (
       <div className={cn(
-        "min-h-screen flex flex-col w-full bg-background",
+        "h-screen flex flex-col w-full bg-background overflow-hidden",
         isMobileView && "max-w-md mx-auto border-x border-border"
       )}>
-        <div className="sticky top-0 z-50">
+        <div className="flex-shrink-0 z-50">
           <TopNavigation />
         </div>
         <main 
           id="main-content" 
           className={cn(
-            "flex-1 p-3 sm:p-6 overflow-auto",
+            "flex-1 p-3 sm:p-6 overflow-y-auto overscroll-contain",
             isMobileView && "p-3"
           )}
           role="main"
@@ -40,19 +40,19 @@ export function Layout({ children }: LayoutProps) {
   return (
     <SidebarProvider>
       <div className={cn(
-        "min-h-screen flex w-full bg-background",
+        "h-screen flex w-full bg-background overflow-hidden",
         isMobileView && "max-w-md mx-auto border-x border-border"
       )}>
         <AppSidebar />
         
         <main 
           id="main-content"
-          className="flex-1 flex flex-col"
+          className="flex-1 flex flex-col overflow-hidden"
           role="main"
           aria-label="Conteúdo principal"
         >
           <header 
-            className="h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 border-b border-border bg-card/50 backdrop-blur-sm"
+            className="flex-shrink-0 h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 border-b border-border bg-card/50 backdrop-blur-sm z-50"
             role="banner"
           >
             <SidebarTrigger 
@@ -65,7 +65,7 @@ export function Layout({ children }: LayoutProps) {
           </header>
           
           <div className={cn(
-            "flex-1 p-3 sm:p-6",
+            "flex-1 p-3 sm:p-6 overflow-y-auto overscroll-contain",
             isMobileView && "p-3"
           )}>
             {children}
