@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import logoFinanza from "@/assets/logo-finanza.png";
-import phoneMockup from "@/assets/phone-mockup.png";
+import phoneMockup from "@/assets/case-study-phones.png";
 import gilProfile from "@/assets/gil-profile.png";
 
 const fadeInUp = {
