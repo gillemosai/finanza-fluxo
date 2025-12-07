@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { importDataFromExcel } from "@/utils/importData";
-import { Upload, CheckCircle } from "lucide-react";
+import { generateSampleData } from "@/utils/generateSampleData";
+import { Upload, CheckCircle, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function DataImporter() {
   const [importing, setImporting] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [imported, setImported] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -24,12 +26,11 @@ export function DataImporter() {
         description: "Todos os dados da planilha foram carregados no sistema.",
       });
       
-      // Refresh the page to show new data
       setTimeout(() => {
         window.location.reload();
       }, 1000);
     } catch (error) {
-      console.error('Import error:', error);
+      console.error("Import error:", error);
       toast({
         title: "Erro na importação",
         description: "Ocorreu um erro ao importar os dados. Tente novamente.",
@@ -40,18 +41,44 @@ export function DataImporter() {
     }
   };
 
+  const handleGenerateSample = async () => {
+    if (!user) return;
+    
+    setGenerating(true);
+    try {
+      await generateSampleData(user.id);
+      toast({
+        title: "Dados de exemplo gerados!",
+        description: "Dados aleatórios foram criados para demonstração do sistema.",
+      });
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      console.error("Generate sample error:", error);
+      toast({
+        title: "Erro ao gerar dados",
+        description: "Ocorreu um erro ao gerar os dados de exemplo.",
+        variant: "destructive"
+      });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   if (imported) {
     return (
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full" role="status" aria-live="polite">
         <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2 text-green-600">
-            <CheckCircle className="h-6 w-6" />
-            Dados Importados!
+          <CardTitle className="flex items-center justify-center gap-2 text-success">
+            <CheckCircle className="h-6 w-6" aria-hidden="true" />
+            Dados Carregados!
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-muted-foreground">
-            Os dados da planilha foram carregados com sucesso.
+            Os dados foram carregados com sucesso no sistema.
           </p>
         </CardContent>
       </Card>
@@ -59,24 +86,43 @@ export function DataImporter() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="flex items-center justify-center gap-2">
-          <Upload className="h-6 w-6" />
-          Importar Dados da Planilha
+    <Card className="w-full" role="region" aria-label="Opções de importação de dados">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Upload className="h-5 w-5" aria-hidden="true" />
+          Importação de Dados
         </CardTitle>
+        <CardDescription>
+          Importe dados de uma planilha Excel ou gere dados de exemplo para testar o sistema
+        </CardDescription>
       </CardHeader>
-      <CardContent className="text-center space-y-4">
-        <p className="text-muted-foreground">
-          Clique para importar todos os dados da planilha enviada e limpar os dados existentes.
+      <CardContent className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Button 
+            onClick={handleImport}
+            disabled={importing || generating}
+            variant="outline"
+            className="w-full h-auto py-4 flex flex-col gap-2"
+            aria-label="Importar dados de uma planilha Excel"
+          >
+            <Upload className="h-5 w-5" aria-hidden="true" />
+            <span>{importing ? "Importando..." : "Importar Planilha"}</span>
+          </Button>
+          
+          <Button 
+            onClick={handleGenerateSample}
+            disabled={importing || generating}
+            className="w-full h-auto py-4 flex flex-col gap-2"
+            aria-label="Gerar dados de exemplo aleatórios para demonstração"
+          >
+            <Sparkles className="h-5 w-5" aria-hidden="true" />
+            <span>{generating ? "Gerando..." : "Gerar Dados de Exemplo"}</span>
+          </Button>
+        </div>
+        
+        <p className="text-xs text-muted-foreground text-center">
+          Os dados de exemplo incluem receitas, despesas, dívidas e saldos bancários dos últimos 6 meses.
         </p>
-        <Button 
-          onClick={handleImport}
-          disabled={importing}
-          className="w-full"
-        >
-          {importing ? "Importando..." : "Importar Dados"}
-        </Button>
       </CardContent>
     </Card>
   );
