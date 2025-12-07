@@ -19,11 +19,13 @@ export function Layout({ children }: LayoutProps) {
         "min-h-screen flex flex-col w-full bg-background",
         isMobileView && "max-w-md mx-auto border-x border-border"
       )}>
-        <TopNavigation />
+        <div className="sticky top-0 z-50">
+          <TopNavigation />
+        </div>
         <main 
           id="main-content" 
           className={cn(
-            "flex-1 p-3 sm:p-6",
+            "flex-1 p-3 sm:p-6 overflow-auto",
             isMobileView && "p-3"
           )}
           role="main"
