@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Target, Users, Lightbulb, Palette, CheckCircle, ArrowRight, Mail, Linkedin, Github } from "lucide-react";
+import { ArrowLeft, Target, Users, Lightbulb, Palette, CheckCircle, ArrowRight, Mail, Linkedin, Github, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import logoFinanza from "@/assets/logo-finanza.png";
+import phoneMockup from "@/assets/phone-mockup.png";
+import gilProfile from "@/assets/gil-profile.png";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -38,14 +40,21 @@ const CaseStudy = () => {
           <Badge variant="secondary" className="mb-6 text-sm px-4 py-2">
             Estudo de Caso UX/UI
           </Badge>
-          <motion.img 
-            src={logoFinanza} 
-            alt="Finanza Logo" 
-            className="h-20 mx-auto mb-8"
+          
+          {/* Phone Mockup */}
+          <motion.div 
+            className="relative mx-auto mb-8 max-w-md"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          />
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            <img 
+              src={phoneMockup} 
+              alt="Finanza App Mockup em celulares" 
+              className="w-full h-auto max-h-80 object-contain"
+            />
+          </motion.div>
+          
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
             Finanza
           </h1>
@@ -602,29 +611,67 @@ const CaseStudy = () => {
             whileInView="animate"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="max-w-3xl mx-auto text-center"
+            className="max-w-5xl mx-auto"
           >
-            <motion.div variants={fadeInUp}>
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
-                Vamos Conversar?
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8">
-                Se você gostou deste projeto ou tem interesse em colaborar, 
-                ficarei feliz em conversar!
-              </p>
-              <div className="flex justify-center gap-4 flex-wrap">
-                <Button size="lg" className="gap-2">
-                  <Mail className="w-4 h-4" />
-                  Entre em Contato
-                </Button>
-                <Button size="lg" variant="outline" className="gap-2">
-                  <Linkedin className="w-4 h-4" />
-                  LinkedIn
-                </Button>
-                <Button size="lg" variant="outline" className="gap-2">
-                  <Github className="w-4 h-4" />
-                  GitHub
-                </Button>
+            <motion.div variants={fadeInUp} className="flex flex-col md:flex-row items-center gap-12">
+              {/* Profile Photo */}
+              <div className="flex-shrink-0">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                  className="relative"
+                >
+                  <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-primary/30 shadow-2xl">
+                    <img 
+                      src={gilProfile} 
+                      alt="Gil - UX Designer & Desenvolvedor" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+                    <span className="text-primary-foreground text-xl">👋</span>
+                  </div>
+                </motion.div>
+              </div>
+              
+              {/* Contact Content */}
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+                  Vamos Conversar?
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Se você gostou deste projeto ou tem interesse em colaborar, 
+                  ficarei feliz em conversar!
+                </p>
+                <div className="flex justify-center md:justify-start gap-4 flex-wrap">
+                  <Button 
+                    size="lg" 
+                    className="gap-2"
+                    onClick={() => window.open("https://www.instagram.com/gillemosai/", "_blank")}
+                  >
+                    <Instagram className="w-4 h-4" />
+                    Entre em Contato
+                  </Button>
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="gap-2"
+                    onClick={() => window.open("https://www.linkedin.com/in/gillemosai/", "_blank")}
+                  >
+                    <Linkedin className="w-4 h-4" />
+                    LinkedIn
+                  </Button>
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="gap-2"
+                    onClick={() => window.open("https://github.com/gillemosai", "_blank")}
+                  >
+                    <Github className="w-4 h-4" />
+                    GitHub
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
