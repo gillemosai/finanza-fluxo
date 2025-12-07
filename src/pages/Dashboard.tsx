@@ -315,8 +315,17 @@ export default function Dashboard() {
             <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
               Visão geral das suas finanças pessoais
             </p>
-            <p className="text-xs mt-1" style={{ color: '#2DD4BF' }}>
-              App criado por @gillemosai
+            <p className="text-xs mt-1">
+              App criado por{" "}
+              <a 
+                href="https://www.linkedin.com/in/gillemosai/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:underline transition-opacity hover:opacity-80"
+                style={{ color: '#2DD4BF' }}
+              >
+                @gillemosai
+              </a>
             </p>
           </div>
         </div>
