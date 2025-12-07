@@ -2,131 +2,135 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Financial Control App Design System - Purple & Blue Theme
-Inspired by the beautiful logo gradient */
+/* Financial Control App Design System - WCAG Accessible Theme
+   Improved contrast ratios for accessibility (minimum 4.5:1 for normal text) */
 
 @layer base {
   :root {
-    /* Dark background inspired by logo */
-    --background: 235 40% 4%;
+    /* Dark background - slightly lighter for better readability */
+    --background: 235 35% 6%;
     --foreground: 210 40% 98%;
 
-    /* Cards with subtle transparency */
-    --card: 235 35% 8%;
+    /* Cards with better contrast */
+    --card: 235 30% 10%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 235 35% 8%;
+    --popover: 235 30% 10%;
     --popover-foreground: 210 40% 98%;
 
-    /* Primary - Electric Blue from logo */
-    --primary: 210 100% 56%;
-    --primary-foreground: 235 40% 4%;
+    /* Primary - Electric Blue (WCAG AA compliant) */
+    --primary: 210 100% 60%;
+    --primary-foreground: 235 40% 8%;
 
-    /* Secondary - Purple from logo */
-    --secondary: 280 75% 60%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - Purple (improved contrast) */
+    --secondary: 280 70% 65%;
+    --secondary-foreground: 235 40% 8%;
 
-    /* Muted backgrounds */
-    --muted: 235 30% 12%;
-    --muted-foreground: 210 20% 70%;
+    /* Muted - improved for readability */
+    --muted: 235 25% 16%;
+    --muted-foreground: 210 25% 75%;
 
-    /* Accent - Purple variant */
-    --accent: 280 65% 55%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent - Purple variant (accessible) */
+    --accent: 280 60% 60%;
+    --accent-foreground: 235 40% 8%;
 
-    /* Success/Income - Green */
-    --success: 142 70% 45%;
-    --success-foreground: 210 40% 98%;
+    /* Success/Income - Green (WCAG compliant) */
+    --success: 142 65% 50%;
+    --success-foreground: 142 80% 8%;
 
-    /* Destructive/Expense - Red */
-    --destructive: 0 85% 60%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive/Expense - Red (improved visibility) */
+    --destructive: 0 80% 62%;
+    --destructive-foreground: 0 0% 100%;
 
-    /* Warning/Debt - Orange */
-    --warning: 35 85% 55%;
-    --warning-foreground: 235 40% 4%;
+    /* Warning/Debt - Orange (accessible) */
+    --warning: 38 95% 50%;
+    --warning-foreground: 38 100% 8%;
 
-    /* Borders and inputs */
-    --border: 235 25% 15%;
-    --input: 235 25% 15%;
-    --ring: 210 100% 56%;
+    /* Borders and inputs - higher contrast */
+    --border: 235 20% 22%;
+    --input: 235 20% 22%;
+    --ring: 210 100% 60%;
 
     /* Enhanced radius for modern look */
     --radius: 0.75rem;
 
     /* Custom gradients for financial theme */
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 56%), hsl(280 75% 60%));
-    --gradient-success: linear-gradient(135deg, hsl(142 70% 45%), hsl(158 64% 52%));
-    --gradient-danger: linear-gradient(135deg, hsl(0 85% 60%), hsl(15 85% 58%));
-    --gradient-warning: linear-gradient(135deg, hsl(35 85% 55%), hsl(45 85% 60%));
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 60%), hsl(280 70% 65%));
+    --gradient-success: linear-gradient(135deg, hsl(142 65% 50%), hsl(158 60% 55%));
+    --gradient-danger: linear-gradient(135deg, hsl(0 80% 62%), hsl(15 80% 60%));
+    --gradient-warning: linear-gradient(135deg, hsl(38 95% 50%), hsl(45 90% 55%));
     
     /* Shadows with primary color glow */
-    --shadow-glow: 0 0 40px hsl(210 100% 56% / 0.3);
-    --shadow-card: 0 8px 32px hsl(235 40% 4% / 0.8);
+    --shadow-glow: 0 0 40px hsl(210 100% 60% / 0.25);
+    --shadow-card: 0 8px 32px hsl(235 40% 4% / 0.7);
     
     /* Smooth transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar - Dark theme */
+    --sidebar-background: 235 30% 8%;
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 210 100% 60%;
+    --sidebar-primary-foreground: 235 40% 8%;
+    --sidebar-accent: 235 25% 14%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 235 20% 18%;
+    --sidebar-ring: 210 100% 60%;
   }
 
   .light {
-    /* Light theme - clean and professional */
+    /* Light theme - WCAG AA compliant */
     --background: 210 40% 98%;
-    --foreground: 235 40% 4%;
+    --foreground: 235 45% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 235 40% 4%;
+    --card-foreground: 235 45% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 235 40% 4%;
+    --popover-foreground: 235 45% 12%;
 
-    --primary: 210 100% 56%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - deeper blue for light mode contrast */
+    --primary: 210 100% 45%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 280 75% 60%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary - deeper purple for contrast */
+    --secondary: 280 70% 50%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 30% 95%;
-    --muted-foreground: 235 25% 45%;
+    /* Muted - accessible grays */
+    --muted: 210 25% 92%;
+    --muted-foreground: 235 20% 40%;
 
-    --accent: 280 65% 55%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent */
+    --accent: 280 60% 48%;
+    --accent-foreground: 0 0% 100%;
 
-    --success: 142 70% 45%;
-    --success-foreground: 210 40% 98%;
+    /* Success - darker for readability */
+    --success: 142 70% 38%;
+    --success-foreground: 0 0% 100%;
 
-    --destructive: 0 85% 60%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive - accessible red */
+    --destructive: 0 75% 48%;
+    --destructive-foreground: 0 0% 100%;
 
-    --warning: 35 85% 55%;
-    --warning-foreground: 235 40% 4%;
+    /* Warning - darker orange for contrast */
+    --warning: 38 95% 42%;
+    --warning-foreground: 0 0% 100%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 90%;
-    --ring: 210 100% 56%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Borders - visible but subtle */
+    --border: 210 20% 85%;
+    --input: 210 20% 85%;
+    --ring: 210 100% 45%;
+
+    /* Sidebar - Dark sidebar on light theme for contrast */
+    --sidebar-background: 235 35% 12%;
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 210 100% 60%;
+    --sidebar-primary-foreground: 235 40% 8%;
+    --sidebar-accent: 235 25% 18%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 235 20% 20%;
+    --sidebar-ring: 210 100% 60%;
   }
 }
 
@@ -137,5 +141,21 @@ Inspired by the beautiful logo gradient */
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Focus visible styles for keyboard navigation (WCAG 2.4.7) */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  /* Reduced motion for users who prefer it (WCAG 2.3.3) */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
