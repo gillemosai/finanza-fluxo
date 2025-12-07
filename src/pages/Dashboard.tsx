@@ -305,7 +305,7 @@ export default function Dashboard() {
           <img 
             src={finanzaLogo} 
             alt="Logo Finanza" 
-            className="h-10 sm:h-12 w-auto object-contain" 
+            className="h-20 sm:h-24 w-auto object-contain" 
           />
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
