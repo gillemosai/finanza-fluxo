@@ -2,6 +2,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopNavigation } from "@/components/TopNavigation";
 import { useMenuLayout } from "@/hooks/useMenuLayout";
+import { useViewMode } from "@/hooks/useViewMode";
+import { cn } from "@/lib/utils";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,14 +11,21 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { layout } = useMenuLayout();
+  const { isMobileView } = useViewMode();
 
   if (layout === 'top') {
     return (
-      <div className="min-h-screen flex flex-col w-full bg-background">
+      <div className={cn(
+        "min-h-screen flex flex-col w-full bg-background",
+        isMobileView && "max-w-md mx-auto border-x border-border"
+      )}>
         <TopNavigation />
         <main 
           id="main-content" 
-          className="flex-1 p-3 sm:p-6"
+          className={cn(
+            "flex-1 p-3 sm:p-6",
+            isMobileView && "p-3"
+          )}
           role="main"
           aria-label="Conteúdo principal"
         >
@@ -28,7 +37,10 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className={cn(
+        "min-h-screen flex w-full bg-background",
+        isMobileView && "max-w-md mx-auto border-x border-border"
+      )}>
         <AppSidebar />
         
         <main 
@@ -42,7 +54,7 @@ export function Layout({ children }: LayoutProps) {
             role="banner"
           >
             <SidebarTrigger 
-              className="lg:hidden" 
+              className={cn(isMobileView ? "block" : "lg:hidden")}
               aria-label="Abrir menu de navegação"
             />
             <h1 className="text-lg sm:text-xl font-semibold text-foreground">
@@ -50,7 +62,10 @@ export function Layout({ children }: LayoutProps) {
             </h1>
           </header>
           
-          <div className="flex-1 p-3 sm:p-6">
+          <div className={cn(
+            "flex-1 p-3 sm:p-6",
+            isMobileView && "p-3"
+          )}>
             {children}
           </div>
         </main>

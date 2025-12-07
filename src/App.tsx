@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import { GlobalMonthFilterProvider } from "@/hooks/useGlobalMonthFilter";
 import { AccessibilityProvider } from "@/hooks/useAccessibility";
+import { ViewModeProvider } from "@/hooks/useViewMode";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SkipLinks } from "@/components/SkipLinks";
 import { Layout } from "./components/Layout";
@@ -28,12 +29,13 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <AccessibilityProvider>
-        <AuthProvider>
-          <GlobalMonthFilterProvider>
-            <TooltipProvider>
-              <SkipLinks />
-              <Toaster />
-              <Sonner />
+        <ViewModeProvider>
+          <AuthProvider>
+            <GlobalMonthFilterProvider>
+              <TooltipProvider>
+                <SkipLinks />
+                <Toaster />
+                <Sonner />
               <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
@@ -98,9 +100,10 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
               </BrowserRouter>
-            </TooltipProvider>
-          </GlobalMonthFilterProvider>
-        </AuthProvider>
+              </TooltipProvider>
+            </GlobalMonthFilterProvider>
+          </AuthProvider>
+        </ViewModeProvider>
       </AccessibilityProvider>
     </ThemeProvider>
   </QueryClientProvider>
