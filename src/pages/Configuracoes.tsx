@@ -7,10 +7,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Settings, Layout, Monitor, Lock, Upload } from "lucide-react";
+import { Trash2, Plus, Settings, Layout, Monitor, Lock, Upload, Smartphone, MonitorSmartphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useMenuLayout } from "@/hooks/useMenuLayout";
+import { useViewMode } from "@/hooks/useViewMode";
 import { AccessibilitySettings } from "@/components/AccessibilitySettings";
 import { DataImporter } from "@/components/DataImporter";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ interface Categoria {
 export default function Configuracoes() {
   const { user, updatePassword } = useAuth();
   const { layout, setLayout } = useMenuLayout();
+  const { viewMode, setViewMode, isMobileView } = useViewMode();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -279,6 +281,62 @@ export default function Configuracoes() {
               </Label>
             </div>
           </RadioGroup>
+        </CardContent>
+      </Card>
+
+      {/* View Mode Configuration */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MonitorSmartphone className="h-5 w-5" />
+            Modo de Visualização
+          </CardTitle>
+          <CardDescription>
+            Escolha como deseja visualizar o aplicativo
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RadioGroup 
+            value={viewMode} 
+            onValueChange={(value) => setViewMode(value as 'auto' | 'mobile' | 'desktop')}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          >
+            <div className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+              <RadioGroupItem value="auto" id="auto" />
+              <Label htmlFor="auto" className="flex items-center gap-2 cursor-pointer">
+                <MonitorSmartphone className="h-4 w-4" />
+                <div>
+                  <span className="block font-medium">Automático</span>
+                  <span className="text-xs text-muted-foreground">Detecta o dispositivo</span>
+                </div>
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+              <RadioGroupItem value="mobile" id="mobile" />
+              <Label htmlFor="mobile" className="flex items-center gap-2 cursor-pointer">
+                <Smartphone className="h-4 w-4" />
+                <div>
+                  <span className="block font-medium">Celular</span>
+                  <span className="text-xs text-muted-foreground">Layout mobile</span>
+                </div>
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+              <RadioGroupItem value="desktop" id="desktop" />
+              <Label htmlFor="desktop" className="flex items-center gap-2 cursor-pointer">
+                <Monitor className="h-4 w-4" />
+                <div>
+                  <span className="block font-medium">Desktop</span>
+                  <span className="text-xs text-muted-foreground">Layout completo</span>
+                </div>
+              </Label>
+            </div>
+          </RadioGroup>
+          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              Modo atual: <span className="font-medium text-foreground">{isMobileView ? 'Mobile' : 'Desktop'}</span>
+            </p>
+          </div>
         </CardContent>
       </Card>
 
