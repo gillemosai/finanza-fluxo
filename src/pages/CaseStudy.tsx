@@ -129,7 +129,7 @@ const CaseStudy = () => {
                 <Card className="border-l-4 border-l-primary">
                   <CardContent className="p-6">
                     <h4 className="font-semibold text-foreground mb-2">Minha Função</h4>
-                    <p className="text-muted-foreground">UX Designer & Desenvolvedor Full Stack</p>
+                    <p className="text-muted-foreground">UX Designer & Desenvolvedor Vibe Coding</p>
                   </CardContent>
                 </Card>
                 <Card className="border-l-4 border-l-primary">
