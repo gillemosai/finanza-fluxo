@@ -11,6 +11,7 @@ import { Trash2, Plus, Settings, Layout, Monitor, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useMenuLayout } from "@/hooks/useMenuLayout";
+import { AccessibilitySettings } from "@/components/AccessibilitySettings";
 import { toast } from "sonner";
 
 interface Categoria {
@@ -279,6 +280,9 @@ export default function Configuracoes() {
           </RadioGroup>
         </CardContent>
       </Card>
+
+      {/* Accessibility Settings */}
+      <AccessibilitySettings />
 
       {/* Password Security */}
       <Card className="mb-6">
