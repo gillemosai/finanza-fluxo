@@ -241,3 +241,99 @@
   outline: 2px dashed hsl(var(--primary) / 0.3);
   outline-offset: 2px;
 }
+
+/* Enhanced Focus Indicators for Keyboard Navigation */
+.focus-visible-enhanced:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px hsl(var(--ring) / 0.25);
+}
+
+/* Skip Link Styles */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 1rem 1.5rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 var(--radius) 0;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Accessible Link Styles */
+a:not([class]) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: hsl(var(--primary));
+}
+
+a:not([class]):hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Accessible Form Labels */
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+/* Error State for Forms */
+.form-error {
+  color: hsl(var(--destructive));
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.form-error::before {
+  content: "⚠ ";
+}
+
+/* Touch Target Size (minimum 44x44px for WCAG 2.5.5) */
+@media (pointer: coarse) {
+  button,
+  a,
+  input[type="checkbox"],
+  input[type="radio"],
+  select,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Visible focus for interactive elements */
+[role="button"]:focus,
+button:focus,
+a:focus {
+  outline: none;
+}
+
+/* Print styles for accessibility */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+  }
+  
+  a[href]::after {
+    content: " (" attr(href) ")";
+  }
+}
