@@ -72,20 +72,24 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar>
+    <Sidebar role="navigation" aria-label="Menu lateral">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Controle Financeiro</SidebarGroupLabel>
+          <SidebarGroupLabel id="nav-label">Controle Financeiro</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu aria-labelledby="nav-label">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton 
                     asChild
                     isActive={location.pathname === item.path}
                   >
-                    <NavLink to={item.path}>
-                      <item.icon className="w-4 h-4" />
+                    <NavLink 
+                      to={item.path}
+                      aria-current={location.pathname === item.path ? "page" : undefined}
+                      aria-label={item.title}
+                    >
+                      <item.icon className="w-4 h-4" aria-hidden="true" />
                       <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
@@ -96,20 +100,24 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       
-      <div className="p-4 border-t">
+      <div className="p-4 border-t" role="contentinfo">
         <div className="flex items-center justify-between mb-2">
-          <div className="text-sm text-muted-foreground truncate flex-1">
+          <div 
+            className="text-sm text-muted-foreground truncate flex-1"
+            aria-label={`Usuário conectado: ${user?.email}`}
+          >
             {user?.email}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" role="group" aria-label="Ações do usuário">
             <ThemeToggle />
             <Button
               variant="ghost"
               size="sm"
               onClick={() => signOut()}
               className="text-muted-foreground hover:text-destructive"
+              aria-label="Sair da conta"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4" aria-hidden="true" />
             </Button>
           </div>
         </div>

@@ -69,12 +69,19 @@ export function TopNavigation() {
 
   return (
     <TooltipProvider>
-      <header className="h-14 sm:h-16 border-b border-border bg-card/50 backdrop-blur-sm">
+      <header 
+        className="h-14 sm:h-16 border-b border-border bg-card/50 backdrop-blur-sm"
+        role="banner"
+      >
         <div className="h-full flex items-center justify-between px-3 sm:px-6">
           {/* Navigation */}
           <div className="flex items-center space-x-2 sm:space-x-6">
             {/* Navigation Icons */}
-            <nav className="flex items-center space-x-0.5 sm:space-x-1 overflow-x-auto">
+            <nav 
+              className="flex items-center space-x-0.5 sm:space-x-1 overflow-x-auto"
+              role="navigation"
+              aria-label="Menu principal"
+            >
               {menuItems.map((item) => (
                 <Tooltip key={item.path}>
                   <TooltipTrigger asChild>
@@ -83,9 +90,13 @@ export function TopNavigation() {
                       size="sm"
                       asChild
                       className="w-8 h-8 sm:w-10 sm:h-10 p-0 flex-shrink-0"
+                      aria-current={location.pathname === item.path ? "page" : undefined}
                     >
-                      <NavLink to={item.path}>
-                        <item.icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <NavLink 
+                        to={item.path}
+                        aria-label={item.title}
+                      >
+                        <item.icon className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
                       </NavLink>
                     </Button>
                   </TooltipTrigger>
@@ -98,8 +109,11 @@ export function TopNavigation() {
           </div>
             
           {/* User Actions */}
-          <div className="flex items-center space-x-1 sm:space-x-2">
-            <span className="text-xs sm:text-sm text-muted-foreground hidden lg:block max-w-[150px] truncate">
+          <div className="flex items-center space-x-1 sm:space-x-2" role="group" aria-label="Ações do usuário">
+            <span 
+              className="text-xs sm:text-sm text-muted-foreground hidden lg:block max-w-[150px] truncate"
+              aria-label={`Usuário conectado: ${user?.email}`}
+            >
               {user?.email}
             </span>
             <ThemeToggle />
@@ -110,8 +124,9 @@ export function TopNavigation() {
                   size="sm"
                   onClick={() => signOut()}
                   className="w-8 h-8 sm:w-10 sm:h-10 p-0 text-muted-foreground hover:text-destructive flex-shrink-0"
+                  aria-label="Sair da conta"
                 >
-                  <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <LogOut className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>

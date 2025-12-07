@@ -35,14 +35,15 @@ export function AccessibilitySettings() {
   };
 
   return (
-    <Card>
+    <Card id="accessibility-settings" className="mb-6" role="region" aria-labelledby="accessibility-title">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle id="accessibility-title" className="flex items-center gap-2">
           <Accessibility className="h-5 w-5 text-primary" aria-hidden="true" />
           <span>Acessibilidade</span>
         </CardTitle>
         <CardDescription>
-          Configure as opções de acessibilidade para melhorar sua experiência
+          Configure as opções de acessibilidade para melhorar sua experiência. 
+          Todas as configurações são salvas automaticamente.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

@@ -37,9 +37,12 @@ export function MonthFilter({ onFilterChange, selectedMonth }: MonthFilterProps)
   });
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" role="search" aria-label="Filtro de período">
       <Select value={selectedMonth || ""} onValueChange={(value) => onFilterChange(value || null)}>
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger 
+          className="w-[200px]"
+          aria-label="Selecionar mês para filtrar"
+        >
           <SelectValue placeholder="Filtrar por mês" />
         </SelectTrigger>
         <SelectContent>
@@ -56,8 +59,9 @@ export function MonthFilter({ onFilterChange, selectedMonth }: MonthFilterProps)
           size="sm"
           onClick={() => onFilterChange(null)}
           className="h-10 px-3"
+          aria-label="Limpar filtro de mês"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" aria-hidden="true" />
         </Button>
       )}
     </div>
