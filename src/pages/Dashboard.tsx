@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { StatCard } from "@/components/StatCard";
-import { DataImporter } from "@/components/DataImporter";
 
 import { MonthFilter } from "@/components/MonthFilter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -328,12 +327,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Data Importer */}
-      {hasNoData && (
-        <div className="mb-6">
-          <DataImporter />
-        </div>
-      )}
 
       {/* KPIs Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6 mb-6 sm:mb-8">
