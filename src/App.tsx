@@ -6,7 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
 import { GlobalMonthFilterProvider } from "@/hooks/useGlobalMonthFilter";
+import { AccessibilityProvider } from "@/hooks/useAccessibility";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { SkipLinks } from "@/components/SkipLinks";
 import { Layout } from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Auth from "./pages/Auth";
@@ -24,12 +26,14 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-      <AuthProvider>
-        <GlobalMonthFilterProvider>
-          <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <AccessibilityProvider>
+        <AuthProvider>
+          <GlobalMonthFilterProvider>
+            <TooltipProvider>
+              <SkipLinks />
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={
@@ -91,10 +95,11 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-      </GlobalMonthFilterProvider>
-    </AuthProvider>
+              </BrowserRouter>
+            </TooltipProvider>
+          </GlobalMonthFilterProvider>
+        </AuthProvider>
+      </AccessibilityProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

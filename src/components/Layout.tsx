@@ -14,7 +14,12 @@ export function Layout({ children }: LayoutProps) {
     return (
       <div className="min-h-screen flex flex-col w-full bg-background">
         <TopNavigation />
-        <main className="flex-1 p-3 sm:p-6">
+        <main 
+          id="main-content" 
+          className="flex-1 p-3 sm:p-6"
+          role="main"
+          aria-label="Conteúdo principal"
+        >
           {children}
         </main>
       </div>
@@ -26,10 +31,23 @@ export function Layout({ children }: LayoutProps) {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         
-        <main className="flex-1 flex flex-col">
-          <header className="h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 border-b border-border bg-card/50 backdrop-blur-sm">
-            <SidebarTrigger className="lg:hidden" />
-            <h1 className="text-lg sm:text-xl font-semibold text-foreground">Controle Financeiro</h1>
+        <main 
+          id="main-content"
+          className="flex-1 flex flex-col"
+          role="main"
+          aria-label="Conteúdo principal"
+        >
+          <header 
+            className="h-14 sm:h-16 flex items-center justify-between px-3 sm:px-6 border-b border-border bg-card/50 backdrop-blur-sm"
+            role="banner"
+          >
+            <SidebarTrigger 
+              className="lg:hidden" 
+              aria-label="Abrir menu de navegação"
+            />
+            <h1 className="text-lg sm:text-xl font-semibold text-foreground">
+              Controle Financeiro
+            </h1>
           </header>
           
           <div className="flex-1 p-3 sm:p-6">

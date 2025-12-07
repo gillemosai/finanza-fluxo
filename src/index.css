@@ -148,6 +148,19 @@
     @apply outline-2 outline-offset-2 outline-ring;
   }
 
+  /* Screen reader only class */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
   /* Reduced motion for users who prefer it (WCAG 2.3.3) */
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -158,4 +171,73 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* Accessibility Font Sizes */
+.font-size-normal {
+  font-size: 16px;
+}
+
+.font-size-large {
+  font-size: 18px;
+}
+
+.font-size-extra-large {
+  font-size: 20px;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --foreground: 0 0% 100%;
+  --background: 0 0% 0%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+  --primary: 210 100% 70%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 280 80% 70%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 85%;
+  --border: 0 0% 40%;
+  --success: 142 100% 60%;
+  --destructive: 0 100% 65%;
+  --warning: 45 100% 60%;
+}
+
+.high-contrast.light {
+  --foreground: 0 0% 0%;
+  --background: 0 0% 100%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --primary: 210 100% 35%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 280 80% 40%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 90%;
+  --muted-foreground: 0 0% 25%;
+  --border: 0 0% 50%;
+  --success: 142 100% 30%;
+  --destructive: 0 100% 40%;
+  --warning: 38 100% 40%;
+}
+
+/* Reduce Motion Mode */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Screen Reader Mode - Enhanced visibility for landmarks */
+.screen-reader-mode main,
+.screen-reader-mode nav,
+.screen-reader-mode header,
+.screen-reader-mode footer,
+.screen-reader-mode section,
+.screen-reader-mode article {
+  outline: 2px dashed hsl(var(--primary) / 0.3);
+  outline-offset: 2px;
 }
