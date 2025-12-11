@@ -75,9 +75,9 @@ export function TopNavigation() {
       >
         <div className="h-full flex items-center justify-between px-2 sm:px-6 gap-2">
           {/* Navigation - Scrollable on mobile */}
-          <div className="flex-1 min-w-0 overflow-hidden">
+          <div className="flex-1 min-w-0 overflow-hidden relative">
             <nav 
-              className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1 -mb-1"
+              className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1 -mb-1 pr-6 sm:pr-0"
               role="navigation"
               aria-label="Menu principal"
               style={{ WebkitOverflowScrolling: 'touch' }}
@@ -106,6 +106,11 @@ export function TopNavigation() {
                 </Tooltip>
               ))}
             </nav>
+            {/* Gradient indicator for more content */}
+            <div 
+              className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card/90 to-transparent pointer-events-none sm:hidden"
+              aria-hidden="true"
+            />
           </div>
             
           {/* User Actions */}
