@@ -73,14 +73,14 @@ export function TopNavigation() {
         className="h-14 sm:h-16 border-b border-border bg-card/50 backdrop-blur-sm"
         role="banner"
       >
-        <div className="h-full flex items-center justify-between px-3 sm:px-6">
-          {/* Navigation */}
-          <div className="flex items-center space-x-2 sm:space-x-6">
-            {/* Navigation Icons */}
+        <div className="h-full flex items-center justify-between px-2 sm:px-6 gap-2">
+          {/* Navigation - Scrollable on mobile */}
+          <div className="flex-1 min-w-0 overflow-hidden">
             <nav 
-              className="flex items-center space-x-0.5 sm:space-x-1 overflow-x-auto"
+              className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1 -mb-1"
               role="navigation"
               aria-label="Menu principal"
+              style={{ WebkitOverflowScrolling: 'touch' }}
             >
               {menuItems.map((item) => (
                 <Tooltip key={item.path}>
@@ -89,14 +89,14 @@ export function TopNavigation() {
                       variant={location.pathname === item.path ? "default" : "ghost"}
                       size="sm"
                       asChild
-                      className="w-8 h-8 sm:w-10 sm:h-10 p-0 flex-shrink-0"
+                      className="w-9 h-9 sm:w-10 sm:h-10 p-0 flex-shrink-0"
                       aria-current={location.pathname === item.path ? "page" : undefined}
                     >
                       <NavLink 
                         to={item.path}
                         aria-label={item.title}
                       >
-                        <item.icon className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
+                        <item.icon className="w-4 h-4" aria-hidden="true" />
                       </NavLink>
                     </Button>
                   </TooltipTrigger>
