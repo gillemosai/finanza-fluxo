@@ -28,7 +28,7 @@ export default function Auth() {
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate("/dashboard");
     }
   }, [user, navigate]);
 
@@ -50,7 +50,7 @@ export default function Auth() {
             title: "Login realizado com sucesso!",
             description: "Bem-vindo de volta!",
           });
-          navigate("/");
+          navigate("/dashboard");
         }
       } else {
         if (password !== confirmPassword) {
