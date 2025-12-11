@@ -97,6 +97,7 @@ export function TopNavigation() {
                         aria-label={item.title}
                       >
                         <item.icon className="w-4 h-4" aria-hidden="true" />
+                        <span className="sr-only">{item.title}</span>
                       </NavLink>
                     </Button>
                   </TooltipTrigger>
