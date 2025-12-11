@@ -442,75 +442,180 @@ const CaseStudy = () => {
       </section>
 
       {/* Sitemap */}
-      <section className="py-20 md:py-32 bg-background">
+      <section className="py-20 md:py-32 bg-[#1a1a2e]">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="max-w-6xl mx-auto"
+            className="max-w-7xl mx-auto"
           >
-            <motion.div variants={fadeInUp} className="text-center mb-16">
-              <Badge variant="outline" className="mb-4">Arquitetura</Badge>
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
-                Sitemap do App
+            <motion.div variants={fadeInUp} className="text-center mb-12">
+              <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight">
+                SITEMAP
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Estrutura de navegação do Finanza, organizando as principais funcionalidades 
-                de forma intuitiva e acessível.
+              <p className="text-gray-400 text-lg italic">
+                "Como tornar o controle financeiro algo rápido, leve e intuitivo?"
               </p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="flex justify-center">
-              <div className="bg-card border rounded-xl p-8 shadow-lg w-full max-w-4xl">
-                {/* Root Level */}
-                <div className="flex flex-col items-center">
-                  <div className="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold text-lg shadow-md">
-                    Finanza App
+            <motion.div variants={fadeInUp} className="relative overflow-x-auto pb-8">
+              <div className="min-w-[900px] mx-auto">
+                {/* Root - Login/Home */}
+                <div className="flex justify-center mb-8">
+                  <div className="bg-purple-600 text-white px-6 py-3 rounded-full font-semibold flex items-center gap-2 shadow-lg shadow-purple-600/30">
+                    <span className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">👤</span>
+                    <div className="text-left">
+                      <div className="text-sm font-bold">MEU FINANZA</div>
+                      <div className="text-xs opacity-80">(usuário/login)</div>
+                    </div>
                   </div>
+                </div>
+
+                {/* Connector line from root */}
+                <div className="flex justify-center mb-4">
+                  <div className="w-0.5 h-8 bg-gray-600" />
+                </div>
+
+                {/* Main branches horizontal line */}
+                <div className="relative flex justify-center mb-4">
+                  <div className="absolute top-0 left-[15%] right-[15%] h-0.5 bg-gray-600" />
+                </div>
+
+                {/* Level 1 - Main Pages */}
+                <div className="grid grid-cols-4 gap-4 mb-8 relative">
+                  {/* Vertical connectors */}
+                  <div className="absolute top-0 left-[12.5%] w-0.5 h-4 bg-gray-600" />
+                  <div className="absolute top-0 left-[37.5%] w-0.5 h-4 bg-gray-600" />
+                  <div className="absolute top-0 left-[62.5%] w-0.5 h-4 bg-gray-600" />
+                  <div className="absolute top-0 left-[87.5%] w-0.5 h-4 bg-gray-600" />
                   
-                  {/* Connector Line */}
-                  <div className="w-0.5 h-8 bg-border" />
-                  
-                  {/* Auth Level */}
-                  <div className="bg-muted px-4 py-2 rounded-lg font-medium text-foreground border">
-                    Autenticação
-                  </div>
-                  
-                  {/* Connector Line */}
-                  <div className="w-0.5 h-8 bg-border" />
-                  
-                  {/* Main Pages Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                    {[
-                      { name: "Dashboard", icon: "📊", desc: "Visão geral" },
-                      { name: "Receitas", icon: "💰", desc: "Entradas" },
-                      { name: "Despesas", icon: "💸", desc: "Saídas" },
-                      { name: "Dívidas", icon: "⚠️", desc: "A pagar" },
-                    ].map((page) => (
-                      <div key={page.name} className="bg-muted/50 border rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
-                        <span className="text-2xl mb-2 block">{page.icon}</span>
-                        <h4 className="font-semibold text-foreground text-sm">{page.name}</h4>
-                        <p className="text-xs text-muted-foreground">{page.desc}</p>
+                  {/* Dashboard */}
+                  <div className="flex flex-col items-center pt-4">
+                    <div className="bg-lime-500 text-black px-4 py-2 rounded-full font-semibold flex items-center gap-2 text-sm shadow-lg shadow-lime-500/30">
+                      <span>📊</span>
+                      <div>
+                        <div className="font-bold">DASHBOARD</div>
+                        <div className="text-xs opacity-70">(Visão Geral)</div>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                  
-                  {/* Second Row */}
-                  <div className="w-full mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[
-                      { name: "Saldos", icon: "🏦", desc: "Contas bancárias" },
-                      { name: "Cartões", icon: "💳", desc: "Crédito" },
-                      { name: "Relatórios", icon: "📑", desc: "Exportação" },
-                      { name: "Configurações", icon: "⚙️", desc: "Preferências" },
-                    ].map((page) => (
-                      <div key={page.name} className="bg-muted/50 border rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
-                        <span className="text-2xl mb-2 block">{page.icon}</span>
-                        <h4 className="font-semibold text-foreground text-sm">{page.name}</h4>
-                        <p className="text-xs text-muted-foreground">{page.desc}</p>
+
+                  {/* Receitas */}
+                  <div className="flex flex-col items-center pt-4">
+                    <div className="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold flex items-center gap-2 text-sm shadow-lg shadow-blue-600/30">
+                      <span>💰</span>
+                      <div>
+                        <div className="font-bold">RECEITAS</div>
+                        <div className="text-xs opacity-70">(Entradas)</div>
                       </div>
-                    ))}
+                    </div>
+                    {/* Sub-branch line */}
+                    <div className="w-0.5 h-6 bg-gray-600 mt-2" />
+                    {/* Sub-items */}
+                    <div className="space-y-2 mt-2">
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>💵</span> Salário
+                      </div>
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>🎯</span> Freelance
+                      </div>
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>📈</span> Investimentos
+                      </div>
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>🎁</span> Outros
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Despesas */}
+                  <div className="flex flex-col items-center pt-4">
+                    <div className="bg-yellow-500 text-black px-4 py-2 rounded-full font-semibold flex items-center gap-2 text-sm border-2 border-yellow-400 shadow-lg shadow-yellow-500/30">
+                      <span>💸</span>
+                      <div>
+                        <div className="font-bold">DESPESAS</div>
+                        <div className="text-xs opacity-70">(Saídas)</div>
+                      </div>
+                    </div>
+                    {/* Sub-branch line */}
+                    <div className="w-0.5 h-6 bg-gray-600 mt-2" />
+                    {/* Sub-items */}
+                    <div className="space-y-2 mt-2">
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>🏠</span> Moradia
+                      </div>
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>🚗</span> Transporte
+                      </div>
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>🍔</span> Alimentação
+                      </div>
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>🎭</span> Lazer
+                      </div>
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>🏥</span> Saúde
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dívidas */}
+                  <div className="flex flex-col items-center pt-4">
+                    <div className="bg-red-500 text-white px-4 py-2 rounded-full font-semibold flex items-center gap-2 text-sm shadow-lg shadow-red-500/30">
+                      <span>⚠️</span>
+                      <div>
+                        <div className="font-bold">DÍVIDAS</div>
+                        <div className="text-xs opacity-70">(Pendências)</div>
+                      </div>
+                    </div>
+                    {/* Sub-branch line */}
+                    <div className="w-0.5 h-6 bg-gray-600 mt-2" />
+                    {/* Sub-items */}
+                    <div className="space-y-2 mt-2">
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>🏦</span> Empréstimos
+                      </div>
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>💳</span> Cartão Crédito
+                      </div>
+                      <div className="bg-gray-700 border border-gray-600 px-3 py-1.5 rounded-lg text-white text-xs flex items-center gap-2">
+                        <span>📋</span> Financiamentos
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Level 2 - Secondary Pages */}
+                <div className="flex justify-center gap-8 mt-8">
+                  <div className="bg-cyan-600 text-white px-4 py-2 rounded-full font-semibold flex items-center gap-2 text-sm shadow-lg shadow-cyan-600/30">
+                    <span>🏦</span>
+                    <div>
+                      <div className="font-bold">SALDOS</div>
+                      <div className="text-xs opacity-70">(Bancários)</div>
+                    </div>
+                  </div>
+                  <div className="bg-orange-500 text-white px-4 py-2 rounded-full font-semibold flex items-center gap-2 text-sm shadow-lg shadow-orange-500/30">
+                    <span>💳</span>
+                    <div>
+                      <div className="font-bold">CARTÕES</div>
+                      <div className="text-xs opacity-70">(Crédito)</div>
+                    </div>
+                  </div>
+                  <div className="bg-emerald-600 text-white px-4 py-2 rounded-full font-semibold flex items-center gap-2 text-sm shadow-lg shadow-emerald-600/30">
+                    <span>📊</span>
+                    <div>
+                      <div className="font-bold">RELATÓRIOS</div>
+                      <div className="text-xs opacity-70">(Exportação)</div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-500 text-white px-4 py-2 rounded-full font-semibold flex items-center gap-2 text-sm shadow-lg shadow-gray-500/30">
+                    <span>⚙️</span>
+                    <div>
+                      <div className="font-bold">CONFIG</div>
+                      <div className="text-xs opacity-70">(Preferências)</div>
+                    </div>
                   </div>
                 </div>
               </div>
