@@ -9,6 +9,7 @@ import logoFinanza from "@/assets/logo-finanza.png";
 import phoneMockup from "@/assets/case-study-phones.png";
 import gilProfile from "@/assets/gil-profile.png";
 import vanessaPhoto from "@/assets/vanessa-photo.png";
+import joaoPhoto from "@/assets/joao-photo.png";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -263,9 +264,11 @@ const CaseStudy = () => {
                   <CardContent className="p-0">
                     <div className="bg-gradient-to-r from-primary/20 to-primary/5 p-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-2xl font-bold text-primary">
-                          J
-                        </div>
+                        <img 
+                          src={joaoPhoto} 
+                          alt="João - Persona" 
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
                         <div>
                           <h4 className="text-xl font-bold text-foreground">João Silva</h4>
                           <p className="text-muted-foreground">32 anos, Analista de TI</p>
