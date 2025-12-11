@@ -27,7 +27,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const menuItems = [
   {
     title: "Dashboard",
-    path: "/",
+    path: "/dashboard",
     icon: LayoutDashboard,
   },
   {

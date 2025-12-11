@@ -22,6 +22,7 @@ import Configuracoes from "./pages/Configuracoes";
 import Cartoes from "./pages/Cartoes";
 import SaldosBancarios from "./pages/SaldosBancarios";
 import CaseStudy from "./pages/CaseStudy";
+import Welcome from "./pages/Welcome";
 
 const queryClient = new QueryClient();
 
@@ -38,8 +39,9 @@ const App = () => (
                 <Sonner />
               <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Welcome />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={
+            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Layout>
                   <Dashboard />
