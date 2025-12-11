@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import logoFinanza from "@/assets/logo-finanza.png";
 import phoneMockup from "@/assets/case-study-phones.png";
 import gilProfile from "@/assets/gil-profile.png";
+import vanessaPhoto from "@/assets/vanessa-photo.png";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -299,7 +300,7 @@ const CaseStudy = () => {
                     <div className="bg-gradient-to-r from-secondary/40 to-secondary/10 p-6">
                       <div className="flex items-center gap-4">
                         <img 
-                          src="/persona-vanessa.png" 
+                          src={vanessaPhoto} 
                           alt="Vanessa - Persona" 
                           className="w-16 h-16 rounded-full object-cover"
                         />
