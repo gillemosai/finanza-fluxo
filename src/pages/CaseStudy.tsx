@@ -298,32 +298,35 @@ const CaseStudy = () => {
                   <CardContent className="p-0">
                     <div className="bg-gradient-to-r from-secondary/40 to-secondary/10 p-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 rounded-full bg-secondary/40 flex items-center justify-center text-2xl font-bold text-secondary-foreground">
-                          M
-                        </div>
+                        <img 
+                          src="/persona-vanessa.png" 
+                          alt="Vanessa - Persona" 
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
                         <div>
-                          <h4 className="text-xl font-bold text-foreground">Maria Oliveira</h4>
-                          <p className="text-muted-foreground">45 anos, Professora</p>
+                          <h4 className="text-xl font-bold text-foreground">Vanessa</h4>
+                          <p className="text-muted-foreground">22 anos, Jornalista</p>
                         </div>
                       </div>
                     </div>
                     <div className="p-6 space-y-4">
                       <blockquote className="italic text-muted-foreground border-l-4 border-secondary pl-4">
-                        "Preciso de algo simples que me mostre se estou no vermelho ou no azul."
+                        "Amo viajar! Por isso vou ser uma jornalista famosa e fazer cobertura internacional."
                       </blockquote>
                       <div>
-                        <h5 className="font-semibold text-foreground mb-2">Objetivos</h5>
+                        <h5 className="font-semibold text-foreground mb-2">Metas</h5>
                         <ul className="text-sm text-muted-foreground space-y-1">
-                          <li>• Pagar suas dívidas</li>
-                          <li>• Ter uma visão clara do saldo</li>
-                          <li>• Interface simples e direta</li>
+                          <li>• Trabalhar na TV</li>
+                          <li>• Conhecer o mundo</li>
+                          <li>• Morar fora do país</li>
                         </ul>
                       </div>
                       <div>
                         <h5 className="font-semibold text-foreground mb-2">Frustrações</h5>
                         <ul className="text-sm text-muted-foreground space-y-1">
-                          <li>• Tecnologia intimida</li>
-                          <li>• Não sabe por onde começar</li>
+                          <li>• Dificuldade de encontrar emprego na área em sua região</li>
+                          <li>• Salário inicial abaixo do esperado</li>
+                          <li>• Dificuldade em guardar dinheiro</li>
                         </ul>
                       </div>
                     </div>
@@ -428,6 +431,84 @@ const CaseStudy = () => {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Sitemap */}
+      <section className="py-20 md:py-32 bg-background">
+        <div className="container mx-auto px-6">
+          <motion.div 
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+            className="max-w-6xl mx-auto"
+          >
+            <motion.div variants={fadeInUp} className="text-center mb-16">
+              <Badge variant="outline" className="mb-4">Arquitetura</Badge>
+              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+                Sitemap do App
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Estrutura de navegação do Finanza, organizando as principais funcionalidades 
+                de forma intuitiva e acessível.
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="flex justify-center">
+              <div className="bg-card border rounded-xl p-8 shadow-lg w-full max-w-4xl">
+                {/* Root Level */}
+                <div className="flex flex-col items-center">
+                  <div className="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold text-lg shadow-md">
+                    Finanza App
+                  </div>
+                  
+                  {/* Connector Line */}
+                  <div className="w-0.5 h-8 bg-border" />
+                  
+                  {/* Auth Level */}
+                  <div className="bg-muted px-4 py-2 rounded-lg font-medium text-foreground border">
+                    Autenticação
+                  </div>
+                  
+                  {/* Connector Line */}
+                  <div className="w-0.5 h-8 bg-border" />
+                  
+                  {/* Main Pages Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                    {[
+                      { name: "Dashboard", icon: "📊", desc: "Visão geral" },
+                      { name: "Receitas", icon: "💰", desc: "Entradas" },
+                      { name: "Despesas", icon: "💸", desc: "Saídas" },
+                      { name: "Dívidas", icon: "⚠️", desc: "A pagar" },
+                    ].map((page) => (
+                      <div key={page.name} className="bg-muted/50 border rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
+                        <span className="text-2xl mb-2 block">{page.icon}</span>
+                        <h4 className="font-semibold text-foreground text-sm">{page.name}</h4>
+                        <p className="text-xs text-muted-foreground">{page.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Second Row */}
+                  <div className="w-full mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                      { name: "Saldos", icon: "🏦", desc: "Contas bancárias" },
+                      { name: "Cartões", icon: "💳", desc: "Crédito" },
+                      { name: "Relatórios", icon: "📑", desc: "Exportação" },
+                      { name: "Configurações", icon: "⚙️", desc: "Preferências" },
+                    ].map((page) => (
+                      <div key={page.name} className="bg-muted/50 border rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
+                        <span className="text-2xl mb-2 block">{page.icon}</span>
+                        <h4 className="font-semibold text-foreground text-sm">{page.name}</h4>
+                        <p className="text-xs text-muted-foreground">{page.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
