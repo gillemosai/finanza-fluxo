@@ -7,13 +7,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, Settings, Layout, Monitor, Lock, Upload, Smartphone, MonitorSmartphone } from "lucide-react";
+import { Trash2, Plus, Settings, Layout, Monitor, Lock, Upload, Smartphone, MonitorSmartphone, Database } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useMenuLayout } from "@/hooks/useMenuLayout";
 import { useViewMode } from "@/hooks/useViewMode";
 import { AccessibilitySettings } from "@/components/AccessibilitySettings";
 import { DataImporter } from "@/components/DataImporter";
+import { SQLiteSyncStatus } from "@/components/SQLiteSyncStatus";
 import { toast } from "sonner";
 
 interface Categoria {
@@ -358,6 +359,11 @@ export default function Configuracoes() {
           <DataImporter />
         </CardContent>
       </Card>
+
+      {/* SQLite Local Database */}
+      <div className="mb-6">
+        <SQLiteSyncStatus />
+      </div>
 
       {/* Password Security */}
       <Card className="mb-6">
