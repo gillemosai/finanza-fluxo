@@ -216,6 +216,33 @@ export default function Despesas() {
         const result = await saveData('despesas', despesaData);
         if (!result.success) throw new Error(result.error);
         
+        // Se a categoria for "Cartão de Crédito", replicar para a tabela de cartões
+        if (formData.categoria.toLowerCase().includes('cartão') || 
+            formData.categoria.toLowerCase().includes('cartao') ||
+            formData.categoria.toLowerCase().includes('crédito') ||
+            formData.categoria.toLowerCase().includes('credito')) {
+          try {
+            const cartaoData = {
+              descricao: formData.descricao,
+              valor_total: parseFloat(formData.valor),
+              valor_restante: parseFloat(formData.valor),
+              valor_pago: 0,
+              data_vencimento: formData.data_vencimento || null,
+              mes_referencia: formData.mes_referencia || null,
+              status: 'pendente',
+              observacoes: formData.observacoes,
+              categoria: 'Cartão'
+            };
+            await saveData('dividas', cartaoData);
+            toast({
+              title: "Cartão Replicado",
+              description: "Despesa também adicionada aos Cartões de Crédito",
+            });
+          } catch (cartaoError) {
+            console.error('Error replicating to cartoes:', cartaoError);
+          }
+        }
+        
         toast({
           title: "Sucesso", 
           description: `Despesa criada${!isOnline ? ' (offline)' : ''}!`,
