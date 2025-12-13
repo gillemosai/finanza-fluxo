@@ -40,6 +40,7 @@ export default function Despesas() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDespesa, setEditingDespesa] = useState<Despesa | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [dataVencimentoUpdated, setDataVencimentoUpdated] = useState(false);
   const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
   const [sortConfig, setSortConfig] = useState<{
     field: string;
@@ -379,8 +380,12 @@ export default function Despesas() {
                       setFormData({ 
                         ...formData, 
                         data_pagamento: newDate,
+                        data_vencimento: newDate,
                         mes_referencia: formatDateToMonthRef(newDate)
                       });
+                      // Trigger visual feedback for auto-fill
+                      setDataVencimentoUpdated(true);
+                      setTimeout(() => setDataVencimentoUpdated(false), 1500);
                     }}
                     required
                   />
@@ -422,6 +427,7 @@ export default function Despesas() {
                   type="date"
                   value={formData.data_vencimento}
                   onChange={(e) => setFormData({ ...formData, data_vencimento: e.target.value })}
+                  className={dataVencimentoUpdated ? "animate-pulse ring-2 ring-primary bg-primary/10 transition-all duration-300" : "transition-all duration-300"}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   Para controle de alertas e despesas recorrentes
