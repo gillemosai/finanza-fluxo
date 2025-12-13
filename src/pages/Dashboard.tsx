@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
-import { StatCard } from "@/components/StatCard";
-import finanzaLogo from "@/assets/finanza-logo.png";
 import { MonthFilter } from "@/components/MonthFilter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Badge } from "@/components/ui/badge";
 import { 
   PieChart as RechartsPieChart, 
   Cell, 
@@ -16,9 +12,9 @@ import {
   CartesianGrid,
   LineChart,
   Line,
-  Legend,
   Pie,
-  Tooltip
+  Tooltip,
+  Legend
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,15 +25,10 @@ import {
   CreditCard,
   Wallet,
   DollarSign,
-  PiggyBank,
-  Target,
   AlertTriangle,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  BarChart3,
   CheckCircle,
-  Clock,
-  Receipt
+  Receipt,
+  BarChart3
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -105,16 +96,8 @@ export default function Dashboard() {
 
   const getCategoryColor = (index: number) => {
     const colors = [
-      '#8B5CF6', // purple
-      '#F59E0B', // amber
-      '#10B981', // emerald
-      '#3B82F6', // blue
-      '#EF4444', // red
-      '#EC4899', // pink
-      '#6366F1', // indigo
-      '#14B8A6', // teal
-      '#F97316', // orange
-      '#84CC16', // lime
+      '#8B5CF6', '#F59E0B', '#10B981', '#3B82F6', '#EF4444',
+      '#EC4899', '#6366F1', '#14B8A6', '#F97316', '#84CC16',
     ];
     return colors[index % colors.length];
   };
@@ -129,7 +112,6 @@ export default function Dashboard() {
     try {
       if (!user) return;
 
-      // Fetch receitas
       let receitasQuery = supabase
         .from('receitas')
         .select('valor, categoria, mes_referencia')
@@ -141,7 +123,6 @@ export default function Dashboard() {
       
       const { data: receitas } = await receitasQuery;
 
-      // Fetch despesas with status
       let despesasQuery = supabase
         .from('despesas')
         .select('valor, categoria, descricao, mes_referencia, status')
@@ -153,13 +134,11 @@ export default function Dashboard() {
       
       const { data: despesas } = await despesasQuery;
 
-      // Fetch dividas
       const { data: dividas } = await supabase
         .from('dividas')
         .select('valor_restante, valor_total, descricao, categoria')
         .eq('user_id', user.id);
 
-      // Fetch saldos bancários
       const { data: saldosBancarios } = await supabase
         .from('saldos_bancarios')
         .select('banco, saldo')
@@ -167,11 +146,8 @@ export default function Dashboard() {
 
       const totalReceitas = receitas?.reduce((acc, item) => acc + Number(item.valor), 0) || 0;
       const totalDespesas = despesas?.reduce((acc, item) => acc + Number(item.valor), 0) || 0;
-      
-      // Calculate paid vs pending
       const totalPago = despesas?.filter(d => d.status === 'Pago').reduce((acc, item) => acc + Number(item.valor), 0) || 0;
       const faltaPagar = despesas?.filter(d => d.status !== 'Pago').reduce((acc, item) => acc + Number(item.valor), 0) || 0;
-      
       const totalSaldos = saldosBancarios?.reduce((acc, item) => acc + Number(item.saldo), 0) || 0;
       const totalDividas = dividas?.reduce((acc, item) => acc + Number(item.valor_restante), 0) || 0;
 
@@ -184,10 +160,8 @@ export default function Dashboard() {
         dividas: totalDividas,
       });
 
-      // Status de pagamento
       setStatusPagamento({ pago: totalPago, pendente: faltaPagar });
 
-      // Process receitas by category for pie chart
       const receitasByCategory = receitas?.reduce((acc: any, receita) => {
         const categoria = receita.categoria;
         acc[categoria] = (acc[categoria] || 0) + Number(receita.valor);
@@ -195,14 +169,13 @@ export default function Dashboard() {
       }, {});
 
       const receitasChartData = Object.entries(receitasByCategory || {}).map(([category, value]: [string, any], index) => ({
-        categoria: `(R) ${category}`,
+        categoria: category,
         valor: value,
         fill: getCategoryColor(index)
       }));
 
       setReceitasChart(receitasChartData);
 
-      // Process despesas by category for horizontal bar chart with percentages
       const despesasByCategory = despesas?.reduce((acc: any, despesa) => {
         const categoria = despesa.categoria;
         acc[categoria] = (acc[categoria] || 0) + Number(despesa.valor);
@@ -210,7 +183,7 @@ export default function Dashboard() {
       }, {});
 
       const despesasChartData = Object.entries(despesasByCategory || {}).map(([category, value]: [string, any], index) => ({
-        categoria: `(D) ${category}`,
+        categoria: category,
         valor: Number(value),
         percentual: totalDespesas > 0 ? (Number(value) / totalDespesas) * 100 : 0,
         fill: getCategoryColor(index)
@@ -218,15 +191,13 @@ export default function Dashboard() {
 
       setDespesasChart(despesasChartData);
 
-      // Top expenses list
-      const sortedDespesas = despesas?.sort((a, b) => Number(b.valor) - Number(a.valor)).slice(0, 15) || [];
+      const sortedDespesas = despesas?.sort((a, b) => Number(b.valor) - Number(a.valor)).slice(0, 10) || [];
       setPrincipaisDespesas(sortedDespesas.map(d => ({
         descricao: d.descricao,
         valor: Number(d.valor),
         categoria: d.categoria
       })));
 
-      // Process monthly data
       const allReceitas = await supabase
         .from('receitas')
         .select('valor, mes_referencia')
@@ -270,15 +241,12 @@ export default function Dashboard() {
       
       setMonthlyChart(sortedMonthlyData);
 
-      // Cartao data
       const cartoesData = dividas?.filter(divida => divida.categoria === 'Cartão') || [];
       setCartaoData(cartoesData);
 
-      // Dividas data (empréstimos)
       const emprestimosData = dividas?.filter(divida => divida.categoria !== 'Cartão') || [];
       setDividasData(emprestimosData);
 
-      // Saldos bancários
       setSaldosBancariosData(saldosBancarios?.map(s => ({
         banco: s.banco,
         saldo: Number(s.saldo)
@@ -292,151 +260,159 @@ export default function Dashboard() {
   const totalCartao = cartaoData.reduce((acc, c) => acc + Number(c.valor_restante), 0);
   const totalEmprestimos = dividasData.reduce((acc, d) => acc + Number(d.valor_restante), 0);
 
-  return (
-    <div className="min-h-screen bg-[#1a1a2e] text-white p-3 sm:p-4 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
+  // KPI Card Component for consistency
+  const KPICard = ({ 
+    title, 
+    value, 
+    icon: Icon, 
+    colorClass 
+  }: { 
+    title: string; 
+    value: string; 
+    icon: any; 
+    colorClass: string;
+  }) => (
+    <Card className="bg-card border-border/50 hover:border-border transition-all duration-200 hover:shadow-md">
+      <CardContent className="p-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">
+          <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10`}>
+            <Icon className={`h-5 w-5 ${colorClass.replace('bg-', 'text-')}`} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-muted-foreground font-medium truncate">{title}</p>
+            <p className={`text-lg font-bold ${colorClass.replace('bg-', 'text-')} truncate`}>{value}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="min-h-screen bg-background p-4 md:p-6 space-y-6 animate-fade-in">
+      {/* Header */}
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2">
+            <BarChart3 className="h-7 w-7 text-primary" />
             Meu Controle Financeiro
           </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visão geral das suas finanças pessoais
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <MonthFilter 
-            onFilterChange={setSelectedMonth}
-            selectedMonth={selectedMonth}
+        <MonthFilter 
+          onFilterChange={setSelectedMonth}
+          selectedMonth={selectedMonth}
+        />
+      </header>
+
+      {/* KPI Cards */}
+      <section aria-label="Indicadores financeiros">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+          <KPICard 
+            title="Total Receitas" 
+            value={formatCurrencyShort(data.receitas)} 
+            icon={TrendingUp} 
+            colorClass="bg-emerald-500" 
+          />
+          <KPICard 
+            title="Total Despesas" 
+            value={formatCurrencyShort(data.despesas)} 
+            icon={TrendingDown} 
+            colorClass="bg-red-500" 
+          />
+          <KPICard 
+            title="Total Pago" 
+            value={formatCurrencyShort(data.totalPago)} 
+            icon={CheckCircle} 
+            colorClass="bg-amber-500" 
+          />
+          <KPICard 
+            title="Falta Pagar" 
+            value={formatCurrencyShort(data.faltaPagar)} 
+            icon={AlertTriangle} 
+            colorClass="bg-orange-500" 
+          />
+          <KPICard 
+            title="Saldo Atual" 
+            value={formatCurrencyShort(data.saldo)} 
+            icon={DollarSign} 
+            colorClass="bg-teal-500" 
           />
         </div>
-      </div>
+      </section>
 
-      {/* KPI Cards Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 mb-4">
-        {/* Total Receitas */}
-        <Card className="bg-[#252541] border-[#3a3a5c] hover:border-green-500/50 transition-all">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-sm text-green-400 font-medium">Total Receitas</span>
-              <TrendingUp className="h-4 w-4 text-green-400" />
-            </div>
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-400">
-              {formatCurrencyShort(data.receitas)}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Total Despesas */}
-        <Card className="bg-[#252541] border-[#3a3a5c] hover:border-red-500/50 transition-all">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-sm text-red-400 font-medium">Total Despesas</span>
-              <TrendingDown className="h-4 w-4 text-red-400" />
-            </div>
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-red-400">
-              {formatCurrencyShort(data.despesas)}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Total Pago */}
-        <Card className="bg-[#252541] border-[#3a3a5c] hover:border-orange-500/50 transition-all">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-sm text-orange-400 font-medium">Total Pago</span>
-              <CheckCircle className="h-4 w-4 text-orange-400" />
-            </div>
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-400">
-              {formatCurrencyShort(data.totalPago)}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Falta Pagar */}
-        <Card className="bg-[#252541] border-[#3a3a5c] hover:border-yellow-500/50 transition-all">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-sm text-yellow-400 font-medium">Falta Pagar</span>
-              <AlertTriangle className="h-4 w-4 text-yellow-400" />
-            </div>
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-yellow-400">
-              {formatCurrencyShort(data.faltaPagar)}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Saldo Atual */}
-        <Card className="bg-[#252541] border-[#3a3a5c] hover:border-teal-500/50 transition-all col-span-2 sm:col-span-1">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs sm:text-sm text-teal-400 font-medium">Saldo Atual</span>
-              <DollarSign className="h-4 w-4 text-teal-400" />
-            </div>
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-teal-400">
-              {formatCurrencyShort(data.saldo)}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 mb-4">
-        {/* Distribuição de Receitas - Pie Chart */}
-        <Card className="lg:col-span-4 bg-[#252541] border-[#3a3a5c]">
-          <CardHeader className="pb-2 p-3 sm:p-4">
-            <CardTitle className="text-sm sm:text-base font-semibold text-white">
+      {/* Charts Section */}
+      <section aria-label="Gráficos de distribuição" className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+        {/* Distribuição de Receitas */}
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-emerald-500" />
               Distribuição de Receitas
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-2 sm:p-4">
-            <div className="h-48 sm:h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <Pie
-                    data={receitasChart}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={70}
-                    innerRadius={30}
-                    dataKey="valor"
-                    label={({ categoria, percent }) => `${categoria} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {receitasChart.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value: any) => formatCurrency(Number(value))}
-                    contentStyle={{ backgroundColor: '#1a1a2e', border: '1px solid #3a3a5c' }}
-                  />
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            </div>
-            {/* Legend */}
-            <div className="flex flex-wrap gap-2 mt-2 justify-center">
-              {receitasChart.slice(0, 6).map((item, index) => (
-                <div key={index} className="flex items-center gap-1 text-xs">
-                  <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: item.fill }} />
-                  <span className="text-gray-300">{item.categoria}</span>
+          <CardContent>
+            <div className="h-56">
+              {receitasChart.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <RechartsPieChart>
+                    <Pie
+                      data={receitasChart}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      innerRadius={40}
+                      dataKey="valor"
+                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    >
+                      {receitasChart.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: any) => formatCurrency(Number(value))}
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Legend 
+                      verticalAlign="bottom" 
+                      height={36}
+                      formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
+                    />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                  Nenhuma receita encontrada
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Distribuição de Despesas(%) - Horizontal Bar Chart */}
-        <Card className="lg:col-span-4 bg-[#252541] border-[#3a3a5c]">
-          <CardHeader className="pb-2 p-3 sm:p-4">
-            <CardTitle className="text-sm sm:text-base font-semibold text-white">
-              Distribuição de Despesas(%)
+        {/* Distribuição de Despesas */}
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <TrendingDown className="h-4 w-4 text-red-500" />
+              Distribuição de Despesas (%)
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-2 sm:p-4">
-            <ScrollArea className="h-64 sm:h-72">
-              <div className="space-y-2 pr-2">
-                {despesasChart.map((item, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <span className="text-xs text-gray-300 w-32 truncate">{item.categoria}</span>
-                    <div className="flex-1 bg-[#1a1a2e] rounded-full h-4 overflow-hidden">
+          <CardContent>
+            <ScrollArea className="h-56">
+              <div className="space-y-3 pr-4">
+                {despesasChart.length > 0 ? despesasChart.map((item, index) => (
+                  <div key={index} className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground truncate max-w-[60%]">{item.categoria}</span>
+                      <span className="font-medium">{item.percentual?.toFixed(1)}%</span>
+                    </div>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div 
                         className="h-full rounded-full transition-all duration-500"
                         style={{ 
@@ -445,205 +421,280 @@ export default function Dashboard() {
                         }}
                       />
                     </div>
-                    <span className="text-xs text-gray-400 w-14 text-right">
-                      {item.percentual?.toFixed(2)}%
-                    </span>
                   </div>
-                ))}
+                )) : (
+                  <div className="h-full flex items-center justify-center text-muted-foreground text-sm py-20">
+                    Nenhuma despesa encontrada
+                  </div>
+                )}
               </div>
             </ScrollArea>
+          </CardContent>
+        </Card>
+
+        {/* Principais Despesas */}
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Receipt className="h-4 w-4 text-amber-500" />
+              Principais Despesas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-56">
+              <div className="space-y-2 pr-4">
+                {principaisDespesas.length > 0 ? principaisDespesas.map((item, index) => (
+                  <div 
+                    key={index} 
+                    className="flex justify-between items-center py-2 border-b border-border/50 last:border-0"
+                  >
+                    <div className="flex-1 min-w-0 pr-2">
+                      <p className="text-sm font-medium truncate">{item.descricao}</p>
+                      <p className="text-xs text-muted-foreground">{item.categoria}</p>
+                    </div>
+                    <span className="text-sm font-semibold text-amber-500 whitespace-nowrap">
+                      {formatCurrencyShort(item.valor)}
+                    </span>
+                  </div>
+                )) : (
+                  <div className="h-full flex items-center justify-center text-muted-foreground text-sm py-20">
+                    Nenhuma despesa encontrada
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Evolution & Status Section */}
+      <section aria-label="Evolução e status" className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        {/* Evolução Mensal */}
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              Evolução Mensal
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              {monthlyChart.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyChart} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
+                    <XAxis 
+                      dataKey="mes" 
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
+                      axisLine={{ stroke: 'hsl(var(--border))' }}
+                    />
+                    <YAxis 
+                      tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} 
+                      axisLine={{ stroke: 'hsl(var(--border))' }}
+                      tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}
+                      width={50}
+                    />
+                    <Tooltip 
+                      formatter={(value: any, name: string) => [
+                        formatCurrency(Number(value)),
+                        name === 'receitas' ? 'Receitas' : name === 'despesas' ? 'Despesas' : 'Saldo'
+                      ]}
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))', 
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Legend 
+                      formatter={(value) => (
+                        <span className="text-xs">
+                          {value === 'receitas' ? 'Receitas' : value === 'despesas' ? 'Despesas' : 'Saldo'}
+                        </span>
+                      )}
+                    />
+                    <Bar dataKey="receitas" fill="#10B981" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="despesas" fill="#EF4444" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                  Nenhum dado mensal disponível
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
 
         {/* Status de Pagamento */}
-        <Card className="lg:col-span-2 bg-[#252541] border-[#3a3a5c]">
-          <CardHeader className="pb-2 p-3 sm:p-4">
-            <CardTitle className="text-sm sm:text-base font-semibold text-white">
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-amber-500" />
               Status de Pagamento
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-2 sm:p-4">
-            <div className="h-48 sm:h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={[statusPagamento]}
-                  layout="vertical"
-                  margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-                >
-                  <XAxis type="number" hide />
-                  <YAxis type="category" hide />
-                  <Tooltip 
-                    formatter={(value: any) => formatCurrency(Number(value))}
-                    contentStyle={{ backgroundColor: '#1a1a2e', border: '1px solid #3a3a5c' }}
-                  />
-                  <Bar dataKey="pago" stackId="a" fill="#F59E0B" name="Pago" />
-                  <Bar dataKey="pendente" stackId="a" fill="#EF4444" name="Pendente" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex justify-between text-xs mt-2">
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded bg-amber-500" />
-                <span className="text-gray-300">{formatCurrencyShort(statusPagamento.pago)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded bg-red-500" />
-                <span className="text-gray-300">{formatCurrencyShort(statusPagamento.pendente)}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Principais Despesas (Vlr) */}
-        <Card className="lg:col-span-2 bg-[#252541] border-[#3a3a5c]">
-          <CardHeader className="pb-2 p-3 sm:p-4">
-            <CardTitle className="text-sm sm:text-base font-semibold text-white">
-              Principais Despesas(Vlr)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-2 sm:p-4">
-            <ScrollArea className="h-64 sm:h-72">
-              <div className="space-y-1 pr-2">
-                {principaisDespesas.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center py-1 border-b border-[#3a3a5c]/50">
-                    <span className="text-xs text-gray-300 truncate max-w-[120px]">
-                      {item.descricao}
-                    </span>
-                    <span className="text-xs font-medium text-orange-400">
-                      {formatCurrencyShort(item.valor)}
+          <CardContent>
+            <div className="h-64 flex flex-col justify-center">
+              <div className="space-y-6">
+                {/* Progress bar */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Progresso de Pagamentos</span>
+                    <span className="font-medium">
+                      {data.despesas > 0 ? ((data.totalPago / data.despesas) * 100).toFixed(0) : 0}%
                     </span>
                   </div>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
+                  <div className="h-4 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-amber-500 to-emerald-500 rounded-full transition-all duration-700"
+                      style={{ width: `${data.despesas > 0 ? (data.totalPago / data.despesas) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
 
-      {/* Bottom Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Evolução Mensal */}
-        <Card className="bg-[#252541] border-[#3a3a5c]">
-          <CardHeader className="pb-2 p-3 sm:p-4">
-            <CardTitle className="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-teal-400" />
-              Evolução Mensal
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-2 sm:p-4">
-            <div className="h-40 sm:h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={monthlyChart} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#3a3a5c" />
-                  <XAxis 
-                    dataKey="mes" 
-                    tick={{ fill: '#9ca3af', fontSize: 10 }} 
-                    axisLine={{ stroke: '#3a3a5c' }}
-                  />
-                  <YAxis 
-                    tick={{ fill: '#9ca3af', fontSize: 10 }} 
-                    axisLine={{ stroke: '#3a3a5c' }}
-                    tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}
-                  />
-                  <Tooltip 
-                    formatter={(value: any) => formatCurrency(Number(value))}
-                    contentStyle={{ backgroundColor: '#1a1a2e', border: '1px solid #3a3a5c' }}
-                  />
-                  <Line type="monotone" dataKey="saldo" stroke="#14B8A6" strokeWidth={2} dot={{ r: 3 }} />
-                </LineChart>
-              </ResponsiveContainer>
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-emerald-500/10 rounded-lg p-4 text-center">
+                    <CheckCircle className="h-6 w-6 text-emerald-500 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Pago</p>
+                    <p className="text-lg font-bold text-emerald-500">{formatCurrencyShort(statusPagamento.pago)}</p>
+                  </div>
+                  <div className="bg-red-500/10 rounded-lg p-4 text-center">
+                    <AlertTriangle className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-1">Pendente</p>
+                    <p className="text-lg font-bold text-red-500">{formatCurrencyShort(statusPagamento.pendente)}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
+      </section>
 
+      {/* Bottom Cards */}
+      <section aria-label="Detalhes financeiros" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {/* Cartão de Crédito */}
-        <Card className="bg-[#252541] border-[#3a3a5c]">
-          <CardHeader className="pb-2 p-3 sm:p-4">
-            <CardTitle className="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-red-400" />
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-red-500" />
               Cartão de Crédito
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-2 sm:p-4">
-            <div className="text-2xl sm:text-3xl font-bold text-red-400 mb-4">
-              {formatCurrencyShort(totalCartao)}
-            </div>
-            <ScrollArea className="h-28 sm:h-32">
-              <div className="space-y-2">
-                {cartaoData.map((cartao, index) => (
-                  <div key={index} className="flex justify-between text-xs">
-                    <span className="text-gray-300 truncate max-w-[100px]">{cartao.descricao}</span>
-                    <span className="text-red-400">{formatCurrencyShort(Number(cartao.valor_restante))}</span>
+          <CardContent>
+            <p className="text-2xl font-bold text-red-500 mb-4">{formatCurrencyShort(totalCartao)}</p>
+            <ScrollArea className="h-32">
+              <div className="space-y-2 pr-4">
+                {cartaoData.length > 0 ? cartaoData.map((cartao, index) => (
+                  <div key={index} className="flex justify-between text-sm py-1 border-b border-border/30 last:border-0">
+                    <span className="text-muted-foreground truncate max-w-[60%]">{cartao.descricao}</span>
+                    <span className="text-red-500 font-medium">{formatCurrencyShort(Number(cartao.valor_restante))}</span>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">Nenhuma fatura</p>
+                )}
               </div>
             </ScrollArea>
           </CardContent>
         </Card>
 
         {/* Empréstimos */}
-        <Card className="bg-[#252541] border-[#3a3a5c]">
-          <CardHeader className="pb-2 p-3 sm:p-4">
-            <CardTitle className="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
-              <Receipt className="h-4 w-4 text-yellow-400" />
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Receipt className="h-4 w-4 text-amber-500" />
               Empréstimos
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-2 sm:p-4">
-            <div className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-4">
-              {formatCurrencyShort(totalEmprestimos)}
-            </div>
-            <ScrollArea className="h-28 sm:h-32">
-              <div className="space-y-2">
-                {dividasData.map((divida, index) => (
-                  <div key={index} className="flex justify-between text-xs">
-                    <span className="text-gray-300 truncate max-w-[100px]">{divida.descricao}</span>
-                    <span className="text-yellow-400">{formatCurrencyShort(Number(divida.valor_restante))}</span>
+          <CardContent>
+            <p className="text-2xl font-bold text-amber-500 mb-4">{formatCurrencyShort(totalEmprestimos)}</p>
+            <ScrollArea className="h-32">
+              <div className="space-y-2 pr-4">
+                {dividasData.length > 0 ? dividasData.map((divida, index) => (
+                  <div key={index} className="flex justify-between text-sm py-1 border-b border-border/30 last:border-0">
+                    <span className="text-muted-foreground truncate max-w-[60%]">{divida.descricao}</span>
+                    <span className="text-amber-500 font-medium">{formatCurrencyShort(Number(divida.valor_restante))}</span>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">Nenhum empréstimo</p>
+                )}
               </div>
             </ScrollArea>
           </CardContent>
         </Card>
 
         {/* Saldos Bancários */}
-        <Card className="bg-[#252541] border-[#3a3a5c]">
-          <CardHeader className="pb-2 p-3 sm:p-4">
-            <CardTitle className="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-teal-400" />
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Wallet className="h-4 w-4 text-teal-500" />
               Saldos Bancários
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-2 sm:p-4">
-            <div className="text-2xl sm:text-3xl font-bold text-teal-400 mb-4">
-              {formatCurrencyShort(data.saldo)}
-            </div>
-            <ScrollArea className="h-28 sm:h-32">
-              <div className="space-y-2">
-                {saldosBancariosData.map((banco, index) => (
-                  <div key={index} className="flex justify-between text-xs">
-                    <span className="text-gray-300 truncate max-w-[100px]">{banco.banco}</span>
-                    <span className="text-teal-400">{formatCurrencyShort(banco.saldo)}</span>
+          <CardContent>
+            <p className="text-2xl font-bold text-teal-500 mb-4">{formatCurrencyShort(data.saldo)}</p>
+            <ScrollArea className="h-32">
+              <div className="space-y-2 pr-4">
+                {saldosBancariosData.length > 0 ? saldosBancariosData.map((banco, index) => (
+                  <div key={index} className="flex justify-between text-sm py-1 border-b border-border/30 last:border-0">
+                    <span className="text-muted-foreground truncate max-w-[60%]">{banco.banco}</span>
+                    <span className="text-teal-500 font-medium">{formatCurrencyShort(banco.saldo)}</span>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">Nenhuma conta</p>
+                )}
               </div>
             </ScrollArea>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Footer Attribution */}
-      <div className="text-center mt-4 text-xs text-gray-500">
-        App criado por{" "}
-        <a 
-          href="https://www.linkedin.com/in/gillemosai/" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="hover:underline text-teal-400"
-        >
-          @gillemosai
-        </a>
-      </div>
+        {/* Resumo Geral */}
+        <Card className="bg-card border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-primary" />
+              Resumo Geral
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center py-2 border-b border-border/30">
+                <span className="text-sm text-muted-foreground">Receitas</span>
+                <span className="text-sm font-semibold text-emerald-500">+ {formatCurrencyShort(data.receitas)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/30">
+                <span className="text-sm text-muted-foreground">Despesas</span>
+                <span className="text-sm font-semibold text-red-500">- {formatCurrencyShort(data.despesas)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-border/30">
+                <span className="text-sm text-muted-foreground">Dívidas</span>
+                <span className="text-sm font-semibold text-amber-500">- {formatCurrencyShort(data.dividas)}</span>
+              </div>
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-sm font-medium">Balanço</span>
+                <span className={`text-lg font-bold ${data.receitas - data.despesas >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                  {formatCurrencyShort(data.receitas - data.despesas)}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Footer */}
+      <footer className="text-center pt-4 pb-2">
+        <p className="text-xs text-muted-foreground">
+          App criado por{" "}
+          <a 
+            href="https://www.linkedin.com/in/gillemosai/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-primary hover:underline transition-colors"
+          >
+            @gillemosai
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
