@@ -435,7 +435,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Principais Despesas */}
+        {/* Principais Despesas - Gráfico */}
         <Card className="bg-card border-border/50">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -444,28 +444,61 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-56">
-              <div className="space-y-2 pr-4">
-                {principaisDespesas.length > 0 ? principaisDespesas.map((item, index) => (
-                  <div 
-                    key={index} 
-                    className="flex justify-between items-center py-2 border-b border-border/50 last:border-0"
+            <div className="h-64">
+              {principaisDespesas.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart 
+                    data={principaisDespesas.slice(0, 5)} 
+                    layout="vertical"
+                    margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
                   >
-                    <div className="flex-1 min-w-0 pr-2">
-                      <p className="text-sm font-medium truncate">{item.descricao}</p>
-                      <p className="text-xs text-muted-foreground">{item.categoria}</p>
-                    </div>
-                    <span className="text-sm font-semibold text-amber-500 whitespace-nowrap">
-                      {formatCurrencyShort(item.valor)}
-                    </span>
-                  </div>
-                )) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground text-sm py-20">
-                    Nenhuma despesa encontrada
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} horizontal={true} vertical={false} />
+                    <XAxis 
+                      type="number" 
+                      tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                      tickFormatter={(value) => `R$ ${value.toLocaleString('pt-BR')}`}
+                      axisLine={{ stroke: 'hsl(var(--border))' }}
+                    />
+                    <YAxis 
+                      type="category" 
+                      dataKey="descricao" 
+                      tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }}
+                      width={100}
+                      tickFormatter={(value) => value.length > 12 ? `${value.slice(0, 12)}...` : value}
+                      axisLine={{ stroke: 'hsl(var(--border))' }}
+                    />
+                    <Tooltip 
+                      formatter={(value: number) => [formatCurrencyShort(value), 'Valor']}
+                      labelFormatter={(label) => label}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                      }}
+                      labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
+                    />
+                    <Bar 
+                      dataKey="valor" 
+                      fill="#F59E0B"
+                      radius={[0, 4, 4, 0]}
+                      barSize={20}
+                    >
+                      {principaisDespesas.slice(0, 5).map((_, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={`hsl(${35 + index * 8}, ${90 - index * 5}%, ${55 + index * 3}%)`}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                  Nenhuma despesa encontrada
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </section>
