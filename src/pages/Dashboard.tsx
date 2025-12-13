@@ -445,59 +445,79 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              {principaisDespesas.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
-                    <Pie
-                      data={principaisDespesas.slice(0, 5).map((item, index) => ({
-                        ...item,
-                        fill: `hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)`
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={45}
-                      outerRadius={80}
-                      paddingAngle={3}
-                      dataKey="valor"
-                      nameKey="descricao"
-                    >
-                      {principaisDespesas.slice(0, 5).map((_, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={`hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)`}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value: number) => [formatCurrencyShort(value), 'Valor']}
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                      }}
-                      labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
-                    />
-                    <Legend 
-                      layout="vertical"
-                      align="right"
-                      verticalAlign="middle"
-                      iconType="circle"
-                      iconSize={8}
-                      formatter={(value) => (
-                        <span className="text-xs text-foreground">
-                          {value.length > 15 ? `${value.slice(0, 15)}...` : value}
-                        </span>
-                      )}
-                    />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
-              ) : (
+              {principaisDespesas.length > 0 ? (() => {
+                const total = principaisDespesas.slice(0, 5).reduce((sum, item) => sum + item.valor, 0);
+                const dataWithPercent = principaisDespesas.slice(0, 5).map((item, index) => ({
+                  ...item,
+                  percent: ((item.valor / total) * 100).toFixed(1),
+                  fill: `hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)`
+                }));
+                
+                return (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart>
+                      <Pie
+                        data={dataWithPercent}
+                        cx="35%"
+                        cy="50%"
+                        innerRadius={40}
+                        outerRadius={75}
+                        paddingAngle={3}
+                        dataKey="valor"
+                        nameKey="descricao"
+                        label={({ percent }) => `${percent}%`}
+                        labelLine={false}
+                      >
+                        {dataWithPercent.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={entry.fill}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value: number) => [formatCurrencyShort(value), 'Valor']}
+                        contentStyle={{
+                          backgroundColor: 'hsl(var(--card))',
+                          border: '1px solid hsl(var(--border))',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                        }}
+                        labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
+                      />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                );
+              })() : (
                 <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
                   Nenhuma despesa encontrada
                 </div>
               )}
             </div>
+            {/* Legenda customizada */}
+            {principaisDespesas.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {principaisDespesas.slice(0, 5).map((item, index) => {
+                  const total = principaisDespesas.slice(0, 5).reduce((sum, i) => sum + i.valor, 0);
+                  const percent = ((item.valor / total) * 100).toFixed(1);
+                  return (
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: `hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)` }}
+                        />
+                        <span className="text-foreground truncate max-w-[150px]">{item.descricao}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-right">
+                        <span className="text-muted-foreground text-xs">{percent}%</span>
+                        <span className="text-amber-500 font-medium">{formatCurrencyShort(item.valor)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </section>
