@@ -23,6 +23,7 @@ import Cartoes from "./pages/Cartoes";
 import SaldosBancarios from "./pages/SaldosBancarios";
 import CaseStudy from "./pages/CaseStudy";
 import Welcome from "./pages/Welcome";
+import InstallApp from "./pages/InstallApp";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +99,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/case-study" element={<CaseStudy />} />
+            <Route path="/install" element={<InstallApp />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
