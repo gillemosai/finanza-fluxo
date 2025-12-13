@@ -30,7 +30,8 @@ import {
   CheckCircle,
   Receipt,
   BarChart3,
-  ExternalLink
+  ExternalLink,
+  Target
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -65,6 +66,16 @@ interface MonthlyData {
   saldo: number;
 }
 
+interface MetaFinanceira {
+  id: string;
+  titulo: string;
+  icone: string;
+  cor: string;
+  valor_objetivo: number;
+  valor_atual: number;
+  status: string;
+}
+
 export default function Dashboard() {
   const [data, setData] = useState<FinancialData>({
     receitas: 0,
@@ -83,6 +94,7 @@ export default function Dashboard() {
   const [cartaoData, setCartaoData] = useState<any[]>([]);
   const [dividasData, setDividasData] = useState<any[]>([]);
   const [saldosBancariosData, setSaldosBancariosData] = useState<any[]>([]);
+  const [metasData, setMetasData] = useState<MetaFinanceira[]>([]);
   
   const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
   const { user } = useAuth();
@@ -256,6 +268,17 @@ export default function Dashboard() {
         banco: s.banco,
         saldo: Number(s.saldo)
       })) || []);
+
+      // Fetch metas
+      const { data: metas } = await supabase
+        .from('metas_financeiras')
+        .select('id, titulo, icone, cor, valor_objetivo, valor_atual, status')
+        .eq('user_id', user.id)
+        .eq('status', 'em_progresso')
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      setMetasData(metas || []);
 
     } catch (error) {
       console.error('Error fetching financial data:', error);
@@ -777,6 +800,60 @@ export default function Dashboard() {
                       </div>
                     )) : (
                       <p className="text-sm text-muted-foreground text-center py-8">Nenhuma conta</p>
+                    )}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+        </EmojiTooltip>
+
+        {/* Metas & Sonhos */}
+        <EmojiTooltip message="Seus sonhos estão aqui! Clique para ver suas metas! 🌟" emoji="🎯">
+            <Card 
+              className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+              onClick={() => navigate('/metas')}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" />
+                  Metas & Sonhos
+                  <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-44">
+                  <div className="space-y-3 pr-4">
+                    {metasData.length > 0 ? metasData.map((meta) => {
+                      const progress = meta.valor_objetivo > 0 
+                        ? Math.min((meta.valor_atual / meta.valor_objetivo) * 100, 100) 
+                        : 0;
+                      return (
+                        <div key={meta.id} className="space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <span>{meta.icone}</span>
+                              <span className="text-foreground truncate max-w-[100px]">{meta.titulo}</span>
+                            </div>
+                            <span className="font-medium" style={{ color: meta.cor }}>
+                              {progress.toFixed(0)}%
+                            </span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{ 
+                                width: `${progress}%`,
+                                backgroundColor: meta.cor
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    }) : (
+                      <div className="text-center py-6">
+                        <span className="text-3xl mb-2 block">🌟</span>
+                        <p className="text-sm text-muted-foreground">Crie sua primeira meta!</p>
+                      </div>
                     )}
                   </div>
                 </ScrollArea>

@@ -24,6 +24,7 @@ import SaldosBancarios from "./pages/SaldosBancarios";
 import CaseStudy from "./pages/CaseStudy";
 import Welcome from "./pages/Welcome";
 import InstallApp from "./pages/InstallApp";
+import Metas from "./pages/Metas";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,13 @@ const App = () => (
               <ProtectedRoute>
                 <Layout>
                   <Configuracoes />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/metas" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Metas />
                 </Layout>
               </ProtectedRoute>
             } />

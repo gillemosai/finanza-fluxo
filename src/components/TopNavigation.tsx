@@ -7,7 +7,8 @@ import {
   PieChart,
   LogOut,
   Building2,
-  Wallet
+  Wallet,
+  Target
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -51,6 +52,11 @@ const menuItems = [
     title: "Saldos Bancários",
     path: "/saldos-bancarios",
     icon: Building2,
+  },
+  {
+    title: "Metas",
+    path: "/metas",
+    icon: Target,
   },
   {
     title: "Relatórios",

@@ -146,6 +146,54 @@ export type Database = {
         }
         Relationships: []
       }
+      metas_financeiras: {
+        Row: {
+          categoria: string
+          cor: string | null
+          created_at: string
+          data_limite: string | null
+          descricao: string | null
+          icone: string | null
+          id: string
+          status: string
+          titulo: string
+          updated_at: string
+          user_id: string
+          valor_atual: number
+          valor_objetivo: number
+        }
+        Insert: {
+          categoria?: string
+          cor?: string | null
+          created_at?: string
+          data_limite?: string | null
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          status?: string
+          titulo: string
+          updated_at?: string
+          user_id: string
+          valor_atual?: number
+          valor_objetivo: number
+        }
+        Update: {
+          categoria?: string
+          cor?: string | null
+          created_at?: string
+          data_limite?: string | null
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          status?: string
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+          valor_atual?: number
+          valor_objetivo?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
