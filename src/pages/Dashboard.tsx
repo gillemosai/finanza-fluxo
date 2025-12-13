@@ -435,7 +435,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Principais Despesas - Gráfico */}
+        {/* Principais Despesas - Gráfico de Pizza */}
         <Card className="bg-card border-border/50">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -447,29 +447,29 @@ export default function Dashboard() {
             <div className="h-64">
               {principaisDespesas.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart 
-                    data={principaisDespesas.slice(0, 5)} 
-                    layout="vertical"
-                    margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} horizontal={true} vertical={false} />
-                    <XAxis 
-                      type="number" 
-                      tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                      tickFormatter={(value) => `R$ ${value.toLocaleString('pt-BR')}`}
-                      axisLine={{ stroke: 'hsl(var(--border))' }}
-                    />
-                    <YAxis 
-                      type="category" 
-                      dataKey="descricao" 
-                      tick={{ fontSize: 11, fill: 'hsl(var(--foreground))' }}
-                      width={100}
-                      tickFormatter={(value) => value.length > 12 ? `${value.slice(0, 12)}...` : value}
-                      axisLine={{ stroke: 'hsl(var(--border))' }}
-                    />
+                  <RechartsPieChart>
+                    <Pie
+                      data={principaisDespesas.slice(0, 5).map((item, index) => ({
+                        ...item,
+                        fill: `hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)`
+                      }))}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={45}
+                      outerRadius={80}
+                      paddingAngle={3}
+                      dataKey="valor"
+                      nameKey="descricao"
+                    >
+                      {principaisDespesas.slice(0, 5).map((_, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={`hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)`}
+                        />
+                      ))}
+                    </Pie>
                     <Tooltip 
                       formatter={(value: number) => [formatCurrencyShort(value), 'Valor']}
-                      labelFormatter={(label) => label}
                       contentStyle={{
                         backgroundColor: 'hsl(var(--card))',
                         border: '1px solid hsl(var(--border))',
@@ -478,20 +478,19 @@ export default function Dashboard() {
                       }}
                       labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
                     />
-                    <Bar 
-                      dataKey="valor" 
-                      fill="#F59E0B"
-                      radius={[0, 4, 4, 0]}
-                      barSize={20}
-                    >
-                      {principaisDespesas.slice(0, 5).map((_, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={`hsl(${35 + index * 8}, ${90 - index * 5}%, ${55 + index * 3}%)`}
-                        />
-                      ))}
-                    </Bar>
-                  </BarChart>
+                    <Legend 
+                      layout="vertical"
+                      align="right"
+                      verticalAlign="middle"
+                      iconType="circle"
+                      iconSize={8}
+                      formatter={(value) => (
+                        <span className="text-xs text-foreground">
+                          {value.length > 15 ? `${value.slice(0, 15)}...` : value}
+                        </span>
+                      )}
+                    />
+                  </RechartsPieChart>
                 </ResponsiveContainer>
               ) : (
                 <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
