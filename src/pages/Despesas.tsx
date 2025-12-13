@@ -427,7 +427,7 @@ export default function Despesas() {
                   type="date"
                   value={formData.data_vencimento}
                   onChange={(e) => setFormData({ ...formData, data_vencimento: e.target.value })}
-                  className={dataVencimentoUpdated ? "animate-pulse ring-2 ring-primary bg-primary/10 transition-all duration-300" : "transition-all duration-300"}
+                  className={`transition-all duration-300 ${dataVencimentoUpdated ? "ring-4 ring-emerald-500 bg-emerald-500/20 border-emerald-500 scale-105 shadow-lg shadow-emerald-500/30" : ""}`}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   Para controle de alertas e despesas recorrentes
