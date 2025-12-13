@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,16 +8,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader as TableHeaderElement, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
 import { Plus, Edit, Trash2, TrendingDown, Search, PieChart } from "lucide-react";
-import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from "recharts";
+import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
 import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
 import { MonthFilter } from "@/components/MonthFilter";
 import { TableHeader } from "@/components/TableHeader";
 import { DataReplicator } from "@/components/DataReplicator";
+import { useOfflineData } from "@/hooks/useOfflineData";
 
 interface Despesa {
   id: string;
@@ -40,7 +40,6 @@ export default function Despesas() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDespesa, setEditingDespesa] = useState<Despesa | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  // Use global month filter instead of local state
   const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
   const [sortConfig, setSortConfig] = useState<{
     field: string;
@@ -60,7 +59,7 @@ export default function Despesas() {
     observacoes: ""
   });
   const { toast } = useToast();
-  
+  const { getData, saveData, updateData, deleteData, isOnline } = useOfflineData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -120,23 +119,13 @@ export default function Despesas() {
     });
   };
 
-  useEffect(() => {
-    fetchDespesas();
-  }, []);
-
-  const fetchDespesas = async () => {
+  const fetchDespesas = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('despesas')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('data_pagamento', { ascending: false });
-
-      if (error) throw error;
-      setDespesas(data || []);
+      const data = await getData('despesas');
+      const sortedData = (data as Despesa[]).sort((a, b) => 
+        new Date(b.data_pagamento).getTime() - new Date(a.data_pagamento).getTime()
+      );
+      setDespesas(sortedData);
     } catch (error) {
       console.error('Error fetching despesas:', error);
       toast({
@@ -145,17 +134,17 @@ export default function Despesas() {
         variant: "destructive",
       });
     }
-  };
+  }, [getData, toast]);
+
+  useEffect(() => {
+    fetchDespesas();
+  }, [fetchDespesas]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const despesaData = {
-        user_id: user.id,
         descricao: formData.descricao,
         categoria: formData.categoria,
         valor: parseFloat(formData.valor),
@@ -171,27 +160,20 @@ export default function Despesas() {
       };
 
       if (editingDespesa) {
-        const { error } = await supabase
-          .from('despesas')
-          .update(despesaData)
-          .eq('id', editingDespesa.id);
-        
-        if (error) throw error;
+        const result = await updateData('despesas', editingDespesa.id, despesaData);
+        if (!result.success) throw new Error(result.error);
         
         toast({
           title: "Sucesso",
-          description: "Despesa atualizada com sucesso!",
+          description: `Despesa atualizada${!isOnline ? ' (offline)' : ''}!`,
         });
       } else {
-        const { error } = await supabase
-          .from('despesas')
-          .insert([despesaData]);
-        
-        if (error) throw error;
+        const result = await saveData('despesas', despesaData);
+        if (!result.success) throw new Error(result.error);
         
         toast({
           title: "Sucesso", 
-          description: "Despesa criada com sucesso!",
+          description: `Despesa criada${!isOnline ? ' (offline)' : ''}!`,
         });
       }
 
@@ -245,16 +227,12 @@ export default function Despesas() {
     }
 
     try {
-      const { error } = await supabase
-        .from('despesas')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      const result = await deleteData('despesas', id);
+      if (!result.success) throw new Error(result.error);
 
       toast({
         title: "Sucesso",
-        description: "Despesa excluída com sucesso!",
+        description: `Despesa excluída${!isOnline ? ' (offline)' : ''}!`,
       });
       fetchDespesas();
     } catch (error) {
@@ -271,16 +249,12 @@ export default function Despesas() {
     try {
       const newStatus = despesa.status === 'paga' ? 'a_pagar' : 'paga';
       
-      const { error } = await supabase
-        .from('despesas')
-        .update({ status: newStatus })
-        .eq('id', despesa.id);
-
-      if (error) throw error;
+      const result = await updateData('despesas', despesa.id, { status: newStatus });
+      if (!result.success) throw new Error(result.error);
 
       toast({
         title: "Sucesso",
-        description: `Status alterado para ${newStatus === 'paga' ? 'Paga' : 'A Pagar'}!`,
+        description: `Status alterado para ${newStatus === 'paga' ? 'Paga' : 'A Pagar'}${!isOnline ? ' (offline)' : ''}!`,
       });
       fetchDespesas();
     } catch (error) {
@@ -293,7 +267,6 @@ export default function Despesas() {
     }
   };
 
-  // Dados para o gráfico e total
   const { totalDespesas, categoryData } = useMemo(() => {
     const total = filteredAndSortedDespesas.reduce((acc, despesa) => acc + despesa.valor, 0);
     
@@ -310,17 +283,6 @@ export default function Despesas() {
 
     return { totalDespesas: total, categoryData: data };
   }, [filteredAndSortedDespesas]);
-
-  const COLORS = [
-    'hsl(var(--primary))',
-    'hsl(var(--destructive))', 
-    'hsl(var(--warning))',
-    'hsl(var(--success))',
-    'hsl(var(--secondary))',
-    'hsl(var(--accent))',
-    'hsl(var(--muted))',
-    'hsl(var(--border))'
-  ];
 
   return (
     <div className="space-y-6">
