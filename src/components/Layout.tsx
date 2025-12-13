@@ -2,8 +2,6 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopNavigation } from "@/components/TopNavigation";
 import { useMenuLayout } from "@/hooks/useMenuLayout";
-import { useViewMode } from "@/hooks/useViewMode";
-import { cn } from "@/lib/utils";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,23 +9,16 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { layout } = useMenuLayout();
-  const { isMobileView } = useViewMode();
 
   if (layout === 'top') {
     return (
-      <div className={cn(
-        "h-screen flex flex-col w-full bg-background overflow-hidden",
-        isMobileView && "max-w-md mx-auto border-x border-border"
-      )}>
+      <div className="h-screen flex flex-col w-full bg-background overflow-hidden">
         <div className="flex-shrink-0 z-50">
           <TopNavigation />
         </div>
         <main 
           id="main-content" 
-          className={cn(
-            "flex-1 p-3 sm:p-6 overflow-y-auto overscroll-contain",
-            isMobileView && "p-3"
-          )}
+          className="flex-1 p-3 sm:p-6 overflow-y-auto overscroll-contain"
           role="main"
           aria-label="Conteúdo principal"
         >
@@ -39,10 +30,7 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className={cn(
-        "h-screen flex w-full bg-background overflow-hidden",
-        isMobileView && "max-w-md mx-auto border-x border-border"
-      )}>
+      <div className="h-screen flex w-full bg-background overflow-hidden">
         <AppSidebar />
         
         <main 
@@ -56,7 +44,7 @@ export function Layout({ children }: LayoutProps) {
             role="banner"
           >
             <SidebarTrigger 
-              className={cn(isMobileView ? "block" : "lg:hidden")}
+              className="lg:hidden"
               aria-label="Abrir menu de navegação"
             />
             <h1 className="text-lg sm:text-xl font-semibold text-foreground">
@@ -64,10 +52,7 @@ export function Layout({ children }: LayoutProps) {
             </h1>
           </header>
           
-          <div className={cn(
-            "flex-1 p-3 sm:p-6 overflow-y-auto overscroll-contain",
-            isMobileView && "p-3"
-          )}>
+          <div className="flex-1 p-3 sm:p-6 overflow-y-auto overscroll-contain">
             {children}
           </div>
         </main>
