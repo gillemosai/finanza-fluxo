@@ -33,6 +33,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface FinancialData {
   receitas: number;
@@ -269,36 +270,56 @@ export default function Dashboard() {
     value, 
     icon: Icon, 
     colorClass,
-    onClick
+    onClick,
+    tooltipText
   }: { 
     title: string; 
     value: string; 
     icon: any; 
     colorClass: string;
     onClick?: () => void;
-  }) => (
-    <Card 
-      className={`bg-card border-border/50 hover:border-border transition-all duration-200 hover:shadow-md ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
-      onClick={onClick}
-    >
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10`}>
-            <Icon className={`h-5 w-5 ${colorClass.replace('bg-', 'text-')}`} />
+    tooltipText?: string;
+  }) => {
+    const cardContent = (
+      <Card 
+        className={`bg-card border-border/50 hover:border-border transition-all duration-200 hover:shadow-md ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
+        onClick={onClick}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10`}>
+              <Icon className={`h-5 w-5 ${colorClass.replace('bg-', 'text-')}`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground font-medium truncate flex items-center gap-1">
+                {title}
+                {onClick && <ExternalLink className="h-3 w-3" />}
+              </p>
+              <p className={`text-lg font-bold ${colorClass.replace('bg-', 'text-')} truncate`}>{value}</p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground font-medium truncate flex items-center gap-1">
-              {title}
-              {onClick && <ExternalLink className="h-3 w-3" />}
-            </p>
-            <p className={`text-lg font-bold ${colorClass.replace('bg-', 'text-')} truncate`}>{value}</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+
+    if (onClick && tooltipText) {
+      return (
+        <UITooltip>
+          <TooltipTrigger asChild>
+            {cardContent}
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{tooltipText}</p>
+          </TooltipContent>
+        </UITooltip>
+      );
+    }
+
+    return cardContent;
+  };
 
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-background p-4 md:p-6 space-y-6 animate-fade-in">
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -326,6 +347,7 @@ export default function Dashboard() {
             icon={TrendingUp} 
             colorClass="bg-emerald-500"
             onClick={() => navigate('/receitas')}
+            tooltipText="Clique para ver detalhes das receitas"
           />
           <KPICard 
             title="Total Despesas" 
@@ -333,6 +355,7 @@ export default function Dashboard() {
             icon={TrendingDown} 
             colorClass="bg-red-500"
             onClick={() => navigate('/despesas')}
+            tooltipText="Clique para ver detalhes das despesas"
           />
           <KPICard 
             title="Total Pago" 
@@ -340,6 +363,7 @@ export default function Dashboard() {
             icon={CheckCircle} 
             colorClass="bg-amber-500"
             onClick={() => navigate('/despesas')}
+            tooltipText="Clique para ver despesas pagas"
           />
           <KPICard 
             title="Falta Pagar" 
@@ -347,6 +371,7 @@ export default function Dashboard() {
             icon={AlertTriangle} 
             colorClass="bg-orange-500"
             onClick={() => navigate('/despesas')}
+            tooltipText="Clique para ver despesas pendentes"
           />
           <KPICard 
             title="Saldo Atual" 
@@ -354,6 +379,7 @@ export default function Dashboard() {
             icon={DollarSign} 
             colorClass="bg-teal-500"
             onClick={() => navigate('/saldos-bancarios')}
+            tooltipText="Clique para ver saldos bancários"
           />
         </div>
       </section>
@@ -361,193 +387,214 @@ export default function Dashboard() {
       {/* Charts Section */}
       <section aria-label="Gráficos de distribuição" className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
         {/* Distribuição de Receitas */}
-        <Card 
-          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
-          onClick={() => navigate('/receitas')}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-emerald-500" />
-              Distribuição de Receitas
-              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-72">
-              {receitasChart.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
-                    <Pie
-                      data={receitasChart}
-                      cx="50%"
-                      cy="40%"
-                      labelLine={true}
-                      outerRadius={70}
-                      innerRadius={35}
-                      dataKey="valor"
-                      nameKey="categoria"
-                      label={({ categoria, percent }) => `${categoria}: ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {receitasChart.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value: any, name: string) => [formatCurrency(Number(value)), name]}
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))', 
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Legend 
-                      verticalAlign="bottom" 
-                      align="center"
-                      layout="horizontal"
-                      wrapperStyle={{ paddingTop: '16px' }}
-                      formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
-                    />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
-                  Nenhuma receita encontrada
+        <UITooltip>
+          <TooltipTrigger asChild>
+            <Card 
+              className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+              onClick={() => navigate('/receitas')}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+                  Distribuição de Receitas
+                  <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-72">
+                  {receitasChart.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={receitasChart}
+                          cx="50%"
+                          cy="40%"
+                          labelLine={true}
+                          outerRadius={70}
+                          innerRadius={35}
+                          dataKey="valor"
+                          nameKey="categoria"
+                          label={({ categoria, percent }) => `${categoria}: ${(percent * 100).toFixed(0)}%`}
+                        >
+                          {receitasChart.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          formatter={(value: any, name: string) => [formatCurrency(Number(value)), name]}
+                          contentStyle={{ 
+                            backgroundColor: 'hsl(var(--card))', 
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px'
+                          }}
+                        />
+                        <Legend 
+                          verticalAlign="bottom" 
+                          align="center"
+                          layout="horizontal"
+                          wrapperStyle={{ paddingTop: '16px' }}
+                          formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
+                        />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                      Nenhuma receita encontrada
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Clique para ir à página de Receitas</p>
+          </TooltipContent>
+        </UITooltip>
 
         {/* Distribuição de Despesas */}
-        <Card 
-          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
-          onClick={() => navigate('/despesas')}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <TrendingDown className="h-4 w-4 text-red-500" />
-              Distribuição de Despesas (%)
-              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-56">
-              <div className="space-y-3 pr-4">
-                {despesasChart.length > 0 ? despesasChart.map((item, index) => (
-                  <div key={index} className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground truncate max-w-[60%]">{item.categoria}</span>
-                      <span className="font-medium">{item.percentual?.toFixed(1)}%</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ 
-                          width: `${item.percentual}%`,
-                          backgroundColor: item.fill
-                        }}
-                      />
-                    </div>
+        <UITooltip>
+          <TooltipTrigger asChild>
+            <Card 
+              className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+              onClick={() => navigate('/despesas')}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                  Distribuição de Despesas (%)
+                  <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-56">
+                  <div className="space-y-3 pr-4">
+                    {despesasChart.length > 0 ? despesasChart.map((item, index) => (
+                      <div key={index} className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground truncate max-w-[60%]">{item.categoria}</span>
+                          <span className="font-medium">{item.percentual?.toFixed(1)}%</span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{ 
+                              width: `${item.percentual}%`,
+                              backgroundColor: item.fill
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="h-full flex items-center justify-center text-muted-foreground text-sm py-20">
+                        Nenhuma despesa encontrada
+                      </div>
+                    )}
                   </div>
-                )) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground text-sm py-20">
-                    Nenhuma despesa encontrada
-                  </div>
-                )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Clique para ir à página de Despesas</p>
+          </TooltipContent>
+        </UITooltip>
 
         {/* Principais Despesas - Gráfico de Pizza */}
-        <Card 
-          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
-          onClick={() => navigate('/despesas')}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Receipt className="h-4 w-4 text-amber-500" />
-              Principais Despesas
-              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              {principaisDespesas.length > 0 ? (() => {
-                const total = principaisDespesas.slice(0, 5).reduce((sum, item) => sum + item.valor, 0);
-                const dataWithPercent = principaisDespesas.slice(0, 5).map((item, index) => ({
-                  ...item,
-                  percent: ((item.valor / total) * 100).toFixed(1),
-                  fill: `hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)`
-                }));
-                
-                return (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartsPieChart>
-                      <Pie
-                        data={dataWithPercent}
-                        cx="35%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={75}
-                        paddingAngle={3}
-                        dataKey="valor"
-                        nameKey="descricao"
-                        label={({ percent }) => `${percent}%`}
-                        labelLine={false}
-                      >
-                        {dataWithPercent.map((entry, index) => (
-                          <Cell 
-                            key={`cell-${index}`} 
-                            fill={entry.fill}
+        <UITooltip>
+          <TooltipTrigger asChild>
+            <Card 
+              className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+              onClick={() => navigate('/despesas')}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Receipt className="h-4 w-4 text-amber-500" />
+                  Principais Despesas
+                  <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  {principaisDespesas.length > 0 ? (() => {
+                    const total = principaisDespesas.slice(0, 5).reduce((sum, item) => sum + item.valor, 0);
+                    const dataWithPercent = principaisDespesas.slice(0, 5).map((item, index) => ({
+                      ...item,
+                      percent: ((item.valor / total) * 100).toFixed(1),
+                      fill: `hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)`
+                    }));
+                    
+                    return (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RechartsPieChart>
+                          <Pie
+                            data={dataWithPercent}
+                            cx="35%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={75}
+                            paddingAngle={3}
+                            dataKey="valor"
+                            nameKey="descricao"
+                            label={({ percent }) => `${percent}%`}
+                            labelLine={false}
+                          >
+                            {dataWithPercent.map((entry, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={entry.fill}
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            formatter={(value: number) => [formatCurrencyShort(value), 'Valor']}
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                            }}
+                            labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
                           />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        formatter={(value: number) => [formatCurrencyShort(value), 'Valor']}
-                        contentStyle={{
-                          backgroundColor: 'hsl(var(--card))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                        }}
-                        labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
-                      />
-                    </RechartsPieChart>
-                  </ResponsiveContainer>
-                );
-              })() : (
-                <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
-                  Nenhuma despesa encontrada
-                </div>
-              )}
-            </div>
-            {/* Legenda customizada */}
-            {principaisDespesas.length > 0 && (
-              <div className="mt-2 space-y-1">
-                {principaisDespesas.slice(0, 5).map((item, index) => {
-                  const total = principaisDespesas.slice(0, 5).reduce((sum, i) => sum + i.valor, 0);
-                  const percent = ((item.valor / total) * 100).toFixed(1);
-                  return (
-                    <div key={index} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: `hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)` }}
-                        />
-                        <span className="text-foreground truncate max-w-[150px]">{item.descricao}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-right">
-                        <span className="text-muted-foreground text-xs">{percent}%</span>
-                        <span className="text-amber-500 font-medium">{formatCurrencyShort(item.valor)}</span>
-                      </div>
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
+                    );
+                  })() : (
+                    <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                      Nenhuma despesa encontrada
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  )}
+                </div>
+                {/* Legenda customizada */}
+                {principaisDespesas.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {principaisDespesas.slice(0, 5).map((item, index) => {
+                      const total = principaisDespesas.slice(0, 5).reduce((sum, i) => sum + i.valor, 0);
+                      const percent = ((item.valor / total) * 100).toFixed(1);
+                      return (
+                        <div key={index} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-3 h-3 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: `hsl(${35 + index * 15}, ${85 - index * 5}%, ${50 + index * 5}%)` }}
+                            />
+                            <span className="text-foreground truncate max-w-[150px]">{item.descricao}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-right">
+                            <span className="text-muted-foreground text-xs">{percent}%</span>
+                            <span className="text-amber-500 font-medium">{formatCurrencyShort(item.valor)}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Clique para ir à página de Despesas</p>
+          </TooltipContent>
+        </UITooltip>
       </section>
 
       {/* Evolution & Status Section */}
@@ -657,91 +704,112 @@ export default function Dashboard() {
       {/* Bottom Cards */}
       <section aria-label="Detalhes financeiros" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {/* Cartão de Crédito */}
-        <Card 
-          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
-          onClick={() => navigate('/cartoes')}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-red-500" />
-              Cartão de Crédito
-              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-red-500 mb-4">{formatCurrencyShort(totalCartao)}</p>
-            <ScrollArea className="h-32">
-              <div className="space-y-2 pr-4">
-                {cartaoData.length > 0 ? cartaoData.map((cartao, index) => (
-                  <div key={index} className="flex justify-between text-sm py-1 border-b border-border/30 last:border-0">
-                    <span className="text-muted-foreground truncate max-w-[60%]">{cartao.descricao}</span>
-                    <span className="text-red-500 font-medium">{formatCurrencyShort(Number(cartao.valor_restante))}</span>
+        <UITooltip>
+          <TooltipTrigger asChild>
+            <Card 
+              className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+              onClick={() => navigate('/cartoes')}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-red-500" />
+                  Cartão de Crédito
+                  <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-red-500 mb-4">{formatCurrencyShort(totalCartao)}</p>
+                <ScrollArea className="h-32">
+                  <div className="space-y-2 pr-4">
+                    {cartaoData.length > 0 ? cartaoData.map((cartao, index) => (
+                      <div key={index} className="flex justify-between text-sm py-1 border-b border-border/30 last:border-0">
+                        <span className="text-muted-foreground truncate max-w-[60%]">{cartao.descricao}</span>
+                        <span className="text-red-500 font-medium">{formatCurrencyShort(Number(cartao.valor_restante))}</span>
+                      </div>
+                    )) : (
+                      <p className="text-sm text-muted-foreground text-center py-8">Nenhuma fatura</p>
+                    )}
                   </div>
-                )) : (
-                  <p className="text-sm text-muted-foreground text-center py-8">Nenhuma fatura</p>
-                )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Clique para ir à página de Cartões</p>
+          </TooltipContent>
+        </UITooltip>
 
         {/* Empréstimos */}
-        <Card 
-          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
-          onClick={() => navigate('/dividas')}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Receipt className="h-4 w-4 text-amber-500" />
-              Empréstimos
-              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-amber-500 mb-4">{formatCurrencyShort(totalEmprestimos)}</p>
-            <ScrollArea className="h-32">
-              <div className="space-y-2 pr-4">
-                {dividasData.length > 0 ? dividasData.map((divida, index) => (
-                  <div key={index} className="flex justify-between text-sm py-1 border-b border-border/30 last:border-0">
-                    <span className="text-muted-foreground truncate max-w-[60%]">{divida.descricao}</span>
-                    <span className="text-amber-500 font-medium">{formatCurrencyShort(Number(divida.valor_restante))}</span>
+        <UITooltip>
+          <TooltipTrigger asChild>
+            <Card 
+              className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+              onClick={() => navigate('/dividas')}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Receipt className="h-4 w-4 text-amber-500" />
+                  Empréstimos
+                  <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-amber-500 mb-4">{formatCurrencyShort(totalEmprestimos)}</p>
+                <ScrollArea className="h-32">
+                  <div className="space-y-2 pr-4">
+                    {dividasData.length > 0 ? dividasData.map((divida, index) => (
+                      <div key={index} className="flex justify-between text-sm py-1 border-b border-border/30 last:border-0">
+                        <span className="text-muted-foreground truncate max-w-[60%]">{divida.descricao}</span>
+                        <span className="text-amber-500 font-medium">{formatCurrencyShort(Number(divida.valor_restante))}</span>
+                      </div>
+                    )) : (
+                      <p className="text-sm text-muted-foreground text-center py-8">Nenhum empréstimo</p>
+                    )}
                   </div>
-                )) : (
-                  <p className="text-sm text-muted-foreground text-center py-8">Nenhum empréstimo</p>
-                )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Clique para ir à página de Dívidas</p>
+          </TooltipContent>
+        </UITooltip>
 
         {/* Saldos Bancários */}
-        <Card 
-          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
-          onClick={() => navigate('/saldos-bancarios')}
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-teal-500" />
-              Saldos Bancários
-              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-teal-500 mb-4">{formatCurrencyShort(data.saldo)}</p>
-            <ScrollArea className="h-32">
-              <div className="space-y-2 pr-4">
-                {saldosBancariosData.length > 0 ? saldosBancariosData.map((banco, index) => (
-                  <div key={index} className="flex justify-between text-sm py-1 border-b border-border/30 last:border-0">
-                    <span className="text-muted-foreground truncate max-w-[60%]">{banco.banco}</span>
-                    <span className="text-teal-500 font-medium">{formatCurrencyShort(banco.saldo)}</span>
+        <UITooltip>
+          <TooltipTrigger asChild>
+            <Card 
+              className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+              onClick={() => navigate('/saldos-bancarios')}
+            >
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Wallet className="h-4 w-4 text-teal-500" />
+                  Saldos Bancários
+                  <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-teal-500 mb-4">{formatCurrencyShort(data.saldo)}</p>
+                <ScrollArea className="h-32">
+                  <div className="space-y-2 pr-4">
+                    {saldosBancariosData.length > 0 ? saldosBancariosData.map((banco, index) => (
+                      <div key={index} className="flex justify-between text-sm py-1 border-b border-border/30 last:border-0">
+                        <span className="text-muted-foreground truncate max-w-[60%]">{banco.banco}</span>
+                        <span className="text-teal-500 font-medium">{formatCurrencyShort(banco.saldo)}</span>
+                      </div>
+                    )) : (
+                      <p className="text-sm text-muted-foreground text-center py-8">Nenhuma conta</p>
+                    )}
                   </div>
-                )) : (
-                  <p className="text-sm text-muted-foreground text-center py-8">Nenhuma conta</p>
-                )}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Clique para ir à página de Saldos Bancários</p>
+          </TooltipContent>
+        </UITooltip>
 
         {/* Resumo Geral */}
         <Card className="bg-card border-border/50">
@@ -791,5 +859,6 @@ export default function Dashboard() {
         </p>
       </footer>
     </div>
+    </TooltipProvider>
   );
 }
