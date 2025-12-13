@@ -82,16 +82,15 @@ export function TopNavigation() {
       >
         <div className="h-full flex items-center justify-between px-2 sm:px-6 gap-2">
           {/* Navigation - Scrollable on mobile with touch support */}
-          <div className="flex-1 min-w-0 overflow-hidden relative">
+          <div className="flex-1 min-w-0 relative">
             <nav 
-              className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 -mb-1 pr-8 sm:pr-0"
+              className="flex items-center gap-1 sm:gap-2 overflow-x-scroll pb-2 -mb-2 pr-12 sm:pr-0 scroll-smooth"
               role="navigation"
               aria-label="Menu principal"
               style={{ 
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-                touchAction: 'pan-x'
+                msOverflowStyle: 'none'
               }}
             >
               {menuItems.map((item) => (
@@ -121,7 +120,7 @@ export function TopNavigation() {
             </nav>
             {/* Gradient indicator for more content */}
             <div 
-              className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-card to-transparent pointer-events-none sm:hidden"
+              className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card via-card/80 to-transparent pointer-events-none sm:hidden"
               aria-hidden="true"
             />
           </div>

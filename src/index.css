@@ -347,3 +347,17 @@ a:focus {
     content: " (" attr(href) ")";
   }
 }
+
+/* Mobile navigation scroll fix */
+nav[aria-label="Menu principal"] {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overflow-x: scroll !important;
+  overflow-y: hidden !important;
+}
+
+nav[aria-label="Menu principal"]::-webkit-scrollbar {
+  display: none;
+  height: 0;
+  width: 0;
+}
