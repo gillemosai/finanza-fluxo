@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { EmojiTooltip } from "@/components/EmojiTooltip";
 
 interface FinancialData {
   receitas: number;
@@ -271,7 +272,8 @@ export default function Dashboard() {
     icon: Icon, 
     colorClass,
     onClick,
-    tooltipText
+    tooltipText,
+    emoji
   }: { 
     title: string; 
     value: string; 
@@ -279,6 +281,7 @@ export default function Dashboard() {
     colorClass: string;
     onClick?: () => void;
     tooltipText?: string;
+    emoji?: string;
   }) => {
     const cardContent = (
       <Card 
@@ -304,14 +307,9 @@ export default function Dashboard() {
 
     if (onClick && tooltipText) {
       return (
-        <UITooltip>
-          <TooltipTrigger asChild>
-            {cardContent}
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{tooltipText}</p>
-          </TooltipContent>
-        </UITooltip>
+        <EmojiTooltip message={tooltipText} emoji={emoji || "💡"}>
+          {cardContent}
+        </EmojiTooltip>
       );
     }
 
@@ -347,7 +345,8 @@ export default function Dashboard() {
             icon={TrendingUp} 
             colorClass="bg-emerald-500"
             onClick={() => navigate('/receitas')}
-            tooltipText="Clique para ver detalhes das receitas"
+            tooltipText="Veja suas receitas! 💪 Bora aumentar esse valor!"
+            emoji="💰"
           />
           <KPICard 
             title="Total Despesas" 
@@ -355,7 +354,8 @@ export default function Dashboard() {
             icon={TrendingDown} 
             colorClass="bg-red-500"
             onClick={() => navigate('/despesas')}
-            tooltipText="Clique para ver detalhes das despesas"
+            tooltipText="Controle seus gastos! Cada real economizado é um passo pro seu sonho!"
+            emoji="🎯"
           />
           <KPICard 
             title="Total Pago" 
@@ -363,7 +363,8 @@ export default function Dashboard() {
             icon={CheckCircle} 
             colorClass="bg-amber-500"
             onClick={() => navigate('/despesas')}
-            tooltipText="Clique para ver despesas pagas"
+            tooltipText="Mandou bem! Contas em dia = paz na mente! 🙌"
+            emoji="✅"
           />
           <KPICard 
             title="Falta Pagar" 
@@ -371,7 +372,8 @@ export default function Dashboard() {
             icon={AlertTriangle} 
             colorClass="bg-orange-500"
             onClick={() => navigate('/despesas')}
-            tooltipText="Clique para ver despesas pendentes"
+            tooltipText="Opa! Ainda tem contas pendentes. Bora resolver isso?"
+            emoji="⏰"
           />
           <KPICard 
             title="Saldo Atual" 
@@ -379,7 +381,8 @@ export default function Dashboard() {
             icon={DollarSign} 
             colorClass="bg-teal-500"
             onClick={() => navigate('/saldos-bancarios')}
-            tooltipText="Clique para ver saldos bancários"
+            tooltipText="Seu saldo atual! Guarde um pouquinho pra realizar seus sonhos!"
+            emoji="🏦"
           />
         </div>
       </section>
@@ -387,8 +390,7 @@ export default function Dashboard() {
       {/* Charts Section */}
       <section aria-label="Gráficos de distribuição" className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
         {/* Distribuição de Receitas */}
-        <UITooltip>
-          <TooltipTrigger asChild>
+        <EmojiTooltip message="Veja como suas receitas estão distribuídas! Diversificar é bom! 🌟" emoji="📊">
             <Card 
               className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
               onClick={() => navigate('/receitas')}
@@ -445,15 +447,10 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Clique para ir à página de Receitas</p>
-          </TooltipContent>
-        </UITooltip>
+        </EmojiTooltip>
 
         {/* Distribuição de Despesas */}
-        <UITooltip>
-          <TooltipTrigger asChild>
+        <EmojiTooltip message="Entenda pra onde vai seu dinheiro! Conhecimento é poder! 💪" emoji="🔍">
             <Card 
               className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
               onClick={() => navigate('/despesas')}
@@ -493,15 +490,10 @@ export default function Dashboard() {
                 </ScrollArea>
               </CardContent>
             </Card>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Clique para ir à página de Despesas</p>
-          </TooltipContent>
-        </UITooltip>
+        </EmojiTooltip>
 
         {/* Principais Despesas - Gráfico de Pizza */}
-        <UITooltip>
-          <TooltipTrigger asChild>
+        <EmojiTooltip message="Suas maiores despesas! Será que dá pra economizar em alguma? 🤔" emoji="💸">
             <Card 
               className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
               onClick={() => navigate('/despesas')}
@@ -590,11 +582,7 @@ export default function Dashboard() {
                 )}
               </CardContent>
             </Card>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Clique para ir à página de Despesas</p>
-          </TooltipContent>
-        </UITooltip>
+        </EmojiTooltip>
       </section>
 
       {/* Evolution & Status Section */}
@@ -704,8 +692,7 @@ export default function Dashboard() {
       {/* Bottom Cards */}
       <section aria-label="Detalhes financeiros" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {/* Cartão de Crédito */}
-        <UITooltip>
-          <TooltipTrigger asChild>
+        <EmojiTooltip message="Fique de olho no cartão! Use com sabedoria! 💳" emoji="💳">
             <Card 
               className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
               onClick={() => navigate('/cartoes')}
@@ -733,15 +720,10 @@ export default function Dashboard() {
                 </ScrollArea>
               </CardContent>
             </Card>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Clique para ir à página de Cartões</p>
-          </TooltipContent>
-        </UITooltip>
+        </EmojiTooltip>
 
         {/* Empréstimos */}
-        <UITooltip>
-          <TooltipTrigger asChild>
+        <EmojiTooltip message="Cada parcela paga é uma vitória! Continue firme! 🏆" emoji="📋">
             <Card 
               className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
               onClick={() => navigate('/dividas')}
@@ -769,15 +751,10 @@ export default function Dashboard() {
                 </ScrollArea>
               </CardContent>
             </Card>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Clique para ir à página de Dívidas</p>
-          </TooltipContent>
-        </UITooltip>
+        </EmojiTooltip>
 
         {/* Saldos Bancários */}
-        <UITooltip>
-          <TooltipTrigger asChild>
+        <EmojiTooltip message="Seu cofre! Quanto mais cheio, mais perto do sonho! 🐷" emoji="🏦">
             <Card 
               className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
               onClick={() => navigate('/saldos-bancarios')}
@@ -805,11 +782,7 @@ export default function Dashboard() {
                 </ScrollArea>
               </CardContent>
             </Card>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Clique para ir à página de Saldos Bancários</p>
-          </TooltipContent>
-        </UITooltip>
+        </EmojiTooltip>
 
         {/* Resumo Geral */}
         <Card className="bg-card border-border/50">
