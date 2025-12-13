@@ -146,8 +146,8 @@ export default function Dashboard() {
 
       const totalReceitas = receitas?.reduce((acc, item) => acc + Number(item.valor), 0) || 0;
       const totalDespesas = despesas?.reduce((acc, item) => acc + Number(item.valor), 0) || 0;
-      const totalPago = despesas?.filter(d => d.status === 'Pago').reduce((acc, item) => acc + Number(item.valor), 0) || 0;
-      const faltaPagar = despesas?.filter(d => d.status !== 'Pago').reduce((acc, item) => acc + Number(item.valor), 0) || 0;
+      const totalPago = despesas?.filter(d => d.status === 'paga').reduce((acc, item) => acc + Number(item.valor), 0) || 0;
+      const faltaPagar = despesas?.filter(d => d.status !== 'paga').reduce((acc, item) => acc + Number(item.valor), 0) || 0;
       const totalSaldos = saldosBancarios?.reduce((acc, item) => acc + Number(item.saldo), 0) || 0;
       const totalDividas = dividas?.reduce((acc, item) => acc + Number(item.valor_restante), 0) || 0;
 
