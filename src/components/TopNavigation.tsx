@@ -81,13 +81,18 @@ export function TopNavigation() {
         role="banner"
       >
         <div className="h-full flex items-center justify-between px-2 sm:px-6 gap-2">
-          {/* Navigation - Scrollable on mobile */}
+          {/* Navigation - Scrollable on mobile with touch support */}
           <div className="flex-1 min-w-0 overflow-hidden relative">
             <nav 
-              className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide pb-1 -mb-1 pr-6 sm:pr-0"
+              className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 -mb-1 pr-8 sm:pr-0"
               role="navigation"
               aria-label="Menu principal"
-              style={{ WebkitOverflowScrolling: 'touch' }}
+              style={{ 
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                touchAction: 'pan-x'
+              }}
             >
               {menuItems.map((item) => (
                 <Tooltip key={item.path}>
@@ -116,7 +121,7 @@ export function TopNavigation() {
             </nav>
             {/* Gradient indicator for more content */}
             <div 
-              className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card/90 to-transparent pointer-events-none sm:hidden"
+              className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-card to-transparent pointer-events-none sm:hidden"
               aria-hidden="true"
             />
           </div>

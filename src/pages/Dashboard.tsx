@@ -311,17 +311,17 @@ export default function Dashboard() {
         className={`bg-card border-border/50 hover:border-border transition-all duration-200 hover:shadow-md ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
         onClick={onClick}
       >
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10`}>
-              <Icon className={`h-5 w-5 ${colorClass.replace('bg-', 'text-')}`} />
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10 flex-shrink-0`}>
+              <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${colorClass.replace('bg-', 'text-')}`} />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground font-medium truncate flex items-center gap-1">
-                {title}
-                {onClick && <ExternalLink className="h-3 w-3" />}
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium flex items-center gap-1">
+                <span className="truncate">{title}</span>
+                {onClick && <ExternalLink className="h-3 w-3 flex-shrink-0" />}
               </p>
-              <p className={`text-lg font-bold ${colorClass.replace('bg-', 'text-')} truncate`}>{value}</p>
+              <p className={`text-sm sm:text-lg font-bold ${colorClass.replace('bg-', 'text-')}`}>{value}</p>
             </div>
           </div>
         </CardContent>
