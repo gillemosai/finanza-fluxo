@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader as TableHeaderEleme
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
-import { Plus, Edit, Trash2, TrendingDown, Search, PieChart } from "lucide-react";
+import { Plus, Edit, Trash2, TrendingDown, Search, PieChart, Filter, CheckSquare } from "lucide-react";
 import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
 import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
@@ -41,6 +41,8 @@ export default function Despesas() {
   const [editingDespesa, setEditingDespesa] = useState<Despesa | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [dataVencimentoUpdated, setDataVencimentoUpdated] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
   const [sortConfig, setSortConfig] = useState<{
     field: string;
@@ -83,7 +85,8 @@ export default function Despesas() {
       const matchesSearch = despesa.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            despesa.categoria.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesMonth = !selectedMonth || despesa.mes_referencia === selectedMonth;
-      return matchesSearch && matchesMonth;
+      const matchesCategory = selectedCategory === "all" || despesa.categoria === selectedCategory;
+      return matchesSearch && matchesMonth && matchesCategory;
     });
 
     if (sortConfig) {
@@ -106,7 +109,44 @@ export default function Despesas() {
     }
 
     return filtered;
-  }, [despesas, searchTerm, selectedMonth, sortConfig]);
+  }, [despesas, searchTerm, selectedMonth, sortConfig, selectedCategory]);
+
+  // Get unique categories for filter
+  const availableCategories = useMemo(() => {
+    const categories = new Set(despesas.map(d => d.categoria));
+    return Array.from(categories).sort();
+  }, [despesas]);
+
+  // Calculate selected items total
+  const selectedTotal = useMemo(() => {
+    return filteredAndSortedDespesas
+      .filter(d => selectedItems.has(d.id))
+      .reduce((acc, d) => acc + d.valor, 0);
+  }, [filteredAndSortedDespesas, selectedItems]);
+
+  const handleSelectItem = (id: string) => {
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.size === filteredAndSortedDespesas.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(filteredAndSortedDespesas.map(d => d.id)));
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedItems(new Set());
+  };
 
   const handleSort = (field: string) => {
     setSortConfig(current => {
@@ -315,6 +355,20 @@ export default function Despesas() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 w-[200px]"
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filtrar categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas Categorias</SelectItem>
+                {availableCategories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
@@ -595,17 +649,55 @@ export default function Despesas() {
         </Card>
       </div>
 
+      {/* Soma de Itens Selecionados */}
+      {selectedItems.size > 0 && (
+        <Card className="shadow-card border-0 bg-gradient-to-r from-primary/10 to-primary/5 border-l-4 border-l-primary">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <CheckSquare className="w-5 h-5 text-primary" />
+                <span className="font-medium">
+                  {selectedItems.size} item(s) selecionado(s)
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-2xl font-bold text-primary">
+                  {formatCurrency(selectedTotal)}
+                </div>
+                <Button variant="outline" size="sm" onClick={clearSelection}>
+                  Limpar Seleção
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Tabela de Despesas */}
       <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>Lista de Despesas</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Lista de Despesas</CardTitle>
+            {filteredAndSortedDespesas.length > 0 && (
+              <Button variant="outline" size="sm" onClick={handleSelectAll}>
+                {selectedItems.size === filteredAndSortedDespesas.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="p-3 sm:p-6">
           <div className="overflow-x-auto -mx-3 sm:mx-0">
             <div className="min-w-full inline-block align-middle">
-              <Table className="min-w-[800px]">
+              <Table className="min-w-[900px]">
                 <TableHeaderElement>
               <TableRow>
+                <TableHead className="w-[50px]">
+                  <Checkbox
+                    checked={selectedItems.size === filteredAndSortedDespesas.length && filteredAndSortedDespesas.length > 0}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Selecionar todos"
+                  />
+                </TableHead>
                 <TableHeader 
                   sortKey="descricao" 
                   currentSort={sortConfig} 
@@ -660,7 +752,18 @@ export default function Despesas() {
             </TableHeaderElement>
             <TableBody>
               {filteredAndSortedDespesas.map((despesa) => (
-                <TableRow key={despesa.id}>
+                <TableRow 
+                  key={despesa.id}
+                  className={`cursor-pointer transition-colors ${selectedItems.has(despesa.id) ? 'bg-primary/10' : 'hover:bg-muted/50'}`}
+                  onClick={() => handleSelectItem(despesa.id)}
+                >
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedItems.has(despesa.id)}
+                      onCheckedChange={() => handleSelectItem(despesa.id)}
+                      aria-label={`Selecionar ${despesa.descricao}`}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{despesa.descricao}</TableCell>
                   <TableCell>{despesa.categoria}</TableCell>
                   <TableCell className="text-destructive font-semibold">
