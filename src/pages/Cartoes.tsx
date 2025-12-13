@@ -336,7 +336,15 @@ export default function Cartoes() {
                     id="data_vencimento"
                     type="date"
                     value={formData.data_vencimento}
-                    onChange={(e) => setFormData({ ...formData, data_vencimento: e.target.value })}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      const mesRef = newDate ? formatDateToMonthRef(newDate) : '';
+                      setFormData({ 
+                        ...formData, 
+                        data_vencimento: newDate,
+                        mes_referencia: mesRef
+                      });
+                    }}
                   />
                 </div>
 
