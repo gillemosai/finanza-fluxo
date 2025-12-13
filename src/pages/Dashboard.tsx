@@ -353,26 +353,27 @@ export default function Dashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-56">
+            <div className="h-72">
               {receitasChart.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsPieChart>
                     <Pie
                       data={receitasChart}
                       cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      innerRadius={40}
+                      cy="40%"
+                      labelLine={true}
+                      outerRadius={70}
+                      innerRadius={35}
                       dataKey="valor"
-                      label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                      nameKey="categoria"
+                      label={({ categoria, percent }) => `${categoria}: ${(percent * 100).toFixed(0)}%`}
                     >
                       {receitasChart.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Pie>
                     <Tooltip 
-                      formatter={(value: any) => formatCurrency(Number(value))}
+                      formatter={(value: any, name: string) => [formatCurrency(Number(value)), name]}
                       contentStyle={{ 
                         backgroundColor: 'hsl(var(--card))', 
                         border: '1px solid hsl(var(--border))',
@@ -381,7 +382,9 @@ export default function Dashboard() {
                     />
                     <Legend 
                       verticalAlign="bottom" 
-                      height={36}
+                      align="center"
+                      layout="horizontal"
+                      wrapperStyle={{ paddingTop: '16px' }}
                       formatter={(value) => <span className="text-xs text-muted-foreground">{value}</span>}
                     />
                   </RechartsPieChart>
