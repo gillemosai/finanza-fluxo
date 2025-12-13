@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MonthFilter } from "@/components/MonthFilter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -28,7 +29,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Receipt,
-  BarChart3
+  BarChart3,
+  ExternalLink
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -82,6 +84,7 @@ export default function Dashboard() {
   
   const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -265,21 +268,29 @@ export default function Dashboard() {
     title, 
     value, 
     icon: Icon, 
-    colorClass 
+    colorClass,
+    onClick
   }: { 
     title: string; 
     value: string; 
     icon: any; 
     colorClass: string;
+    onClick?: () => void;
   }) => (
-    <Card className="bg-card border-border/50 hover:border-border transition-all duration-200 hover:shadow-md">
+    <Card 
+      className={`bg-card border-border/50 hover:border-border transition-all duration-200 hover:shadow-md ${onClick ? 'cursor-pointer hover:scale-[1.02]' : ''}`}
+      onClick={onClick}
+    >
       <CardContent className="p-4">
         <div className="flex items-center gap-3">
           <div className={`p-2 rounded-lg ${colorClass} bg-opacity-10`}>
             <Icon className={`h-5 w-5 ${colorClass.replace('bg-', 'text-')}`} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground font-medium truncate">{title}</p>
+            <p className="text-xs text-muted-foreground font-medium truncate flex items-center gap-1">
+              {title}
+              {onClick && <ExternalLink className="h-3 w-3" />}
+            </p>
             <p className={`text-lg font-bold ${colorClass.replace('bg-', 'text-')} truncate`}>{value}</p>
           </div>
         </div>
@@ -313,31 +324,36 @@ export default function Dashboard() {
             title="Total Receitas" 
             value={formatCurrencyShort(data.receitas)} 
             icon={TrendingUp} 
-            colorClass="bg-emerald-500" 
+            colorClass="bg-emerald-500"
+            onClick={() => navigate('/receitas')}
           />
           <KPICard 
             title="Total Despesas" 
             value={formatCurrencyShort(data.despesas)} 
             icon={TrendingDown} 
-            colorClass="bg-red-500" 
+            colorClass="bg-red-500"
+            onClick={() => navigate('/despesas')}
           />
           <KPICard 
             title="Total Pago" 
             value={formatCurrencyShort(data.totalPago)} 
             icon={CheckCircle} 
-            colorClass="bg-amber-500" 
+            colorClass="bg-amber-500"
+            onClick={() => navigate('/despesas')}
           />
           <KPICard 
             title="Falta Pagar" 
             value={formatCurrencyShort(data.faltaPagar)} 
             icon={AlertTriangle} 
-            colorClass="bg-orange-500" 
+            colorClass="bg-orange-500"
+            onClick={() => navigate('/despesas')}
           />
           <KPICard 
             title="Saldo Atual" 
             value={formatCurrencyShort(data.saldo)} 
             icon={DollarSign} 
-            colorClass="bg-teal-500" 
+            colorClass="bg-teal-500"
+            onClick={() => navigate('/saldos-bancarios')}
           />
         </div>
       </section>
@@ -345,11 +361,15 @@ export default function Dashboard() {
       {/* Charts Section */}
       <section aria-label="Gráficos de distribuição" className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
         {/* Distribuição de Receitas */}
-        <Card className="bg-card border-border/50">
+        <Card 
+          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+          onClick={() => navigate('/receitas')}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-emerald-500" />
               Distribuição de Receitas
+              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -399,11 +419,15 @@ export default function Dashboard() {
         </Card>
 
         {/* Distribuição de Despesas */}
-        <Card className="bg-card border-border/50">
+        <Card 
+          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+          onClick={() => navigate('/despesas')}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <TrendingDown className="h-4 w-4 text-red-500" />
               Distribuição de Despesas (%)
+              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -436,11 +460,15 @@ export default function Dashboard() {
         </Card>
 
         {/* Principais Despesas - Gráfico de Pizza */}
-        <Card className="bg-card border-border/50">
+        <Card 
+          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+          onClick={() => navigate('/despesas')}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <Receipt className="h-4 w-4 text-amber-500" />
               Principais Despesas
+              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -629,11 +657,15 @@ export default function Dashboard() {
       {/* Bottom Cards */}
       <section aria-label="Detalhes financeiros" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {/* Cartão de Crédito */}
-        <Card className="bg-card border-border/50">
+        <Card 
+          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+          onClick={() => navigate('/cartoes')}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <CreditCard className="h-4 w-4 text-red-500" />
               Cartão de Crédito
+              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -654,11 +686,15 @@ export default function Dashboard() {
         </Card>
 
         {/* Empréstimos */}
-        <Card className="bg-card border-border/50">
+        <Card 
+          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+          onClick={() => navigate('/dividas')}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <Receipt className="h-4 w-4 text-amber-500" />
               Empréstimos
+              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -679,11 +715,15 @@ export default function Dashboard() {
         </Card>
 
         {/* Saldos Bancários */}
-        <Card className="bg-card border-border/50">
+        <Card 
+          className="bg-card border-border/50 cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+          onClick={() => navigate('/saldos-bancarios')}
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <Wallet className="h-4 w-4 text-teal-500" />
               Saldos Bancários
+              <ExternalLink className="h-3 w-3 text-muted-foreground ml-auto" />
             </CardTitle>
           </CardHeader>
           <CardContent>
