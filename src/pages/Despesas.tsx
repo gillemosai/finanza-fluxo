@@ -7,10 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader as TableHeaderElement, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
-import { Plus, Edit, Trash2, TrendingDown, Search, PieChart, Filter, CheckSquare, Info } from "lucide-react";
+import { Plus, Edit, Trash2, TrendingDown, Search, PieChart, Filter, CheckSquare, Info, Lightbulb, X } from "lucide-react";
 import { BarChart, Bar, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis } from "recharts";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
@@ -44,6 +44,9 @@ export default function Despesas() {
   const [dataVencimentoUpdated, setDataVencimentoUpdated] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [showTipPopup, setShowTipPopup] = useState(() => {
+    return localStorage.getItem('despesas-tip-dismissed') !== 'true';
+  });
   const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
   const [sortConfig, setSortConfig] = useState<{
     field: string;
@@ -326,8 +329,68 @@ export default function Despesas() {
     return { totalDespesas: total, categoryData: data };
   }, [filteredAndSortedDespesas]);
 
+  const handleDismissTip = (dontShowAgain: boolean) => {
+    if (dontShowAgain) {
+      localStorage.setItem('despesas-tip-dismissed', 'true');
+    }
+    setShowTipPopup(false);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Popup de Dica */}
+      <Dialog open={showTipPopup} onOpenChange={setShowTipPopup}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Lightbulb className="w-6 h-6 text-yellow-500" />
+              Dica: Recursos de Análise
+            </DialogTitle>
+            <DialogDescription className="pt-4 text-base leading-relaxed">
+              Para ter <span className="font-semibold text-foreground">maior controle</span> sobre suas despesas, você pode:
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <Filter className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-medium">Filtrar por Categoria</p>
+                <p className="text-sm text-muted-foreground">
+                  Use o filtro no topo da página para visualizar apenas despesas de uma categoria específica e ver o total filtrado.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <CheckSquare className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-medium">Selecionar Múltiplos Itens</p>
+                <p className="text-sm text-muted-foreground">
+                  Clique nas linhas da tabela ou nos checkboxes para selecionar várias despesas e ver automaticamente a soma dos valores selecionados.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => handleDismissTip(true)}
+              className="w-full sm:w-auto"
+            >
+              Entendi, não mostrar novamente
+            </Button>
+            <Button 
+              onClick={() => handleDismissTip(false)}
+              className="w-full sm:w-auto bg-gradient-primary text-white"
+            >
+              Entendi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent flex items-center gap-3">
