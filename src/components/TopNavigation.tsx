@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 
 const menuItems = [
   {
@@ -122,6 +123,7 @@ export function TopNavigation() {
             >
               {user?.email}
             </span>
+            <OfflineIndicator />
             <ThemeToggle />
             <Tooltip>
               <TooltipTrigger asChild>
