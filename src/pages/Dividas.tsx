@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,12 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
 import { Plus, Edit, Trash2, CreditCard, AlertTriangle, TriangleAlert, PieChart as PieChartIcon } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { DataReplicator } from "@/components/DataReplicator";
+import { useOfflineData } from "@/hooks/useOfflineData";
 
 interface Divida {
   id: string;
@@ -49,7 +49,7 @@ export default function Dividas() {
     observacoes: ""
   });
   const { toast } = useToast();
-  
+  const { getData, saveData, updateData, deleteData, isOnline } = useOfflineData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -72,23 +72,15 @@ export default function Dividas() {
     }
   };
 
-  useEffect(() => {
-    fetchDividas();
-  }, []);
-
-  const fetchDividas = async () => {
+  const fetchDividas = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('dividas')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('data_vencimento', { ascending: true });
-
-      if (error) throw error;
-      setDividas((data || []).map(item => ({
+      const data = await getData('dividas');
+      const sortedData = (data as Divida[]).sort((a, b) => {
+        if (!a.data_vencimento) return 1;
+        if (!b.data_vencimento) return -1;
+        return new Date(a.data_vencimento).getTime() - new Date(b.data_vencimento).getTime();
+      });
+      setDividas(sortedData.map(item => ({
         ...item,
         status: item.status as 'pendente' | 'pago' | 'em_atraso'
       })));
@@ -100,7 +92,11 @@ export default function Dividas() {
         variant: "destructive",
       });
     }
-  };
+  }, [getData, toast]);
+
+  useEffect(() => {
+    fetchDividas();
+  }, [fetchDividas]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,11 +106,7 @@ export default function Dividas() {
       const valorPago = parseFloat(formData.valor_pago);
       const valorRestante = valorTotal - valorPago;
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const dividaData = {
-        user_id: user.id,
         descricao: formData.descricao,
         valor_total: valorTotal,
         valor_pago: valorPago,
@@ -126,27 +118,20 @@ export default function Dividas() {
       };
 
       if (editingDivida) {
-        const { error } = await supabase
-          .from('dividas')
-          .update(dividaData)
-          .eq('id', editingDivida.id);
-        
-        if (error) throw error;
+        const result = await updateData('dividas', editingDivida.id, dividaData);
+        if (!result.success) throw new Error(result.error);
         
         toast({
           title: "Sucesso",
-          description: "Dívida atualizada com sucesso!",
+          description: `Dívida atualizada${!isOnline ? ' (offline)' : ''}!`,
         });
       } else {
-        const { error } = await supabase
-          .from('dividas')
-          .insert([dividaData]);
-        
-        if (error) throw error;
+        const result = await saveData('dividas', dividaData);
+        if (!result.success) throw new Error(result.error);
         
         toast({
           title: "Sucesso", 
-          description: "Dívida criada com sucesso!",
+          description: `Dívida criada${!isOnline ? ' (offline)' : ''}!`,
         });
       }
 
@@ -192,16 +177,12 @@ export default function Dividas() {
     }
 
     try {
-      const { error } = await supabase
-        .from('dividas')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      const result = await deleteData('dividas', id);
+      if (!result.success) throw new Error(result.error);
 
       toast({
         title: "Sucesso",
-        description: "Dívida excluída com sucesso!",
+        description: `Dívida excluída${!isOnline ? ' (offline)' : ''}!`,
       });
       fetchDividas();
     } catch (error) {
@@ -214,7 +195,6 @@ export default function Dividas() {
     }
   };
 
-  // Dados para o gráfico e total
   const { totalDividas, categoryData } = useMemo(() => {
     const total = dividas.reduce((acc, divida) => acc + divida.valor_restante, 0);
     

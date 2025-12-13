@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,11 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit, Trash2, Building2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
 import { MonthFilter } from "@/components/MonthFilter";
 import { useToast } from "@/hooks/use-toast";
+import { useOfflineData } from "@/hooks/useOfflineData";
 import {
   Dialog,
   DialogContent,
@@ -42,9 +41,9 @@ export default function SaldosBancarios() {
     observacoes: ''
   });
   
-  const { user } = useAuth();
   const { toast } = useToast();
   const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
+  const { getData, saveData, updateData, deleteData, isOnline } = useOfflineData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -53,18 +52,13 @@ export default function SaldosBancarios() {
     }).format(value);
   };
 
-  const fetchSaldos = async () => {
-    if (!user) return;
-
+  const fetchSaldos = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from('saldos_bancarios')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('banco');
-
-      if (error) throw error;
-      setSaldos(data || []);
+      const data = await getData('saldos_bancarios');
+      const sortedData = (data as SaldoBancario[]).sort((a, b) => 
+        a.banco.localeCompare(b.banco)
+      );
+      setSaldos(sortedData);
     } catch (error) {
       console.error('Error fetching saldos:', error);
       toast({
@@ -73,43 +67,40 @@ export default function SaldosBancarios() {
         variant: "destructive",
       });
     }
-  };
+  }, [getData, toast]);
 
   useEffect(() => {
     fetchSaldos();
-  }, [user]);
+  }, [fetchSaldos]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
 
     try {
       const saldoData = {
-        ...formData,
+        banco: formData.banco,
+        tipo_conta: formData.tipo_conta,
         saldo: parseFloat(formData.saldo.replace(/[^\d,-]/g, '').replace(',', '.')),
-        user_id: user.id
+        numero_conta: formData.numero_conta || null,
+        agencia: formData.agencia || null,
+        observacoes: formData.observacoes || null
       };
 
       if (editingSaldo) {
-        const { error } = await supabase
-          .from('saldos_bancarios')
-          .update(saldoData)
-          .eq('id', editingSaldo.id);
-
-        if (error) throw error;
+        const result = await updateData('saldos_bancarios', editingSaldo.id, saldoData);
+        if (!result.success) throw new Error(result.error);
+        
         toast({
           title: "Sucesso",
-          description: "Saldo bancário atualizado com sucesso!",
+          description: `Saldo bancário atualizado${!isOnline ? ' (offline)' : ''}!`,
         });
       } else {
-        const { error } = await supabase
-          .from('saldos_bancarios')
-          .insert([saldoData]);
-
-        if (error) throw error;
+        const result = await saveData('saldos_bancarios', saldoData);
+        if (!result.success) throw new Error(result.error);
+        
         toast({
           title: "Sucesso",
-          description: "Saldo bancário adicionado com sucesso!",
+          description: `Saldo bancário adicionado${!isOnline ? ' (offline)' : ''}!`,
         });
       }
 
@@ -151,16 +142,12 @@ export default function SaldosBancarios() {
     if (!confirm('Tem certeza que deseja excluir este saldo bancário?')) return;
 
     try {
-      const { error } = await supabase
-        .from('saldos_bancarios')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      const result = await deleteData('saldos_bancarios', id);
+      if (!result.success) throw new Error(result.error);
       
       toast({
         title: "Sucesso",
-        description: "Saldo bancário excluído com sucesso!",
+        description: `Saldo bancário excluído${!isOnline ? ' (offline)' : ''}!`,
       });
       fetchSaldos();
     } catch (error) {
