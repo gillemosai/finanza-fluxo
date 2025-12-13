@@ -10,8 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader as TableHeaderEleme
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
-import { Plus, Edit, Trash2, TrendingDown, Search, PieChart, Filter, CheckSquare } from "lucide-react";
-import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Plus, Edit, Trash2, TrendingDown, Search, PieChart, Filter, CheckSquare, Info } from "lucide-react";
+import { BarChart, Bar, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis } from "recharts";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDateToMonthRef } from "@/utils/dateUtils";
 import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
 import { MonthFilter } from "@/components/MonthFilter";
@@ -628,7 +629,7 @@ export default function Despesas() {
                       tick={{ fontSize: 12 }}
                       tickFormatter={(value) => `R$ ${value}`}
                     />
-                    <Tooltip 
+                    <RechartsTooltip 
                       formatter={(value: number) => [formatCurrency(value), 'Valor']}
                       labelFormatter={(label) => `Categoria: ${label}`}
                     />
@@ -677,7 +678,36 @@ export default function Despesas() {
       <Card className="shadow-card border-0 bg-card/80 backdrop-blur-sm">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Lista de Despesas</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle>Lista de Despesas</CardTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-1 rounded-full hover:bg-muted transition-colors">
+                      <Info className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-[280px] p-3">
+                    <div className="space-y-2 text-sm">
+                      <p className="font-semibold flex items-center gap-2">
+                        <CheckSquare className="w-4 h-4 text-primary" />
+                        Seleção Múltipla
+                      </p>
+                      <p className="text-muted-foreground">
+                        Clique nas linhas ou use os checkboxes para selecionar várias despesas e ver o total somado automaticamente.
+                      </p>
+                      <p className="font-semibold flex items-center gap-2 pt-1">
+                        <Filter className="w-4 h-4 text-primary" />
+                        Filtro por Categoria
+                      </p>
+                      <p className="text-muted-foreground">
+                        Use o filtro no topo da página para ver o total de despesas por categoria específica.
+                      </p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             {filteredAndSortedDespesas.length > 0 && (
               <Button variant="outline" size="sm" onClick={handleSelectAll}>
                 {selectedItems.size === filteredAndSortedDespesas.length ? 'Desmarcar Todos' : 'Selecionar Todos'}
