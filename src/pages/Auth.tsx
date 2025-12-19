@@ -8,7 +8,23 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, DollarSign } from "lucide-react";
+import { Eye, EyeOff, DollarSign, Check, X } from "lucide-react";
+
+// Validação de senha forte
+const validatePassword = (password: string) => {
+  return {
+    minLength: password.length >= 8,
+    hasUpperCase: /[A-Z]/.test(password),
+    hasLowerCase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  };
+};
+
+const isPasswordValid = (password: string) => {
+  const validation = validatePassword(password);
+  return Object.values(validation).every(Boolean);
+};
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -25,6 +41,8 @@ export default function Auth() {
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const passwordValidation = validatePassword(password);
 
   useEffect(() => {
     if (user) {
@@ -53,12 +71,24 @@ export default function Auth() {
           navigate("/dashboard");
         }
       } else {
+        // Validar senha forte no cadastro
+        if (!isPasswordValid(password)) {
+          toast({
+            title: "Senha fraca",
+            description: "A senha deve atender a todos os requisitos de segurança",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
         if (password !== confirmPassword) {
           toast({
             title: "Erro",
             description: "As senhas não coincidem",
             variant: "destructive",
           });
+          setLoading(false);
           return;
         }
 
@@ -74,7 +104,7 @@ export default function Auth() {
             title: "Conta criada com sucesso!",
             description: "Você já pode fazer login.",
           });
-          setIsLogin(true); // Muda para aba de login após cadastro
+          setIsLogin(true);
         }
       }
     } catch (error: any) {
@@ -199,6 +229,33 @@ export default function Auth() {
               </div>
 
               <TabsContent value="signup" className="space-y-4 mt-0">
+                {/* Requisitos de senha */}
+                <div className="rounded-lg bg-muted/50 p-3 space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Requisitos da senha:</p>
+                  <div className="grid grid-cols-1 gap-1 text-xs">
+                    <div className={`flex items-center gap-2 ${passwordValidation.minLength ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordValidation.minLength ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      Mínimo 8 caracteres
+                    </div>
+                    <div className={`flex items-center gap-2 ${passwordValidation.hasUpperCase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordValidation.hasUpperCase ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      Uma letra maiúscula
+                    </div>
+                    <div className={`flex items-center gap-2 ${passwordValidation.hasLowerCase ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordValidation.hasLowerCase ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      Uma letra minúscula
+                    </div>
+                    <div className={`flex items-center gap-2 ${passwordValidation.hasNumber ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordValidation.hasNumber ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      Um número
+                    </div>
+                    <div className={`flex items-center gap-2 ${passwordValidation.hasSpecialChar ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      {passwordValidation.hasSpecialChar ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                      Um caractere especial (!@#$%^&*)
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <Label htmlFor="confirmPassword">Confirmar senha</Label>
                   <Input
