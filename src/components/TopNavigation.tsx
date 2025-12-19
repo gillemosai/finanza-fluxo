@@ -80,51 +80,45 @@ export function TopNavigation() {
         className="h-14 sm:h-16 border-b border-border bg-card/50 backdrop-blur-sm"
         role="banner"
       >
-        <div className="h-full flex items-center justify-between px-2 sm:px-6 gap-2">
-          {/* Navigation - Scrollable on mobile with touch support */}
-          <div className="flex-1 min-w-0 relative">
-            <nav 
-              className="flex items-center gap-1 sm:gap-2 overflow-x-scroll pb-2 -mb-2 pr-12 sm:pr-0 scroll-smooth"
-              role="navigation"
-              aria-label="Menu principal"
-              style={{ 
-                WebkitOverflowScrolling: 'touch',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-                touchAction: 'pan-x'
-              }}
-            >
-              {menuItems.map((item) => (
-                <Tooltip key={item.path}>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={location.pathname === item.path ? "default" : "ghost"}
-                      size="sm"
-                      asChild
-                      className="w-9 h-9 sm:w-10 sm:h-10 p-0 flex-shrink-0"
-                      aria-current={location.pathname === item.path ? "page" : undefined}
+        <div className="h-full flex items-center justify-between gap-2">
+          {/* Navigation - Full width scrollable on mobile */}
+          <nav 
+            className="flex-1 flex items-center gap-1 sm:gap-2 overflow-x-auto px-2 sm:px-6 py-2 -my-2"
+            role="navigation"
+            aria-label="Menu principal"
+            style={{ 
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
+          >
+            {menuItems.map((item) => (
+              <Tooltip key={item.path}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={location.pathname === item.path ? "default" : "ghost"}
+                    size="sm"
+                    asChild
+                    className="w-9 h-9 sm:w-10 sm:h-10 p-0 flex-shrink-0 touch-pan-x"
+                    aria-current={location.pathname === item.path ? "page" : undefined}
+                  >
+                    <NavLink 
+                      to={item.path}
+                      aria-label={item.title}
                     >
-                      <NavLink 
-                        to={item.path}
-                        aria-label={item.title}
-                      >
-                        <item.icon className="w-4 h-4" aria-hidden="true" />
-                        <span className="sr-only">{item.title}</span>
-                      </NavLink>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{item.title}</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-            </nav>
-            {/* Gradient indicator for more content */}
-            <div 
-              className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-card via-card/80 to-transparent pointer-events-none sm:hidden"
-              aria-hidden="true"
-            />
-          </div>
+                      <item.icon className="w-4 h-4" aria-hidden="true" />
+                      <span className="sr-only">{item.title}</span>
+                    </NavLink>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{item.title}</p>
+                </TooltipContent>
+              </Tooltip>
+            ))}
+            {/* Spacer to ensure last items are reachable */}
+            <div className="w-2 flex-shrink-0 sm:hidden" aria-hidden="true" />
+          </nav>
             
           {/* User Actions */}
           <div className="flex items-center space-x-1 sm:space-x-2" role="group" aria-label="Ações do usuário">
