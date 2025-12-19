@@ -90,7 +90,8 @@ export function TopNavigation() {
               style={{ 
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
+                msOverflowStyle: 'none',
+                touchAction: 'pan-x'
               }}
             >
               {menuItems.map((item) => (
