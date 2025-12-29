@@ -110,10 +110,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth`
-    });
-    return { error };
+    try {
+      // Use custom edge function for password reset via Resend
+      const response = await fetch(
+        `https://laqvhiaxerzafvsmxewn.supabase.co/functions/v1/send-password-reset`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            redirectUrl: `${window.location.origin}/auth`
+          })
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return { error: { message: data.error || 'Erro ao enviar email de recuperação' } };
+      }
+      
+      return { error: null };
+    } catch (error: any) {
+      return { error: { message: 'Erro ao conectar com o servidor' } };
+    }
   };
 
   const updatePassword = async (newPassword: string) => {
