@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, DollarSign, Check, X } from "lucide-react";
+import { Eye, EyeOff, DollarSign, Check, X, Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { DEMO_USER, insertDemoData } from "@/utils/demoData";
 
 // Validação de senha forte
 const validatePassword = (password: string) => {
@@ -34,6 +36,7 @@ export default function Auth() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -146,6 +149,66 @@ export default function Auth() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true);
+    
+    try {
+      // Tentar fazer login com usuário demo
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: DEMO_USER.email,
+        password: DEMO_USER.password
+      });
+
+      if (signInError) {
+        // Se o usuário não existe, criar
+        if (signInError.message.includes("Invalid login credentials")) {
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: DEMO_USER.email,
+            password: DEMO_USER.password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+              data: {
+                full_name: "Usuário Demo"
+              }
+            }
+          });
+
+          if (signUpError) {
+            throw signUpError;
+          }
+
+          // Inserir dados de demo se o usuário foi criado
+          if (signUpData.user) {
+            await insertDemoData(signUpData.user.id);
+          }
+
+          toast({
+            title: "Conta demo criada!",
+            description: "Bem-vindo ao modo demonstração.",
+          });
+        } else {
+          throw signInError;
+        }
+      } else {
+        toast({
+          title: "Login demo realizado!",
+          description: "Bem-vindo ao modo demonstração.",
+        });
+      }
+      
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.error("Demo login error:", error);
+      toast({
+        title: "Erro no login demo",
+        description: error.message || "Não foi possível acessar o modo demo",
+        variant: "destructive",
+      });
+    } finally {
+      setDemoLoading(false);
     }
   };
 
@@ -294,16 +357,38 @@ export default function Auth() {
               </Button>
 
               {isLogin && (
-                <div className="text-center mt-4">
+                <>
+                  <div className="text-center mt-4">
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      onClick={() => setShowForgotPassword(true)}
+                      className="text-sm text-muted-foreground hover:text-primary"
+                    >
+                      Esqueci minha senha
+                    </Button>
+                  </div>
+
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">ou</span>
+                    </div>
+                  </div>
+
                   <Button 
                     type="button" 
-                    variant="link" 
-                    onClick={() => setShowForgotPassword(true)}
-                    className="text-sm text-muted-foreground hover:text-primary"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleDemoLogin}
+                    disabled={demoLoading}
                   >
-                    Esqueci minha senha
+                    <Users className="w-4 h-4 mr-2" />
+                    {demoLoading ? "Entrando..." : "Acessar modo demonstração"}
                   </Button>
-                </div>
+                </>
               )}
             </form>
           </Tabs>
@@ -355,52 +440,6 @@ export default function Auth() {
           )}
         </CardContent>
       </Card>
-
-      {/* Forgot Password Dialog */}
-      {showForgotPassword && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle>Recuperar Senha</CardTitle>
-              <p className="text-muted-foreground">
-                Digite seu email para receber o link de recuperação
-              </p>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleForgotPassword} className="space-y-4">
-                <div>
-                  <Label htmlFor="resetEmail">Email</Label>
-                  <Input
-                    id="resetEmail"
-                    type="email"
-                    value={resetEmail}
-                    onChange={(e) => setResetEmail(e.target.value)}
-                    required
-                    placeholder="seu@email.com"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setShowForgotPassword(false)}
-                    className="flex-1"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={loading}
-                    className="flex-1"
-                  >
-                    {loading ? "Enviando..." : "Enviar"}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }
