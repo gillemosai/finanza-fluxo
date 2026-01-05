@@ -1,9 +1,14 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Credenciais do usuário demo
-export const DEMO_USER = {
-  email: "demo@finanza.app",
-  password: "Demo@2024!"
+// Gera credenciais demo únicas por sessão (não expostas no código)
+const generateDemoCredentials = () => {
+  const sessionId = crypto.randomUUID().slice(0, 8);
+  const randomPassword = `Demo${crypto.randomUUID().slice(0, 8)}@${Date.now().toString(36)}`;
+  return {
+    email: `demo-${sessionId}@finanza.app`,
+    password: randomPassword,
+    fullName: "Usuário Demo"
+  };
 };
 
 // Dados de exemplo para o usuário demo
@@ -277,5 +282,39 @@ export const insertDemoData = async (userId: string) => {
   } catch (error) {
     console.error("Error inserting demo data:", error);
     return { success: false, error };
+  }
+};
+
+// Cria uma sessão demo efêmera com credenciais únicas
+export const createDemoSession = async (): Promise<{ success: boolean; error?: string }> => {
+  const credentials = generateDemoCredentials();
+  
+  try {
+    // Criar conta demo temporária
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: credentials.email,
+      password: credentials.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+        data: {
+          full_name: credentials.fullName,
+          is_demo: true
+        }
+      }
+    });
+
+    if (signUpError) {
+      throw signUpError;
+    }
+
+    // Inserir dados de demo
+    if (signUpData.user) {
+      await insertDemoData(signUpData.user.id);
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Demo session creation error:", error);
+    return { success: false, error: error.message || "Erro ao criar sessão demo" };
   }
 };

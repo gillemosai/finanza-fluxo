@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, DollarSign, Check, X, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { DEMO_USER, insertDemoData } from "@/utils/demoData";
+import { createDemoSession } from "@/utils/demoData";
 
 // Validação de senha forte
 const validatePassword = (password: string) => {
@@ -156,48 +156,17 @@ export default function Auth() {
     setDemoLoading(true);
     
     try {
-      // Tentar fazer login com usuário demo
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: DEMO_USER.email,
-        password: DEMO_USER.password
-      });
-
-      if (signInError) {
-        // Se o usuário não existe, criar
-        if (signInError.message.includes("Invalid login credentials")) {
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email: DEMO_USER.email,
-            password: DEMO_USER.password,
-            options: {
-              emailRedirectTo: `${window.location.origin}/`,
-              data: {
-                full_name: "Usuário Demo"
-              }
-            }
-          });
-
-          if (signUpError) {
-            throw signUpError;
-          }
-
-          // Inserir dados de demo se o usuário foi criado
-          if (signUpData.user) {
-            await insertDemoData(signUpData.user.id);
-          }
-
-          toast({
-            title: "Conta demo criada!",
-            description: "Bem-vindo ao modo demonstração.",
-          });
-        } else {
-          throw signInError;
-        }
-      } else {
-        toast({
-          title: "Login demo realizado!",
-          description: "Bem-vindo ao modo demonstração.",
-        });
+      // Criar sessão demo efêmera com credenciais únicas
+      const result = await createDemoSession();
+      
+      if (!result.success) {
+        throw new Error(result.error);
       }
+
+      toast({
+        title: "Conta demo criada!",
+        description: "Bem-vindo ao modo demonstração.",
+      });
       
       navigate("/dashboard");
     } catch (error: any) {
