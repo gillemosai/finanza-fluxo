@@ -49,7 +49,7 @@ export default function Dividas() {
     observacoes: ""
   });
   const { toast } = useToast();
-  const { getData, saveData, updateData, deleteData, isOnline } = useOfflineData();
+  const { getData, saveData, updateData, deleteData, isOnline, dataVersion, isInitialized } = useOfflineData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -95,8 +95,10 @@ export default function Dividas() {
   }, [getData, toast]);
 
   useEffect(() => {
-    fetchDividas();
-  }, [fetchDividas]);
+    if (isInitialized) {
+      fetchDividas();
+    }
+  }, [fetchDividas, isInitialized, dataVersion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
