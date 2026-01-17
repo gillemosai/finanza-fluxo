@@ -106,10 +106,16 @@ class IndexedDBService {
   async getUnsynced(storeName: string): Promise<OfflineRecord[]> {
     if (!this.db) throw new Error('Database not initialized');
     
-    const tx = this.db.transaction(storeName, 'readonly');
-    const store = tx.objectStore(storeName);
-    const index = store.index('by-synced');
-    return index.getAll(IDBKeyRange.only(false)) as Promise<OfflineRecord[]>;
+    try {
+      const tx = this.db.transaction(storeName, 'readonly');
+      const store = tx.objectStore(storeName);
+      // Get all items and filter by synced=false to avoid IDBKeyRange issues with booleans
+      const allItems = await store.getAll();
+      return (allItems as OfflineRecord[]).filter(item => item.synced === false);
+    } catch (error) {
+      console.error(`Error getting unsynced items from ${storeName}:`, error);
+      return [];
+    }
   }
 
   async markAsSynced(storeName: string, id: string): Promise<void> {

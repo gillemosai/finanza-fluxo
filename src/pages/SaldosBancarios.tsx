@@ -43,7 +43,7 @@ export default function SaldosBancarios() {
   
   const { toast } = useToast();
   const { selectedMonth, setSelectedMonth } = useGlobalMonthFilter();
-  const { getData, saveData, updateData, deleteData, isOnline } = useOfflineData();
+  const { getData, saveData, updateData, deleteData, isOnline, dataVersion, isInitialized } = useOfflineData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -70,8 +70,10 @@ export default function SaldosBancarios() {
   }, [getData, toast]);
 
   useEffect(() => {
-    fetchSaldos();
-  }, [fetchSaldos]);
+    if (isInitialized) {
+      fetchSaldos();
+    }
+  }, [fetchSaldos, isInitialized, dataVersion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

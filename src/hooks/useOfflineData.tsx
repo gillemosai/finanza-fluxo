@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { indexedDBService, OfflineRecord } from '@/services/indexeddb/database';
 import { offlineSyncService } from '@/services/indexeddb/syncService';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,9 +12,22 @@ export function useOfflineData() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [dataVersion, setDataVersion] = useState(0);
+  const initRef = useRef(false);
+
+  // Trigger a data refresh across components
+  const refreshData = useCallback(() => {
+    setDataVersion(v => v + 1);
+  }, []);
 
   useEffect(() => {
+    // Prevent double initialization in React 18 StrictMode
+    if (initRef.current) return;
+    
     const initialize = async () => {
+      if (!user) return;
+      
+      initRef.current = true;
       const success = await indexedDBService.initialize();
       setIsInitialized(success);
 
@@ -22,17 +35,30 @@ export function useOfflineData() {
         const lastSync = await offlineSyncService.getLastSyncTime();
         setLastSyncTime(lastSync);
 
-        if (navigator.onLine && user) {
-          await offlineSyncService.fullSync(user.id);
-          setLastSyncTime(new Date());
+        if (navigator.onLine) {
+          try {
+            await offlineSyncService.fullSync(user.id);
+            setLastSyncTime(new Date());
+            refreshData();
+          } catch (error) {
+            console.error('Initial sync error:', error);
+          }
         }
       }
     };
 
     initialize();
-    const unsubscribe = offlineSyncService.onConnectionChange(setIsOnline);
-    return () => unsubscribe();
-  }, [user?.id]);
+    const unsubscribe = offlineSyncService.onConnectionChange((online) => {
+      setIsOnline(online);
+      if (online && user) {
+        refreshData();
+      }
+    });
+    
+    return () => {
+      unsubscribe();
+    };
+  }, [user?.id, refreshData]);
 
   const syncNow = useCallback(async () => {
     if (!user) return { success: false, message: 'Usuário não autenticado' };
@@ -152,5 +178,5 @@ export function useOfflineData() {
     return { success: true };
   }, [user, isOnline]);
 
-  return { isInitialized, isOnline, isSyncing, lastSyncTime, syncNow, getData, saveData, updateData, deleteData };
+  return { isInitialized, isOnline, isSyncing, lastSyncTime, dataVersion, syncNow, getData, saveData, updateData, deleteData, refreshData };
 }

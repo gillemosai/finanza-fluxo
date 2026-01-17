@@ -1,13 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader as TableHeaderElement, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CategorySelect } from "@/components/CategorySelect";
 import { Plus, Edit, Trash2, TrendingUp, Search, PieChart } from "lucide-react";
@@ -17,6 +15,7 @@ import { useGlobalMonthFilter } from "@/hooks/useGlobalMonthFilter";
 import { MonthFilter } from "@/components/MonthFilter";
 import { TableHeader } from "@/components/TableHeader";
 import { DataReplicator } from "@/components/DataReplicator";
+import { useOfflineData } from "@/hooks/useOfflineData";
 
 interface Receita {
   id: string;
@@ -48,6 +47,7 @@ export default function Receitas() {
     observacoes: ""
   });
   const { toast } = useToast();
+  const { getData, saveData, updateData, deleteData, isOnline, dataVersion, isInitialized } = useOfflineData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -98,23 +98,13 @@ export default function Receitas() {
     });
   };
 
-  useEffect(() => {
-    fetchReceitas();
-  }, []);
-
-  const fetchReceitas = async () => {
+  const fetchReceitas = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('receitas')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('data_recebimento', { ascending: false });
-
-      if (error) throw error;
-      setReceitas(data || []);
+      const data = await getData('receitas');
+      const sortedData = (data as Receita[]).sort((a, b) => 
+        new Date(b.data_recebimento).getTime() - new Date(a.data_recebimento).getTime()
+      );
+      setReceitas(sortedData);
     } catch (error) {
       console.error('Error fetching receitas:', error);
       toast({
@@ -123,17 +113,19 @@ export default function Receitas() {
         variant: "destructive",
       });
     }
-  };
+  }, [getData, toast]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      fetchReceitas();
+    }
+  }, [fetchReceitas, isInitialized, dataVersion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const receitaData = {
-        user_id: user.id,
         descricao: formData.descricao,
         categoria: formData.categoria,
         valor: parseFloat(formData.valor),
@@ -143,27 +135,20 @@ export default function Receitas() {
       };
 
       if (editingReceita) {
-        const { error } = await supabase
-          .from('receitas')
-          .update(receitaData)
-          .eq('id', editingReceita.id);
-        
-        if (error) throw error;
+        const result = await updateData('receitas', editingReceita.id, receitaData);
+        if (!result.success) throw new Error(result.error);
         
         toast({
           title: "Sucesso",
-          description: "Receita atualizada com sucesso!",
+          description: `Receita atualizada${!isOnline ? ' (offline)' : ''}!`,
         });
       } else {
-        const { error } = await supabase
-          .from('receitas')
-          .insert([receitaData]);
-        
-        if (error) throw error;
+        const result = await saveData('receitas', receitaData);
+        if (!result.success) throw new Error(result.error);
         
         toast({
           title: "Sucesso", 
-          description: "Receita criada com sucesso!",
+          description: `Receita criada${!isOnline ? ' (offline)' : ''}!`,
         });
       }
 
@@ -207,16 +192,12 @@ export default function Receitas() {
     }
 
     try {
-      const { error } = await supabase
-        .from('receitas')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      const result = await deleteData('receitas', id);
+      if (!result.success) throw new Error(result.error);
 
       toast({
         title: "Sucesso",
-        description: "Receita excluída com sucesso!",
+        description: `Receita excluída${!isOnline ? ' (offline)' : ''}!`,
       });
       fetchReceitas();
     } catch (error) {

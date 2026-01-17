@@ -66,7 +66,7 @@ export default function Despesas() {
     observacoes: ""
   });
   const { toast } = useToast();
-  const { getData, saveData, updateData, deleteData, isOnline } = useOfflineData();
+  const { getData, saveData, updateData, deleteData, isOnline, dataVersion, isInitialized } = useOfflineData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -182,8 +182,10 @@ export default function Despesas() {
   }, [getData, toast]);
 
   useEffect(() => {
-    fetchDespesas();
-  }, [fetchDespesas]);
+    if (isInitialized) {
+      fetchDespesas();
+    }
+  }, [fetchDespesas, isInitialized, dataVersion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
