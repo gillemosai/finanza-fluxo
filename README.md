@@ -1,94 +1,101 @@
-# Welcome to your Lovable project
+# 💰 Finanza Fluxo - Gestão Inteligente
 
-## Project info
+<p align="center">
+  <img src="public/logo cheia transp var01.png" alt="Finanza Logo" width="200"/>
+</p>
 
-**URL**: https://lovable.dev/projects/b3fbd5f8-1770-4b37-bde3-cd1d8ecbe0db
+<p align="center">
+  <strong>"Cuidado com as pequenas despesas; um pequeno vazamento afundará um grande navio." — Benjamin Franklin</strong>
+</p>
 
-## How can I edit this code?
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Offline--First-blueviolet?style=for-the-badge" alt="Status">
+  <img src="https://img.shields.io/badge/Platform-PWA--Mobile-00f3ff?style=for-the-badge" alt="Platform">
+  <img src="https://img.shields.io/badge/Stack-Fullstack-orange?style=for-the-badge" alt="Stack">
+  <img src="https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge" alt="License">
+</p>
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 🚀 Sobre o Projeto
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b3fbd5f8-1770-4b37-bde3-cd1d8ecbe0db) and start prompting.
+O **Finanza Fluxo** é um ecossistema completo de controle financeiro pessoal, desenvolvido sob a metodologia **Vibe Code** para unir design intuitivo e robustez técnica. Focado em privacidade e disponibilidade, o app prioriza o funcionamento **Offline-First**, garantindo que você nunca perca o controle de seus dados, com ou sem internet.
 
-Changes made via Lovable will be committed automatically to this repo.
+* **URL do Projeto:** [Lovable Editor](https://lovable.dev/projects/b3fbd5f8-1770-4b37-bde3-cd1d8ecbe0db)
+* **Versão em Produção:** [finanza-fluxo.lovable.app](https://finanza-fluxo.lovable.app)
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## ✨ Funcionalidades Principais
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+* **📊 Dashboard Interativo:** KPIs de receitas e despesas com gráficos de evolução mensal e distribuição por categoria.
+* **📴 Funcionamento Offline-First:** Armazenamento local via IndexedDB com sincronização automática assim que a conexão retorna.
+* **🎯 Metas & Sonhos:** Sistema de acompanhamento de objetivos financeiros com indicadores visuais de progresso.
+* **💳 Gestão de Cartões e Dívidas:** Controle detalhado de faturas, limites e pagamentos parciais de débitos.
+* **📱 Experiência PWA e Nativa:** Instalável como aplicativo web ou compilável para iOS e Android via Capacitor.
+* **📑 Relatórios Profissionais:** Exportação de dados para Excel e relatórios formatados em PDF.
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🛠️ Tecnologias Utilizadas
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Frontend & UI
+* **React 18 & TypeScript:** Base sólida para uma interface tipada e reativa.
+* **Tailwind CSS & shadcn/ui:** Design moderno, responsivo e com suporte a Tema Escuro/Claro.
+* **Framer Motion:** Animações fluidas para uma experiência de uso premium.
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Backend & Storage
+* **Supabase:** Backend as a Service com PostgreSQL e Row Level Security (RLS).
+* **IndexedDB & SQLite:** Persistência de dados local para alta performance e uso offline.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+---
+
+## ⚙️ Instalação e Execução
+
+### 🚀 Instalação Rápida (Windows)
+Criamos um script que configura todo o ambiente automaticamente:
+1.  Baixe o repositório.
+2.  Execute o arquivo **`Instalar Tudo.bat`**.
+3.  Use o atalho criado na sua área de trabalho para iniciar.
+
+### 🐧 Instalação no Linux / Mac
+```bash
+chmod +x install.sh
+./install.sh
+# Inicie com
+./start.sh
+```
+
+### 💻 Instalação Manual (Desenvolvedor)
+```bash
+git clone https://github.com/gillemosai/finanza2026.git
+cd finanza2026
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🏗️ Arquitetura do Sistema
 
-**Use GitHub Codespaces**
+```text
+src/
+├── components/       # UI Reutilizável (shadcn)
+├── hooks/            # Lógica de Auth e Sincronização
+├── integrations/     # Conexão com Supabase
+├── services/         # Motores IndexedDB e SQLite
+└── pages/            # Telas da aplicação
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## 📜 Licença
 
-This project is built with:
+Este software é **proprietário**. Todos os direitos reservados a Gil Lemos. 
+Para licenciamento comercial, entre em contato.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## Instalação e Uso (Local)
-
-Este projeto inclui scripts para facilitar a instalação e execução local.
-
-### Windows
-
-1.  **Instalação**: Dê um duplo clique no arquivo `Instalar Tudo.bat`.
-    *   Isso instalará as dependências necessárias.
-    *   Criará um atalho "Finanza Fluxo" na sua Área de Trabalho.
-2.  **Execução**: Use o atalho criado na Área de Trabalho ou execute `Iniciar Finanza.bat`.
-
-### Linux
-
-1.  **Instalação**:
-    *   Abra o terminal na pasta do projeto.
-    *   Execute: `./install.sh`
-    *   Isso instalará as dependências e criará um atalho no seu menu de aplicativos.
-2.  **Execução**:
-    *   Procure por "Finanza Fluxo" no menu de aplicativos.
-    *   Ou execute `./start.sh` no terminal.
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/b3fbd5f8-1770-4b37-bde3-cd1d8ecbe0db) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+<p align="center">
+  Desenvolvido com 💜 por <strong>Gil Lemos</strong> [@gillemosai]
+</p>

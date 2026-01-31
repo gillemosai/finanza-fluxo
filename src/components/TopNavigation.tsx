@@ -8,19 +8,23 @@ import {
   LogOut,
   Building2,
   Wallet,
-  Target
+  Target,
+  Menu
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { useState } from "react";
 
 const menuItems = [
   {
@@ -73,91 +77,150 @@ const menuItems = [
 export function TopNavigation() {
   const { signOut, user } = useAuth();
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <TooltipProvider>
-      <header
-        className="h-14 sm:h-16 border-b border-border bg-card/50 backdrop-blur-sm"
-        role="banner"
-      >
-        <div className="h-full flex items-center justify-between gap-2">
-          {/* Logo */}
-          <div className="flex-shrink-0 pl-3 sm:pl-6">
+    <header
+      className="h-14 sm:h-16 border-b border-border bg-card/50 backdrop-blur-sm"
+      role="banner"
+    >
+      <div className="h-full flex items-center justify-between px-3 sm:px-6">
+        {/* Mobile: Hamburger Menu */}
+        <div className="flex items-center gap-3">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-10 h-10 p-0 md:hidden"
+                aria-label="Abrir menu de navegação"
+              >
+                <Menu className="w-5 h-5" aria-hidden="true" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[280px] p-0">
+              <SheetHeader className="p-4 border-b border-border">
+                <SheetTitle className="flex items-center gap-3">
+                  <img
+                    src="/logo cheia transp var01.png"
+                    alt="Finanza"
+                    className="h-8 w-auto object-contain"
+                  />
+                  <span>Controle Financeiro</span>
+                </SheetTitle>
+              </SheetHeader>
+              
+              <nav className="flex flex-col p-2" role="navigation" aria-label="Menu principal">
+                {menuItems.map((item) => (
+                  <SheetClose asChild key={item.path}>
+                    <NavLink
+                      to={item.path}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                        location.pathname === item.path
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                      aria-current={location.pathname === item.path ? "page" : undefined}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <item.icon className="w-5 h-5" aria-hidden="true" />
+                      <span className="font-medium">{item.title}</span>
+                    </NavLink>
+                  </SheetClose>
+                ))}
+              </nav>
+
+              {/* User info and actions in drawer */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-background">
+                <div className="text-sm text-muted-foreground truncate mb-3">
+                  {user?.email}
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <OfflineIndicator />
+                    <ThemeToggle />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setIsOpen(false);
+                      signOut();
+                    }}
+                    className="text-muted-foreground hover:text-destructive"
+                    aria-label="Sair da conta"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
+                    Sair
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          {/* Logo and Title */}
+          <div className="flex items-center gap-2">
             <img
               src="/logo cheia transp var01.png"
               alt="Finanza"
-              className="h-8 w-auto object-contain"
+              className="h-8 w-auto object-contain hidden sm:block"
             />
-          </div>
-
-          {/* Navigation - Full width scrollable on mobile */}
-          <nav
-            className="flex-1 flex items-center gap-1 sm:gap-2 overflow-x-auto px-2 sm:px-6 py-2 -my-2"
-            role="navigation"
-            aria-label="Menu principal"
-            style={{
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            }}
-          >
-            {menuItems.map((item) => (
-              <Tooltip key={item.path}>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant={location.pathname === item.path ? "default" : "ghost"}
-                    size="sm"
-                    asChild
-                    className="w-9 h-9 sm:w-10 sm:h-10 p-0 flex-shrink-0 touch-pan-x"
-                    aria-current={location.pathname === item.path ? "page" : undefined}
-                  >
-                    <NavLink
-                      to={item.path}
-                      aria-label={item.title}
-                    >
-                      <item.icon className="w-4 h-4" aria-hidden="true" />
-                      <span className="sr-only">{item.title}</span>
-                    </NavLink>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{item.title}</p>
-                </TooltipContent>
-              </Tooltip>
-            ))}
-            {/* Spacer to ensure last items are reachable */}
-            <div className="w-2 flex-shrink-0 sm:hidden" aria-hidden="true" />
-          </nav>
-
-          {/* User Actions */}
-          <div className="flex items-center space-x-1 sm:space-x-2" role="group" aria-label="Ações do usuário">
-            <span
-              className="text-xs sm:text-sm text-muted-foreground hidden lg:block max-w-[150px] truncate"
-              aria-label={`Usuário conectado: ${user?.email}`}
-            >
-              {user?.email}
-            </span>
-            <OfflineIndicator />
-            <ThemeToggle />
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => signOut()}
-                  className="w-8 h-8 sm:w-10 sm:h-10 p-0 text-muted-foreground hover:text-destructive flex-shrink-0"
-                  aria-label="Sair da conta"
-                >
-                  <LogOut className="w-3 h-3 sm:w-4 sm:h-4" aria-hidden="true" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Sair</p>
-              </TooltipContent>
-            </Tooltip>
+            <h1 className="text-base sm:text-lg font-semibold text-foreground">
+              Controle Financeiro
+            </h1>
           </div>
         </div>
-      </header>
-    </TooltipProvider>
+
+        {/* Desktop Navigation */}
+        <nav
+          className="hidden md:flex items-center gap-1"
+          role="navigation"
+          aria-label="Menu principal"
+        >
+          {menuItems.map((item) => (
+            <Button
+              key={item.path}
+              variant={location.pathname === item.path ? "default" : "ghost"}
+              size="sm"
+              asChild
+              className="w-10 h-10 p-0"
+              aria-current={location.pathname === item.path ? "page" : undefined}
+            >
+              <NavLink to={item.path} aria-label={item.title}>
+                <item.icon className="w-4 h-4" aria-hidden="true" />
+                <span className="sr-only">{item.title}</span>
+              </NavLink>
+            </Button>
+          ))}
+        </nav>
+
+        {/* Desktop User Actions */}
+        <div className="hidden md:flex items-center space-x-2" role="group" aria-label="Ações do usuário">
+          <span
+            className="text-sm text-muted-foreground max-w-[150px] truncate"
+            aria-label={`Usuário conectado: ${user?.email}`}
+          >
+            {user?.email}
+          </span>
+          <OfflineIndicator />
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => signOut()}
+            className="w-10 h-10 p-0 text-muted-foreground hover:text-destructive"
+            aria-label="Sair da conta"
+          >
+            <LogOut className="w-4 h-4" aria-hidden="true" />
+          </Button>
+        </div>
+
+        {/* Mobile: Only theme toggle visible */}
+        <div className="flex md:hidden items-center gap-1">
+          <OfflineIndicator />
+          <ThemeToggle />
+        </div>
+      </div>
+    </header>
   );
 }

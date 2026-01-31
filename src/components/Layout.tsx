@@ -2,7 +2,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopNavigation } from "@/components/TopNavigation";
 import { useMenuLayout } from "@/hooks/useMenuLayout";
-import pkg from "../../package.json";
+
+const APP_VERSION = "58";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -26,7 +27,7 @@ export function Layout({ children }: LayoutProps) {
           {children}
         </main>
         <footer className="flex-shrink-0 py-2 px-4 border-t border-border bg-card/30 text-center text-xs text-muted-foreground">
-          <span>V{pkg.version.split('.').slice(1, 2).join('')}</span>
+          <span>V{APP_VERSION}</span>
           <span className="mx-2">•</span>
           <span>Copyright © Gil Lemos | @gillemosai</span>
         </footer>
@@ -70,7 +71,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
 
           <footer className="flex-shrink-0 py-2 px-4 border-t border-border bg-card/30 text-center text-xs text-muted-foreground">
-            <span>V{pkg.version.split('.').slice(1, 2).join('')}</span>
+            <span>V{APP_VERSION}</span>
             <span className="mx-2">•</span>
             <span>Copyright © Gil Lemos | @gillemosai</span>
           </footer>

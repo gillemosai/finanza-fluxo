@@ -26,6 +26,8 @@ import Welcome from "./pages/Welcome";
 import InstallApp from "./pages/InstallApp";
 import UpdatePassword from "./pages/UpdatePassword";
 import Metas from "./pages/Metas";
+import TermosDeUso from "./pages/TermosDeUso";
+import Contato from "./pages/Contato";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +112,8 @@ const App = () => (
                     } />
                     <Route path="/case-study" element={<CaseStudy />} />
                     <Route path="/install" element={<InstallApp />} />
+                    <Route path="/termos" element={<TermosDeUso />} />
+                    <Route path="/contato" element={<Contato />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
