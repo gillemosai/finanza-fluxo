@@ -111,6 +111,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resetPassword = async (email: string) => {
     try {
+      // Determine the correct redirect URL - use production URL if available
+      const productionUrl = 'https://finanza-fluxo.lovable.app';
+      const redirectUrl = window.location.hostname === 'localhost' 
+        ? productionUrl 
+        : window.location.origin;
+      
       // Use custom edge function for password reset via Resend
       const response = await fetch(
         `https://laqvhiaxerzafvsmxewn.supabase.co/functions/v1/send-password-reset`,
@@ -121,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
           body: JSON.stringify({
             email: email.trim(),
-            redirectUrl: `${window.location.origin}/update-password`
+            redirectUrl: `${redirectUrl}/update-password`
           })
         }
       );
