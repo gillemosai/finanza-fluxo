@@ -60,6 +60,27 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Instalação e Uso (Local)
+
+Este projeto inclui scripts para facilitar a instalação e execução local.
+
+### Windows
+
+1.  **Instalação**: Dê um duplo clique no arquivo `Instalar Tudo.bat`.
+    *   Isso instalará as dependências necessárias.
+    *   Criará um atalho "Finanza Fluxo" na sua Área de Trabalho.
+2.  **Execução**: Use o atalho criado na Área de Trabalho ou execute `Iniciar Finanza.bat`.
+
+### Linux
+
+1.  **Instalação**:
+    *   Abra o terminal na pasta do projeto.
+    *   Execute: `./install.sh`
+    *   Isso instalará as dependências e criará um atalho no seu menu de aplicativos.
+2.  **Execução**:
+    *   Procure por "Finanza Fluxo" no menu de aplicativos.
+    *   Ou execute `./start.sh` no terminal.
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/b3fbd5f8-1770-4b37-bde3-cd1d8ecbe0db) and click on Share -> Publish.

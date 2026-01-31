@@ -24,6 +24,7 @@ import SaldosBancarios from "./pages/SaldosBancarios";
 import CaseStudy from "./pages/CaseStudy";
 import Welcome from "./pages/Welcome";
 import InstallApp from "./pages/InstallApp";
+import UpdatePassword from "./pages/UpdatePassword";
 import Metas from "./pages/Metas";
 
 const queryClient = new QueryClient();
@@ -39,79 +40,80 @@ const App = () => (
                 <SkipLinks />
                 <Toaster />
                 <Sonner />
-              <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Welcome />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/receitas" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Receitas />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/despesas" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Despesas />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/dividas" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dividas />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/cartoes" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Cartoes />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/saldos-bancarios" element={
-              <ProtectedRoute>
-                <Layout>
-                  <SaldosBancarios />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/relatorios" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Relatorios />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/configuracoes" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Configuracoes />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/metas" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Metas />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            <Route path="/case-study" element={<CaseStudy />} />
-            <Route path="/install" element={<InstallApp />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-              </BrowserRouter>
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Welcome />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/update-password" element={<UpdatePassword />} />
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Dashboard />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/receitas" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Receitas />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/despesas" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Despesas />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/dividas" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Dividas />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/cartoes" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Cartoes />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/saldos-bancarios" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <SaldosBancarios />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/relatorios" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Relatorios />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/configuracoes" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Configuracoes />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/metas" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Metas />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/case-study" element={<CaseStudy />} />
+                    <Route path="/install" element={<InstallApp />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
               </TooltipProvider>
             </GlobalMonthFilterProvider>
           </AuthProvider>

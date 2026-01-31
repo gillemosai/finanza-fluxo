@@ -1,7 +1,7 @@
-import { 
-  LayoutDashboard, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  LayoutDashboard,
+  TrendingUp,
+  TrendingDown,
   CreditCard,
   Settings,
   PieChart,
@@ -13,7 +13,7 @@ import {
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -76,17 +76,26 @@ export function TopNavigation() {
 
   return (
     <TooltipProvider>
-      <header 
+      <header
         className="h-14 sm:h-16 border-b border-border bg-card/50 backdrop-blur-sm"
         role="banner"
       >
         <div className="h-full flex items-center justify-between gap-2">
+          {/* Logo */}
+          <div className="flex-shrink-0 pl-3 sm:pl-6">
+            <img
+              src="/logo cheia transp var01.png"
+              alt="Finanza"
+              className="h-8 w-auto object-contain"
+            />
+          </div>
+
           {/* Navigation - Full width scrollable on mobile */}
-          <nav 
+          <nav
             className="flex-1 flex items-center gap-1 sm:gap-2 overflow-x-auto px-2 sm:px-6 py-2 -my-2"
             role="navigation"
             aria-label="Menu principal"
-            style={{ 
+            style={{
               WebkitOverflowScrolling: 'touch',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
@@ -102,7 +111,7 @@ export function TopNavigation() {
                     className="w-9 h-9 sm:w-10 sm:h-10 p-0 flex-shrink-0 touch-pan-x"
                     aria-current={location.pathname === item.path ? "page" : undefined}
                   >
-                    <NavLink 
+                    <NavLink
                       to={item.path}
                       aria-label={item.title}
                     >
@@ -119,10 +128,10 @@ export function TopNavigation() {
             {/* Spacer to ensure last items are reachable */}
             <div className="w-2 flex-shrink-0 sm:hidden" aria-hidden="true" />
           </nav>
-            
+
           {/* User Actions */}
           <div className="flex items-center space-x-1 sm:space-x-2" role="group" aria-label="Ações do usuário">
-            <span 
+            <span
               className="text-xs sm:text-sm text-muted-foreground hidden lg:block max-w-[150px] truncate"
               aria-label={`Usuário conectado: ${user?.email}`}
             >

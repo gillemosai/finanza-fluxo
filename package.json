@@ -1,7 +1,7 @@
 {
   "name": "vite_react_shadcn_ts",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.52.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor-community/electron": "^5.0.1",
     "@capacitor-community/sqlite": "^7.0.2",
     "@capacitor/android": "^7.4.4",
     "@capacitor/cli": "^7.4.4",

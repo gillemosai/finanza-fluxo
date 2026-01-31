@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, DollarSign, Check, X, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { createDemoSession } from "@/utils/demoData";
+import pkg from "../../package.json";
 
 // Validação de senha forte
 const validatePassword = (password: string) => {
@@ -40,7 +41,7 @@ export default function Auth() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  
+
   const { signIn, signUp, resetPassword, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -154,11 +155,11 @@ export default function Auth() {
 
   const handleDemoLogin = async () => {
     setDemoLoading(true);
-    
+
     try {
       // Criar sessão demo efêmera com credenciais únicas
       const result = await createDemoSession();
-      
+
       if (!result.success) {
         throw new Error(result.error);
       }
@@ -167,7 +168,7 @@ export default function Auth() {
         title: "Conta demo criada!",
         description: "Bem-vindo ao modo demonstração.",
       });
-      
+
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Demo login error:", error);
@@ -186,7 +187,12 @@ export default function Auth() {
       <Card className="w-full max-w-md shadow-card border-0 bg-card/80 backdrop-blur-sm">
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <DollarSign className="w-8 h-8 text-primary" />
+            <img
+              src="/logo cheia transp var01.png"
+              alt="Finanza"
+              className="h-12 w-auto object-contain"
+            />
+
             <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               Controle Financeiro
             </h1>
@@ -195,8 +201,8 @@ export default function Auth() {
             {isLogin ? "Faça seu login" : "Crie sua conta"}
           </CardTitle>
           <p className="text-muted-foreground">
-            {isLogin 
-              ? "Entre para acessar sua conta" 
+            {isLogin
+              ? "Entre para acessar sua conta"
               : "Cadastre-se para começar a usar"
             }
           </p>
@@ -207,7 +213,7 @@ export default function Auth() {
               <TabsTrigger value="login">Entrar</TabsTrigger>
               <TabsTrigger value="signup">Cadastrar</TabsTrigger>
             </TabsList>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <TabsContent value="signup" className="space-y-4 mt-0">
                 <div>
@@ -303,13 +309,13 @@ export default function Auth() {
 
               <TabsContent value="login" className="space-y-4 mt-0">
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="rememberMe" 
+                  <Checkbox
+                    id="rememberMe"
                     checked={rememberMe}
                     onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                   />
-                  <Label 
-                    htmlFor="rememberMe" 
+                  <Label
+                    htmlFor="rememberMe"
                     className="text-sm font-normal cursor-pointer"
                   >
                     Permanecer conectado
@@ -317,8 +323,8 @@ export default function Auth() {
                 </div>
               </TabsContent>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-gradient-primary text-white"
                 disabled={loading}
               >
@@ -328,9 +334,9 @@ export default function Auth() {
               {isLogin && (
                 <>
                   <div className="text-center mt-4">
-                    <Button 
-                      type="button" 
-                      variant="link" 
+                    <Button
+                      type="button"
+                      variant="link"
                       onClick={() => setShowForgotPassword(true)}
                       className="text-sm text-muted-foreground hover:text-primary"
                     >
@@ -347,8 +353,8 @@ export default function Auth() {
                     </div>
                   </div>
 
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     variant="outline"
                     className="w-full"
                     onClick={handleDemoLogin}
@@ -386,16 +392,16 @@ export default function Auth() {
                       />
                     </div>
                     <div className="flex gap-2">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
+                      <Button
+                        type="button"
+                        variant="outline"
                         onClick={() => setShowForgotPassword(false)}
                         className="flex-1"
                       >
                         Cancelar
                       </Button>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         disabled={loading}
                         className="flex-1"
                       >
@@ -409,6 +415,16 @@ export default function Auth() {
           )}
         </CardContent>
       </Card>
-    </div>
+
+      <div className="absolute bottom-4 text-center text-xs text-muted-foreground w-full">
+        <p className="mb-1">
+          V{pkg.version.split('.').slice(1, 2).join('')}
+        </p>
+        <p>
+          Copyright © Gil Lemos | @gillemosai | Todos os direitos reservados
+        </p>
+      </div>
+
+    </div >
   );
 }

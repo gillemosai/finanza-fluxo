@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-        
+
         // Se é um evento de logout ou o usuário não quer permanecer conectado
         if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
           const isTemporary = localStorage.getItem('temporary_session');
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           }
         }
-        
+
         if (event === 'SIGNED_IN') {
           // Armazenar o tempo de login se não for para lembrar
           const isTemporary = localStorage.getItem('temporary_session');
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     const { error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password
     });
 
@@ -120,18 +120,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            email,
-            redirectUrl: `${window.location.origin}/auth`
+            email: email.trim(),
+            redirectUrl: `${window.location.origin}/update-password`
           })
         }
       );
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         return { error: { message: data.error || 'Erro ao enviar email de recuperação' } };
       }
-      
+
       return { error: null };
     } catch (error: any) {
       return { error: { message: 'Erro ao conectar com o servidor' } };
