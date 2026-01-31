@@ -24,39 +24,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth event:', event, 'Session:', !!session);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Se é um evento de logout ou o usuário não quer permanecer conectado
-        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        // Para sessões temporárias, verificar expiração de 24h
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           const isTemporary = localStorage.getItem('temporary_session');
-          if (isTemporary === 'true' && event === 'TOKEN_REFRESHED') {
-            // Se é uma sessão temporária e o token foi atualizado, 
-            // verificar se devemos manter a sessão
+          if (isTemporary === 'true') {
             const loginTime = localStorage.getItem('login_time');
             if (loginTime) {
               const elapsed = Date.now() - parseInt(loginTime);
               const oneDay = 24 * 60 * 60 * 1000;
               if (elapsed > oneDay) {
+                console.log('Sessão temporária expirada após 24h');
                 supabase.auth.signOut();
+                return;
               }
             }
           }
         }
 
-        if (event === 'SIGNED_IN') {
-          // Armazenar o tempo de login se não for para lembrar
-          const isTemporary = localStorage.getItem('temporary_session');
-          if (isTemporary === 'true') {
-            localStorage.setItem('login_time', Date.now().toString());
-          }
+        // Limpar flags ao fazer logout
+        if (event === 'SIGNED_OUT') {
+          localStorage.removeItem('temporary_session');
+          localStorage.removeItem('login_time');
         }
       }
     );
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', !!session);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -80,23 +80,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string, rememberMe: boolean = false) => {
+    // Limpar flags anteriores antes de novo login
+    localStorage.removeItem('temporary_session');
+    localStorage.removeItem('login_time');
+
     const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password
     });
 
-    // Se não for para lembrar, salva uma flag no localStorage para controlar o comportamento
-    if (!rememberMe) {
-      localStorage.setItem('temporary_session', 'true');
-      // Configurar um timeout para fazer logout automático após inatividade
-      setTimeout(() => {
-        const isTemporary = localStorage.getItem('temporary_session');
-        if (isTemporary === 'true') {
-          signOut();
-        }
-      }, 24 * 60 * 60 * 1000); // 24 horas
-    } else {
-      localStorage.removeItem('temporary_session');
+    if (!error) {
+      // Se NÃO marcou "Permanecer conectado", marcar como sessão temporária
+      if (!rememberMe) {
+        localStorage.setItem('temporary_session', 'true');
+        localStorage.setItem('login_time', Date.now().toString());
+        console.log('Sessão temporária - expira em 24h');
+      } else {
+        console.log('Sessão persistente - "Permanecer conectado" ativado');
+      }
     }
 
     return { error };
