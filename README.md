@@ -91,7 +91,8 @@ src/
 
 ## 📜 Licença
 
-Este software é **proprietário**. Todos os direitos reservados a Gil Lemos. Para licenciamento comercial, entre em contato.
+Este software é **proprietário**. Todos os direitos reservados a Gil Lemos. 
+Para licenciamento comercial, entre em contato.
 
 ---
 
