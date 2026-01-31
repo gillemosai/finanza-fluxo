@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, DollarSign, Check, X, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { createDemoSession } from "@/utils/demoData";
-import pkg from "../../package.json";
+const APP_VERSION = "58";
 
 // Validação de senha forte
 const validatePassword = (password: string) => {
@@ -418,7 +418,7 @@ export default function Auth() {
 
       <div className="absolute bottom-4 text-center text-xs text-muted-foreground w-full">
         <p className="mb-1">
-          V{pkg.version.split('.').slice(1, 2).join('')}
+          V{APP_VERSION}
         </p>
         <p>
           Copyright © Gil Lemos | @gillemosai | Todos os direitos reservados
