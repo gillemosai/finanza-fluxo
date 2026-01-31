@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/Status-Offline--First-blueviolet?style=for-the-badge" alt="Status">
   <img src="https://img.shields.io/badge/Platform-PWA--Mobile-00f3ff?style=for-the-badge" alt="Platform">
   <img src="https://img.shields.io/badge/Stack-Fullstack-orange?style=for-the-badge" alt="Stack">
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge" alt="License">
 </p>
 
 ---
@@ -91,7 +91,7 @@ src/
 
 ## 📜 Licença
 
-Este projeto está licenciado sob a **Licença MIT**. Sinta-se livre para usar, modificar e distribuir.
+Este software é **proprietário**. Todos os direitos reservados a Gil Lemos. Para licenciamento comercial, entre em contato.
 
 ---
 
